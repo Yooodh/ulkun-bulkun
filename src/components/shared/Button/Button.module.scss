@@ -1,0 +1,61 @@
+@use '../../../styles' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.gray {
+  background-color: $gray;
+  color: $white;
+
+  &:hover {
+    background-color: $gray-hover;
+  }
+}
+
+.red {
+  background-color: $red;
+  color: $white;
+
+  &:hover {
+    background-color: $red-hover;
+  }
+}
+
+.ligray {
+  background-color: $ligray;
+  color: $ligray-text;
+
+  &:hover {
+    background-color: $ligray-hover;
+  }
+}
+
+.sm {
+  padding: 0.4rem 0.8rem;
+  @include font-sm;
+}
+.md {
+  padding: 0.6rem 1.2rem;
+  @include font-body;
+}
+.lg {
+  padding: 0.8rem 1.6rem;
+  @include font-md-title;
+}
+
+.round {
+  border-radius: 20px;
+}
