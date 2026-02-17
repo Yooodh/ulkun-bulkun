@@ -1,0 +1,51 @@
+$font-family-main: var(--font-title), sans-serif;
+
+$font-title-line-height: 1.2;
+$font-body-line-height: 1.5;
+
+$font-size-xl: clamp(52px, 5vw, 64px);
+$font-size-lg: clamp(32px, 3vw, 40px);
+$font-size-md: 24px;
+$font-size-base: 16px;
+$font-size-sm: 14px;
+
+// 타이틀
+@mixin font-xl-title {
+  font-family: $font-family-main;
+  font-size: clamp(52px, 5vw, 64px);
+  line-height: $font-title-line-height;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+// 큰 제목
+@mixin font-lg-title {
+  font-family: $font-family-main;
+  font-size: clamp(32px, 3vw, 40px);
+  line-height: $font-title-line-height;
+  font-weight: 700;
+}
+
+// 중간 제목
+@mixin font-md-title {
+  font-family: $font-family-main;
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+// 본문 텍스트
+@mixin font-body {
+  font-family: $font-family-main;
+  font-size: 16px;
+  line-height: $font-body-line-height;
+  font-weight: 500;
+}
+
+// 작은 정보 텍스트
+@mixin font-sm {
+  font-family: $font-family-main;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 300;
+}
