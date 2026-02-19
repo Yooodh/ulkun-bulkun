@@ -5,14 +5,14 @@ $font-body-line-height: 1.5;
 
 $font-size-xl: clamp(52px, 5vw, 64px);
 $font-size-lg: clamp(32px, 3vw, 40px);
-$font-size-md: 24px;
-$font-size-base: 16px;
-$font-size-sm: 14px;
+$font-size-md: clamp(20px, 2vw, 24px);
+$font-size-base: clamp(14px, 2vw, 16px);
+$font-size-sm: clamp(12px, 2vw, 14px);
 
 // 타이틀
 @mixin font-xl-title {
   font-family: $font-family-main;
-  font-size: clamp(52px, 5vw, 64px);
+  font-size: $font-size-xl;
   line-height: $font-title-line-height;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -21,7 +21,7 @@ $font-size-sm: 14px;
 // 큰 제목
 @mixin font-lg-title {
   font-family: $font-family-main;
-  font-size: clamp(32px, 3vw, 40px);
+  font-size: $font-size-lg;
   line-height: $font-title-line-height;
   font-weight: 700;
 }
@@ -29,7 +29,7 @@ $font-size-sm: 14px;
 // 중간 제목
 @mixin font-md-title {
   font-family: $font-family-main;
-  font-size: 24px;
+  font-size: $font-size-md;
   line-height: 1.4;
   font-weight: 500;
 }
@@ -37,7 +37,7 @@ $font-size-sm: 14px;
 // 본문 텍스트
 @mixin font-body {
   font-family: $font-family-main;
-  font-size: 16px;
+  font-size: $font-size-base;
   line-height: $font-body-line-height;
   font-weight: 500;
 }
@@ -45,7 +45,7 @@ $font-size-sm: 14px;
 // 작은 정보 텍스트
 @mixin font-sm {
   font-family: $font-family-main;
-  font-size: 14px;
+  font-size: $font-size-sm;
   line-height: 1.5;
   font-weight: 300;
 }
