@@ -2,3 +2,15 @@
 $font-light: 300;
 $font-medium: 500;
 $font-bold: 700;
+
+// Box Shadows
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+$shadow-dark: 0 4px 12px rgba(0, 0, 0, 0.5);
+
+// Transitions & Transforms
+$transition-base: all 0.2s ease;
+$lift-sm: translateY(-1px);
+$lift-zero: translateY(0);
