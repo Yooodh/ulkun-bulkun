@@ -1,0 +1,73 @@
+@use '../../styles' as *;
+
+.authContainer {
+  @include flex-center;
+  flex-direction: column;
+  padding: 24px;
+  border: 1px solid $border-soft;
+  border-radius: 16px;
+  text-align: center;
+  background-color: $white;
+  box-shadow: $shadow-md;
+
+  h1 {
+    @include font-lg-title;
+    margin-bottom: 24px;
+    color: $text-dark;
+  }
+
+  .googleBtn {
+    @include font-body;
+    @include flex-center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 24px;
+    background-color: $white;
+    color: $text-dark;
+    border: 1px solid $border-light;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: $transition-base;
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background-color: $off-white;
+      transform: $lift-sm;
+      box-shadow: $shadow-sm;
+    }
+
+    &:active {
+      transform: $lift-zero;
+      background-color: $ligray-hover;
+    }
+  }
+
+  p {
+    @include font-sm;
+    margin-top: 16px;
+    color: $text-muted;
+  }
+}
+
+.loginContainer {
+  padding: 20px;
+  text-align: center;
+  background-color: $liblue;
+  border-radius: 12px;
+  border: 1px solid $border-liblue;
+  box-shadow: $shadow-sm;
+
+  p {
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    color: $text-gray;
+
+    strong {
+      color: $blue;
+    }
+  }
+}
