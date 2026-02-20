@@ -1,0 +1,36 @@
+@use '../constants/colors' as *;
+@use '../constants/_typography' as *;
+
+@mixin input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    @include font-body;
+    color: $dark;
+  }
+
+  input {
+    @include font-sm;
+
+    /* Chrome, Safari, Edge, Opera에서 화살표 제거 */
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid $border-soft;
+    background: $white;
+    color: $dark;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: $blue;
+    }
+  }
+}
