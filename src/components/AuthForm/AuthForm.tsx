@@ -1,14 +1,23 @@
 'use client';
 
 import Image from 'next/image';
+
 import styles from './AuthForm.module.scss';
-import { useAuth } from '@/hooks/useAuth';
+
 import Button from '../shared/Button/Button';
+import Loading from '../shared/Loading/Loading';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthForm() {
   const { user, loading, signInWithGoogle, signOut } = useAuth();
 
-  if (loading) return <div className={styles.authContainer}>로그인 중...</div>;
+  if (loading) {
+    return (
+      <div className={styles.authContainer}>
+        <Loading size='sm' message='로그인 정보를 확인하고 있어요!' />
+      </div>
+    );
+  }
 
   if (user) {
     const displayName = user.user_metadata?.full_name || user.email;
