@@ -62,8 +62,8 @@
   box-shadow: $shadow-sm;
 
   p {
+    @include font-md-title;
     margin-bottom: 12px;
-    font-size: 1.1rem;
     color: $text-gray;
 
     strong {
