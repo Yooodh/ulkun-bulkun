@@ -1,0 +1,55 @@
+@use '../../../styles' as *;
+
+.loadingContainer {
+  @include font-body;
+  @include flex-center;
+  flex-direction: column;
+  gap: 16px;
+  color: $text-muted;
+  box-sizing: border-box;
+  padding: 40px 0;
+  min-height: 200px;
+
+  &.full {
+    height: 100vh;
+    padding: 0;
+  }
+
+  &.sm {
+    gap: 8px;
+    padding: 0;
+    min-height: auto;
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border-width: 2px;
+    }
+    p {
+      @include font-sm;
+    }
+  }
+
+  &.lg {
+    gap: 16px;
+    padding: 60px 0;
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border-width: 6px;
+    }
+    p {
+      @include font-md-title;
+    }
+  }
+}
+
+.spinner {
+  @include spin-anim;
+  width: 40px;
+  height: 40px;
+  border: 3px solid $border-soft;
+  border-top-color: $blue;
+  border-radius: 50%;
+}
