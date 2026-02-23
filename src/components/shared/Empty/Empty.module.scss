@@ -1,0 +1,22 @@
+@use '../../../styles' as *;
+
+.emptyContainer {
+  @include flex-center;
+  flex-direction: column;
+  text-align: center;
+  background-color: transparent;
+  border-radius: 16px;
+
+  p {
+    @include font-body;
+    color: $text-dark;
+    margin: 0;
+  }
+
+  span {
+    display: block;
+    margin-top: 8px;
+    @include font-sm;
+    color: $text-muted;
+  }
+}
