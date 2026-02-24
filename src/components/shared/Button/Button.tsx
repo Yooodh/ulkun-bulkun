@@ -1,7 +1,7 @@
 import styles from './Button.module.scss';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'gray' | 'red' | 'ligray';
+  variant?: 'gray' | 'red' | 'ligray' | 'blue';
   size?: 'sm' | 'md' | 'lg';
   shape?: 'square' | 'round';
 };
