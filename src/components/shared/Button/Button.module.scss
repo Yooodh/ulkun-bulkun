@@ -20,7 +20,7 @@
   background-color: $gray;
   color: $white;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: $gray-hover;
   }
 }
@@ -29,8 +29,17 @@
   background-color: $red;
   color: $white;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: $red-hover;
+  }
+}
+
+.blue {
+  background-color: $blue;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    background-color: $blue-hover;
   }
 }
 
@@ -38,7 +47,7 @@
   background-color: $ligray;
   color: $ligray-text;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: $ligray-hover;
   }
 }
