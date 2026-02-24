@@ -1,0 +1,64 @@
+@use '../../styles' as *;
+
+.formContainer {
+  @include flex-center;
+  flex-direction: column;
+  background-color: $white;
+  color: $dark;
+  border: 1px solid $border-soft;
+  box-shadow: $shadow-md;
+  width: 100%;
+  margin: 0;
+  padding: 2rem;
+  border-radius: 16px;
+
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    @include font-md-title;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+
+    .inputGroup {
+      @include input-group;
+
+      .ohpdec {
+        @include font-sm;
+        color: $red;
+        margin-top: 4px;
+      }
+    }
+
+    .submitBtn {
+      padding: 1rem;
+      width: 100%;
+    }
+  }
+
+  .totalGroup {
+    @include input-group;
+    border-top: 2px dashed $dark;
+    margin-top: 10px;
+    padding-top: 20px;
+
+    input.totalInput {
+      @include font-md-title;
+      background-color: $off-white;
+      color: $dark;
+      border: 1px solid $blue;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+
+      &:focus {
+        border-color: $blue;
+      }
+    }
+  }
+}
