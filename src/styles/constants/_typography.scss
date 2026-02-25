@@ -3,11 +3,14 @@ $font-family-main: var(--font-title), sans-serif;
 $font-title-line-height: 1.2;
 $font-body-line-height: 1.5;
 
-$font-size-xl: clamp(52px, 5vw, 64px);
-$font-size-lg: clamp(32px, 3vw, 40px);
-$font-size-md: clamp(20px, 2vw, 24px);
-$font-size-base: clamp(14px, 2vw, 16px);
-$font-size-sm: clamp(12px, 2vw, 14px);
+$font-size-xl: clamp(28px, 2vw, 36px);
+$font-size-lg: clamp(22px, 1.8vw, 28px);
+$font-size-md: clamp(18px, 1.5vw, 22px);
+$font-size-base: clamp(14px, 1.2vw, 16px);
+$font-size-sm: clamp(12px, 1vw, 14px);
+
+$font-size-th: clamp(14px, 1vw, 16px);
+$font-size-td: clamp(12px, 1vw, 14px);
 
 // 타이틀
 @mixin font-xl-title {
@@ -46,6 +49,22 @@ $font-size-sm: clamp(12px, 2vw, 14px);
 @mixin font-sm {
   font-family: $font-family-main;
   font-size: $font-size-sm;
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+// 차트 타이틀 텍스트
+@mixin font-th {
+  font-family: $font-family-main;
+  font-size: $font-size-th;
+  line-height: $font-body-line-height;
+  font-weight: 500;
+}
+
+// 차트 정보 텍스트
+@mixin font-td {
+  font-family: $font-family-main;
+  font-size: $font-size-td;
   line-height: 1.5;
   font-weight: 300;
 }
