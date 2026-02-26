@@ -1,0 +1,92 @@
+@use '../../styles' as *;
+
+.chartContainer {
+  background: $white;
+  box-shadow: $shadow-md;
+  border: 1px solid $border-soft;
+  border-radius: $radius-main;
+  padding: 20px;
+  width: 100%;
+  overflow: hidden;
+
+  h1 {
+    @include font-md-title;
+    color: $text-dark;
+    margin-bottom: 20px;
+
+    strong {
+      @include font-md-title;
+      color: $blue;
+    }
+  }
+
+  .btnGroup {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    flex-wrap: nowrap;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .partBtn {
+    border: 1px solid $border-soft;
+    margin-bottom: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &.active {
+      color: $white;
+    }
+  }
+
+  :any-link,
+  :focus {
+    outline: none;
+  }
+}
+
+.contentWrapper {
+  width: 100%;
+}
+
+.chartWrapper {
+  width: 100%;
+
+  .chartGrid {
+    line {
+      stroke: $border-soft;
+    }
+  }
+
+  .chartTick {
+    @include font-td;
+    fill: $text-muted;
+  }
+
+  .line {
+    transition: $transition-base;
+  }
+
+  .customTooltip {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: $radius-main;
+    box-shadow: $shadow-md;
+    border: 1px solid $border-soft;
+    padding: 12px;
+
+    .tooltipDate {
+      @include font-sm;
+      margin: 0 0 4px 0;
+      color: $text-dark;
+    }
+
+    .tooltipValue {
+      @include font-body;
+      margin: 0;
+    }
+  }
+}
