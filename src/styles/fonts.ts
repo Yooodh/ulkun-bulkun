@@ -1,6 +1,6 @@
 import localFont from 'next/font/local';
 
-export const myTitleFont = localFont({
+export const Font = localFont({
   src: [
     {
       path: '../../public/fonts/Title_Light.woff',
