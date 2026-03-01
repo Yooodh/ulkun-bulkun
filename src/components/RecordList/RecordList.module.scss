@@ -1,0 +1,57 @@
+@use '../../styles' as *;
+
+.listContainer {
+  background: $white;
+  box-shadow: $shadow-md;
+  border: 1px solid $border-soft;
+  border-radius: $radius-main;
+  padding: 20px;
+  width: 100%;
+  overflow: hidden;
+
+  h1 {
+    @include font-md-title;
+    color: $text-dark;
+    margin-bottom: 20px;
+
+    strong {
+      @include font-md-title;
+      color: $blue;
+    }
+  }
+
+  .listTable {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+
+      th {
+        @include font-th;
+        background: $white;
+        padding: 10px;
+        color: $ligray-text;
+        border-bottom: 2px solid $border-light;
+        white-space: nowrap;
+      }
+
+      .clickableDate {
+        cursor: pointer;
+      }
+
+      td {
+        @include font-td;
+        padding: 12px;
+        border-bottom: 1px solid $border-soft;
+        white-space: nowrap;
+      }
+
+      .total {
+        color: $blue;
+        font-weight: 700;
+      }
+    }
+  }
+}
