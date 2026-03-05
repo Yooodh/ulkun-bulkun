@@ -1,9 +1,15 @@
 import type { Metadata } from 'next';
-import './globals.css';
+
+import styles from './layout.module.scss';
+
+import AuthForm from '@/components/AuthForm/AuthForm';
+
+import '@/styles/globals.scss';
+import { Font } from '@/styles/fonts';
 
 export const metadata: Metadata = {
   title: '울끈불끈',
-  description: '울끈불끈',
+  description: '울끈불끈 당신의 성장을 기록하세요.',
 };
 
 export default function RootLayout({
@@ -13,7 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='ko'>
-      <body>{children}</body>
+      <body className={Font.variable}>
+        <div className={styles.wrapper}>
+          <main className={styles.container}>
+            <AuthForm />
+            {children}
+          </main>
+        </div>
+      </body>
     </html>
   );
 }
