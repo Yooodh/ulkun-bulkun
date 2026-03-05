@@ -1,0 +1,45 @@
+@use '../styles' as *;
+
+.pageContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    align-items: stretch;
+
+    &.isGuest {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      & > div {
+        max-width: 600px;
+      }
+    }
+  }
+}
+
+.guestMessage {
+  width: 100%;
+  text-align: center;
+  padding: 3rem 2rem;
+  background: $off-white;
+  border: 1px solid $border-soft;
+  border-radius: 15px;
+
+  @media (min-width: 1024px) {
+    grid-column: span 2;
+  }
+}
