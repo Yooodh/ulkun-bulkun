@@ -1,0 +1,30 @@
+@use '../../../styles' as *;
+
+.navBarContainer {
+  @include flex-center;
+  width: 100%;
+  max-width: 800px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+
+  .navBarLink {
+    @include flex-center;
+    @include font-body;
+    padding: 0.8rem 1.2rem;
+    background-color: $off-white;
+    color: $text-dark;
+    text-decoration: none;
+    border-radius: $radius-main;
+    border: 1px solid $border-soft;
+    transition: $transition-base;
+    box-shadow: $shadow-md;
+
+    &:hover {
+      background-color: $blue;
+      color: $white;
+      border-color: $blue;
+      transform: $lift-sm;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    }
+  }
+}
