@@ -4,14 +4,17 @@ import Image from 'next/image';
 
 import styles from './AuthForm.module.scss';
 
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+
 import Button from '../shared/Button/Button';
 import Loading from '../shared/Loading/Loading';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthForm() {
-  const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
+  const { profile, loading: profileLoading } = useProfile(user?.id);
 
-  if (loading) {
+  if (authLoading || (user && profileLoading)) {
     return (
       <div className={styles.authContainer}>
         <Loading size='sm' message='로그인 정보를 확인하고 있어요!' />
@@ -20,7 +23,8 @@ export default function AuthForm() {
   }
 
   if (user) {
-    const displayName = user.user_metadata?.full_name || user.email;
+    const displayName =
+      profile?.nickname || user.user_metadata?.full_name || user.email;
 
     return (
       <div className={styles.loginContainer}>
