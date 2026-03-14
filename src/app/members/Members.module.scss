@@ -1,0 +1,13 @@
+@use '../../styles' as *;
+
+.membersContainer {
+  max-width: 800px;
+  margin: 0 auto;
+
+  .title {
+    @include font-lg-title;
+    margin-bottom: 2rem;
+    color: $text-dark;
+    text-align: center;
+  }
+}
