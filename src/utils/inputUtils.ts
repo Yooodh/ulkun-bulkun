@@ -9,3 +9,10 @@ export const blockInvalidNumberChars = (
     e.preventDefault();
   }
 };
+
+/**
+ * 마우스 휠로 인한 숫자 변경 방지
+ */
+export const stopWheelChange = (e: React.WheelEvent<HTMLInputElement>) => {
+  (e.target as HTMLInputElement).blur();
+};
