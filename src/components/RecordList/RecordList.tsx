@@ -12,6 +12,8 @@ import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 
+import { formatDate, toInputDate } from '@/utils/dateUtils';
+
 import { StrengthRecord } from '@/types/record';
 
 type RecordListProps = {
@@ -41,18 +43,25 @@ export default function RecordList({ userId }: RecordListProps) {
 
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
-  const handleBlur = async (id: string) => {
-    const success = await updateRecordDate(id, editDate);
-    if (success) setEditingId(null);
+  const handleBlur = async (id: string, originalDate: string) => {
+    if (toInputDate(originalDate) !== editDate) {
+      const success = await updateRecordDate(id, editDate);
+      if (success) setEditingId(null);
+    } else {
+      setEditingId(null);
+    }
   };
 
-  const formatDate = (dateString: string) => {
-    const d = new Date(dateString);
-    const year = String(d.getFullYear()).slice(2);
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-
-    return `${year}. ${month}. ${day}`;
+  const handleKeyDown = (
+    e: React.KeyboardEvent,
+    id: string,
+    originalDate: string,
+  ) => {
+    if (e.key === 'Enter') {
+      handleBlur(id, originalDate);
+    } else if (e.key === 'Escape') {
+      setEditingId(null);
+    }
   };
 
   return (
@@ -100,7 +109,10 @@ export default function RecordList({ userId }: RecordListProps) {
                           type='date'
                           value={editDate}
                           onChange={(e) => setEditDate(e.target.value)}
-                          onBlur={() => handleBlur(r.id)}
+                          onBlur={() => handleBlur(r.id, r.created_at)}
+                          onKeyDown={(e) =>
+                            handleKeyDown(e, r.id, r.created_at)
+                          }
                           autoFocus
                         />
                       ) : (
@@ -108,11 +120,7 @@ export default function RecordList({ userId }: RecordListProps) {
                           onClick={() => {
                             if (isReadOnly) return;
                             setEditingId(r.id);
-                            setEditDate(
-                              new Date(r.created_at)
-                                .toISOString()
-                                .split('T')[0],
-                            );
+                            setEditDate(toInputDate(r.created_at));
                           }}
                           className={
                             isReadOnly ? styles.pureDate : styles.clickableDate
