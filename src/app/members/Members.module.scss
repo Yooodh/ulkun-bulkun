@@ -10,4 +10,96 @@
     color: $text-dark;
     text-align: center;
   }
+
+  .userGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 20px;
+
+    @media (min-width: 600px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .userCard {
+      @include flex-center;
+      padding: 1.25rem;
+      background-color: $white;
+      border-radius: $radius-main;
+      border: 1px solid $border-soft;
+      text-decoration: none;
+      color: inherit;
+      transition: $transition-base;
+      position: relative;
+
+      &:hover {
+        transform: $lift-sm;
+        border-color: $blue;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+      }
+    }
+
+    .avatarWrapper {
+      @include flex-center;
+      width: 50px;
+      height: 50px;
+      margin-right: 1.5rem;
+      border-radius: 50%;
+      overflow: hidden;
+
+      .avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .defaultAvatar {
+        @include flex-center;
+        background: $ligray;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .userInfo {
+      flex: 1;
+
+      .statusMessage {
+        @include font-sm;
+        color: $text-muted;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+      }
+
+      .userName {
+        margin: 0 0 0.25rem 0;
+        @include font-md-title;
+        color: $text-dark;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+      }
+
+      .userStats {
+        margin-bottom: 2px;
+        @include font-body;
+        color: $text-muted;
+
+        span {
+          font-weight: 700;
+          color: $blue;
+          margin-left: 0.2rem;
+        }
+      }
+
+      .date {
+        @include font-sm;
+        color: $text-muted;
+      }
+    }
+  }
 }
