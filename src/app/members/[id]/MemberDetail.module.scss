@@ -1,0 +1,66 @@
+@use '../../../styles' as *;
+
+.MemberDetailContainer {
+  max-width: 900px;
+  margin: 0 auto;
+
+  .header {
+    width: 100%;
+
+    .navGroup {
+      @include flex-center;
+
+      position: relative;
+      width: 100%;
+      min-height: 80px;
+
+      @media (max-width: 768px) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        min-height: auto;
+        padding: 1.5rem 0;
+
+        & > div {
+          width: auto;
+          margin: 0;
+        }
+
+        & > div:nth-child(1) {
+          order: 1;
+        }
+
+        & > div:nth-child(3) {
+          order: 2;
+        }
+
+        .title {
+          order: 3;
+          width: 100%;
+          margin-top: 1rem;
+          white-space: normal;
+          text-align: center;
+        }
+      }
+    }
+
+    .title {
+      @include font-lg-title;
+      text-align: center;
+      gap: 8px;
+      white-space: nowrap;
+
+      strong {
+        color: $blue;
+      }
+    }
+  }
+
+  .contents {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 20px;
+  }
+}
