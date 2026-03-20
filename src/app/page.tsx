@@ -6,7 +6,9 @@ import RecordForm from '@/components/RecordForm/RecordForm';
 import RecordList from '@/components/RecordList/RecordList';
 import RecordChart from '@/components/RecordChart/RecordChart';
 import ProfileCard from '@/components/Profile';
+
 import Empty from '@/components/shared/Empty/Empty';
+import NavBar from '@/components/shared/NavBar/NavBar';
 
 import { useAuth } from '@/hooks/useAuth';
 
@@ -17,6 +19,8 @@ export default function Home() {
 
   return (
     <div className={styles.pageContainer}>
+      <NavBar href='/members' label='🔥 울끈불끈이들 기록 보러가기 🔥' />
+
       <div className={`${styles.dashboardGrid} ${!user ? styles.isGuest : ''}`}>
         <RecordForm />
 

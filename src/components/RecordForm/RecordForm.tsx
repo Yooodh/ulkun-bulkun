@@ -4,7 +4,7 @@ import styles from './RecordForm.module.scss';
 
 import Button from '../shared/Button/Button';
 import { useRecordForm } from '@/hooks/useRecordForm';
-import { blockInvalidNumberChars } from '@/utils/inputUtils';
+import { blockInvalidNumberChars, stopWheelChange } from '@/utils/inputUtils';
 
 export default function RecordForm() {
   const { user, record, total, handleChange, handleSubmit } = useRecordForm();
@@ -22,6 +22,7 @@ export default function RecordForm() {
             name='squat'
             inputMode='numeric'
             onKeyDown={blockInvalidNumberChars}
+            onWheel={stopWheelChange}
             value={record.squat}
             onChange={handleChange}
             onFocus={(e) => e.target.select()}
@@ -38,6 +39,7 @@ export default function RecordForm() {
             name='deadlift'
             inputMode='numeric'
             onKeyDown={blockInvalidNumberChars}
+            onWheel={stopWheelChange}
             value={record.deadlift}
             onChange={handleChange}
             onFocus={(e) => e.target.select()}
@@ -54,6 +56,7 @@ export default function RecordForm() {
             name='bench_press'
             inputMode='numeric'
             onKeyDown={blockInvalidNumberChars}
+            onWheel={stopWheelChange}
             value={record.bench_press}
             onChange={handleChange}
             onFocus={(e) => e.target.select()}
@@ -71,6 +74,7 @@ export default function RecordForm() {
             type='number'
             inputMode='numeric'
             onKeyDown={blockInvalidNumberChars}
+            onWheel={stopWheelChange}
             value={record.ohp}
             onChange={handleChange}
             placeholder='선택 입력 사항'
