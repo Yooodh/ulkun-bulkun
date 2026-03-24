@@ -7,8 +7,9 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: $transition-base;
   border: none;
+  white-space: nowrap;
 
   &:disabled {
     opacity: 0.5;
@@ -49,6 +50,21 @@
 
   &:hover:not(:disabled) {
     background-color: $ligray-hover;
+  }
+}
+
+.outline {
+  flex: 1;
+  gap: 6px;
+  padding: 10px 6px;
+  border-radius: $radius-main;
+  border: 1px solid $border-soft;
+  background: $white;
+  color: $text-dark;
+
+  &:hover:not(:disabled) {
+    background: $ligray;
+    border-color: $border-liblue;
   }
 }
 
