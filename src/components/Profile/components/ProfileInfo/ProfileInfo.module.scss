@@ -1,0 +1,59 @@
+@use '../../../../styles' as *;
+
+.infoContainer {
+  @include flex-center;
+  gap: 20px;
+  padding: 10px 0;
+
+  .avatarWrapper {
+    @include flex-center;
+    position: relative;
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    background: $white;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid $border-liblue;
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .defaultAvatar {
+      @include font-xl-title;
+      @include flex-center;
+      line-height: 1;
+      user-select: none;
+      background-color: $white;
+    }
+  }
+
+  .nameWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .textGroup {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 2px;
+
+      .subText {
+        @include font-sm;
+        font-weight: $font-light;
+        color: $text-muted;
+      }
+
+      .nickname {
+        @include font-lg-title;
+        font-weight: $font-bold;
+        color: $text-dark;
+      }
+    }
+  }
+}
