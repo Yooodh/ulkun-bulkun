@@ -1,0 +1,29 @@
+@use '../../../../styles' as *;
+
+.actionContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+  padding: 15px 0 0 0;
+  border-top: 1px solid $border-soft;
+  overflow: hidden;
+
+  button {
+    flex: 1;
+    min-width: 0;
+
+    @media (max-width: 768px) {
+      @include font-sm;
+      font-weight: $font-medium;
+      padding: 8px 2px;
+      gap: 4px;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+}
