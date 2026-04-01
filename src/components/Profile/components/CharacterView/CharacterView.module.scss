@@ -1,0 +1,8 @@
+@use '../../../../styles' as *;
+
+.characterContainer {
+  @include flex-center;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #e3f2fd, #ffffff);
+}
