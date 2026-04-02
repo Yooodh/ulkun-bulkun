@@ -1,15 +1,27 @@
 import { useState } from 'react';
-
 import { User } from '@supabase/supabase-js';
+
 import { supabase } from '@/lib/supabase';
 
 export function useProfileUpdate(user: User) {
   const [uploading, setUploading] = useState<boolean>(false);
 
-  // 이미지 파일만 스토리지에 업로드하고 URL 반환
-  const uploadImage = async (file: File): Promise<string | null> => {
+  // 이미지 업로드
+  const uploadImage = async (
+    file: File,
+    prevAvatarUrl?: string,
+  ): Promise<string | null> => {
     try {
       setUploading(true);
+
+      // 기존 이미지 삭제
+      if (prevAvatarUrl) {
+        const prevFileName = prevAvatarUrl.split('/').pop();
+        if (prevFileName) {
+          await supabase.storage.from('avatar').remove([prevFileName]);
+        }
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
 
@@ -31,23 +43,54 @@ export function useProfileUpdate(user: User) {
     }
   };
 
-  // 전체 프로필 업데이트
+  // 전체 프로필 저장
   const saveFullProfile = async (
     nickname: string,
     status: string,
     avatarUrl: string,
+    isPublic: boolean,
   ) => {
-    const { error } = await supabase.from('profiles').upsert({
-      id: user.id,
-      nickname,
-      status_message: status,
-      avatar_url: avatarUrl,
-      updated_at: new Date().toISOString(),
-    });
+    try {
+      const { error } = await supabase.from('profiles').upsert({
+        id: user.id,
+        nickname: nickname || '울끈불끈이',
+        status_message: status || '울끈불끈!',
+        avatar_url: avatarUrl,
+        is_public: isPublic,
+        updated_at: new Date().toISOString(),
+      });
 
-    if (error) throw error;
-    return true;
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Save error:', error);
+      return false;
+    }
   };
 
-  return { uploadImage, saveFullProfile, uploading };
+  // 프로필 리셋
+  const resetProfile = async (): Promise<boolean> => {
+    try {
+      const meta = user.user_metadata;
+      const originalNickname = meta?.full_name || meta?.name || '울끈불끈이';
+      const originalAvatar = meta?.avatar_url || meta?.picture || '';
+
+      const { error } = await supabase.from('profiles').upsert({
+        id: user.id,
+        nickname: originalNickname,
+        status_message: '울끈불끈!',
+        avatar_url: originalAvatar,
+        is_public: true,
+        updated_at: new Date().toISOString(),
+      });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Reset error:', error);
+      return false;
+    }
+  };
+
+  return { uploadImage, saveFullProfile, resetProfile, uploading };
 }
