@@ -10,3 +10,18 @@
 @mixin spin-anim($duration: 1s) {
   animation: spin $duration linear infinite;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@mixin fade-in-anim($duration: 0.3s) {
+  animation: fadeIn $duration ease forwards;
+}
