@@ -6,6 +6,8 @@
   text-align: center;
   background-color: transparent;
   border-radius: 16px;
+  padding: 30px;
+  white-space: nowrap;
 
   p {
     @include font-body;
