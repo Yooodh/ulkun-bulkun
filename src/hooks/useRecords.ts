@@ -1,18 +1,19 @@
-import { useEffect, useState, useCallback } from 'react';
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
+
 import { StrengthRecord } from '@/types/record';
 
-export function useRecords(userId: string | null = null) {
-  const [records, setRecords] = useState<StrengthRecord[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // 데이터 가져오기
-  const fetchRecords = useCallback(async () => {
-    try {
-      setLoading(true);
+export function useRecords(userId: string | null | undefined = null) {
+  // 데이터 페칭
+  const query = useQuery({
+    queryKey: ['records', userId],
+    queryFn: async (): Promise<StrengthRecord[]> => {
       let targetId = userId;
 
+      // userId가 인자로 안 들어왔다면 현재 로그인한 유저 ID 확인
       if (!targetId) {
         const {
           data: { user },
@@ -20,7 +21,7 @@ export function useRecords(userId: string | null = null) {
         targetId = user?.id || null;
       }
 
-      if (!targetId) return;
+      if (!targetId) return [];
 
       const { data, error } = await supabase
         .from('records')
@@ -29,26 +30,22 @@ export function useRecords(userId: string | null = null) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRecords((data as StrengthRecord[]) || []);
-    } catch (e) {
-      const error = e as Error;
-      console.error('기록 로드 중 에러:', error.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
+      return (data as StrengthRecord[]) || [];
+    },
+    // userId가 있거나 인자가 없을 때만 실행
+    enabled: true,
+    staleTime: 1000 * 60 * 5,
+  });
 
-  // 데이터 삭제
-  const deleteRecord = async (id: string): Promise<void> => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-
+  // 삭제
+  const deleteRecord = async (id: string): Promise<boolean> => {
     try {
       const { error } = await supabase.from('records').delete().eq('id', id);
       if (error) throw error;
-      await fetchRecords();
+      return true;
     } catch (e) {
-      const error = e as Error;
-      alert(error.message);
+      console.error((e as Error).message);
+      return false;
     }
   };
 
@@ -57,16 +54,16 @@ export function useRecords(userId: string | null = null) {
     id: string,
     editDate: string,
   ): Promise<boolean> => {
-    if (!editDate) return false;
+    if (!editDate || !query.data) return false;
 
     try {
-      const originalRecord = records.find((r) => r.id === id);
+      const originalRecord = query.data.find((r) => r.id === id);
       if (!originalRecord) return false;
 
       const originalTime = new Date(originalRecord.created_at);
       const newDate = new Date(editDate);
 
-      // 상세 시간(시/분/초) 보존
+      // 기존 기록의 시/분/초 유지
       newDate.setHours(
         originalTime.getHours(),
         originalTime.getMinutes(),
@@ -79,23 +76,17 @@ export function useRecords(userId: string | null = null) {
         .eq('id', id);
 
       if (error) throw error;
-      await fetchRecords();
       return true;
     } catch (e) {
-      const error = e as Error;
-      alert(error.message);
+      console.error((e as Error).message);
       return false;
     }
   };
 
-  useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
-
   return {
-    records,
-    loading,
-    refresh: fetchRecords,
+    ...query,
+    records: query.data || [],
+    loading: query.isLoading,
     deleteRecord,
     updateRecordDate,
   };
