@@ -5,7 +5,15 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/lib/supabase';
 import { RecordFormState } from '@/types/record';
 
-export function useRecordForm() {
+type UseRecordFormOptions = {
+  onSuccess?: () => void;
+  onError?: (message: string) => void;
+};
+
+export function useRecordForm({
+  onSuccess,
+  onError,
+}: UseRecordFormOptions = {}) {
   const { user } = useAuth();
   const [record, setRecord] = useState<RecordFormState>({
     squat: '',
@@ -22,7 +30,6 @@ export function useRecordForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     setRecord((prev) => ({
       ...prev,
       [name as keyof RecordFormState]: value,
@@ -31,7 +38,7 @@ export function useRecordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return alert('로그인이 필요합니다!');
+    if (!user) return;
 
     // DB에 전송할 데이터
     const payload = {
@@ -47,23 +54,15 @@ export function useRecordForm() {
       const { error } = await supabase.from('records').insert([payload]);
       if (error) throw error;
 
-      alert('오늘의 득근 완료! 🔥');
-
       // 초기화
       setRecord({ squat: '', deadlift: '', bench_press: '', ohp: '' });
-      window.location.reload();
+      onSuccess?.();
     } catch (error: unknown) {
       if (error instanceof Error) {
-        alert(`저장 실패: ${error.message}`);
+        onError?.(error.message);
       }
     }
   };
 
-  return {
-    record,
-    total,
-    handleChange,
-    handleSubmit,
-    user,
-  };
+  return { record, total, handleChange, handleSubmit, user };
 }

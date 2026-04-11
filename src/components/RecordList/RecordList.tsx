@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import styles from './RecordList.module.scss';
+
+import { StrengthRecord } from '@/types/record';
 
 import Loading from '../shared/Loading/Loading';
 import Button from '../shared/Button/Button';
@@ -14,39 +17,38 @@ import { useAuth } from '@/hooks/useAuth';
 
 import { formatDate, toInputDate } from '@/utils/dateUtils';
 
-import { StrengthRecord } from '@/types/record';
-
 type RecordListProps = {
   userId?: string;
 };
 
 export default function RecordList({ userId }: RecordListProps) {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
-
   const targetId = userId || user?.id;
 
   const {
-    records,
-    loading: recordsLoading,
+    data: records = [],
+    isLoading: recordsLoading,
     deleteRecord,
     updateRecordDate,
   } = useRecords(targetId);
 
+  const { data: profile, isLoading: profileLoading } = useProfile(targetId);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDate, setEditDate] = useState<string>('');
 
-  const { profile, loading: profileLoading } = useProfile(targetId);
-
   const isReadOnly = !!userId;
-
-  const displayName = profile?.nickname || (isReadOnly ? '불끈이' : '울끈이');
-
+  const displayName = profile?.nickname || '';
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
   const handleBlur = async (id: string, originalDate: string) => {
     if (toInputDate(originalDate) !== editDate) {
       const success = await updateRecordDate(id, editDate);
-      if (success) setEditingId(null);
+      if (success) {
+        setEditingId(null);
+        queryClient.invalidateQueries({ queryKey: ['records', targetId] });
+      }
     } else {
       setEditingId(null);
     }
@@ -57,17 +59,19 @@ export default function RecordList({ userId }: RecordListProps) {
     id: string,
     originalDate: string,
   ) => {
-    if (e.key === 'Enter') {
-      handleBlur(id, originalDate);
-    } else if (e.key === 'Escape') {
-      setEditingId(null);
-    }
+    if (e.key === 'Enter') handleBlur(id, originalDate);
+    else if (e.key === 'Escape') setEditingId(null);
   };
 
   return (
     <div className={styles.listContainer}>
       <h1>
-        <strong>{displayName}</strong> 님의 기록 히스토리
+        {displayName && (
+          <>
+            <strong>{displayName}</strong> 님의{' '}
+          </>
+        )}
+        기록 히스토리
       </h1>
 
       <div className={styles.contentWrapper}>
@@ -117,11 +121,14 @@ export default function RecordList({ userId }: RecordListProps) {
                         />
                       ) : (
                         <span
-                          onClick={() => {
-                            if (isReadOnly) return;
-                            setEditingId(r.id);
-                            setEditDate(toInputDate(r.created_at));
-                          }}
+                          onClick={
+                            !isReadOnly
+                              ? () => {
+                                  setEditingId(r.id);
+                                  setEditDate(toInputDate(r.created_at));
+                                }
+                              : undefined
+                          }
                           className={
                             isReadOnly ? styles.pureDate : styles.clickableDate
                           }
@@ -136,13 +143,23 @@ export default function RecordList({ userId }: RecordListProps) {
                     <td>{r.bench_press}kg</td>
                     <td>{r.ohp !== null ? `${r.ohp}kg` : '-'}</td>
                     <td className={styles.total}>{r.total_weight}kg</td>
-
                     {!isReadOnly && (
                       <td>
                         <Button
                           variant='red'
                           size='sm'
-                          onClick={() => deleteRecord(r.id)}
+                          onClick={async () => {
+                            if (!confirm('정말 삭제하시겠습니까?')) return;
+                            const success = await deleteRecord(r.id);
+                            if (success) {
+                              // 여기서도 캐시 무효화!
+                              queryClient.invalidateQueries({
+                                queryKey: ['records', targetId],
+                              });
+                            } else {
+                              alert('삭제에 실패했습니다.');
+                            }
+                          }}
                         >
                           삭제
                         </Button>
