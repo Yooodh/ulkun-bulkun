@@ -2,27 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { supabase } from '@/lib/supabase';
 
-type RawProfile = {
-  id: string;
-  nickname: string | null;
-  avatar_url: string | null;
-  status_message: string | null;
-};
-
-type RawRecord = {
-  user_id: string;
-  total_weight: number | null;
-  created_at: string;
-};
-
-export type UserSummary = {
-  id: string;
-  nickname: string;
-  avatar_url: string;
-  status_message: string;
-  max_total: number;
-  last_activity: string;
-};
+import { UserSummary, ProfileWithRecords } from '@/types/user';
 
 export function useUsers() {
   const [users, setUsers] = useState<UserSummary[]>([]);
@@ -33,63 +13,72 @@ export function useUsers() {
       try {
         setLoading(true);
 
-        // 프로필 정보 가져오기
-        const { data: profiles, error: pError } = await supabase
-          .from('profiles')
-          .select('id, nickname, avatar_url, status_message');
+        const { data, error } = await supabase.from('profiles').select<
+          string,
+          ProfileWithRecords
+        >(`
+            id, 
+            nickname, 
+            avatar_url, 
+            status_message,
+            is_public,
+            records (
+              squat, 
+              bench_press, 
+              deadlift, 
+              total_weight, 
+              created_at
+            )
+          `);
 
-        if (pError) throw pError;
-        const typedProfiles = profiles as RawProfile[];
+        if (error) throw error;
+        if (!data) return;
 
-        // 기록 정보 가져오기
-        const { data: records, error: rError } = await supabase
-          .from('records')
-          .select('user_id, total_weight, created_at');
+        const userList: UserSummary[] = data.map((user) => {
+          const userRecords = user.records || [];
 
-        if (rError) throw rError;
-        const typedRecords = records as RawRecord[];
-
-        // 데이터 조합
-        const userList: UserSummary[] = typedProfiles.map((profile) => {
-          const userRecords = typedRecords.filter(
-            (r) => r.user_id === profile.id,
+          const maxSquat = Math.max(...userRecords.map((r) => r.squat ?? 0), 0);
+          const maxBench = Math.max(
+            ...userRecords.map((r) => r.bench_press ?? 0),
+            0,
+          );
+          const maxDead = Math.max(
+            ...userRecords.map((r) => r.deadlift ?? 0),
+            0,
           );
 
-          const maxTotal =
-            userRecords.length > 0
-              ? Math.max(...userRecords.map((r) => r.total_weight || 0))
-              : 0;
+          const totalPR = maxSquat + maxBench + maxDead;
 
           const lastActivity =
             userRecords.length > 0
-              ? [...userRecords].sort(
-                  (a, b) =>
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime(),
-                )[0].created_at
+              ? userRecords
+                  .map((r) => r.created_at)
+                  .sort(
+                    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
+                  )[0]
               : '';
 
           return {
-            id: profile.id,
-            nickname: profile.nickname || '불끈이',
-            avatar_url: profile.avatar_url || '',
-            status_message: profile.status_message || '안녕하세요!',
-            max_total: maxTotal,
+            id: user.id,
+            nickname: user.nickname || '울끈불끈이',
+            avatar_url: user.avatar_url || '',
+            status_message: user.status_message || '울끈불끈!',
+            max_squat: maxSquat,
+            max_bench: maxBench,
+            max_deadlift: maxDead,
+            max_total: totalPR,
             last_activity: lastActivity,
+            is_public: user.is_public ?? true,
           };
         });
 
-        // PR 높은 순 정렬
-        const sortedList = userList.sort((a, b) => b.max_total - a.max_total);
-        setUsers(sortedList);
+        setUsers(userList);
       } catch (e) {
-        const error = e as Error;
-        console.error('유저 목록 로드 실패:', error.message);
+        console.error('유저 목록 로드 실패:', (e as Error).message);
       } finally {
         setLoading(false);
       }
     }
-
     fetchUsers();
   }, []);
 
