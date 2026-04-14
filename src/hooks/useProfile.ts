@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
 
@@ -6,45 +6,34 @@ export type ProfileData = {
   nickname: string;
   avatar_url: string;
   status_message: string;
+  is_public: boolean;
 };
 
 export function useProfile(userId: string | undefined) {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  return useQuery({
+    queryKey: ['profile', userId],
+    queryFn: async (): Promise<ProfileData | null> => {
+      if (!userId) return null;
 
-  const fetchProfile = useCallback(async () => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('nickname, avatar_url, status_message')
+        .select('nickname, avatar_url, status_message, is_public')
         .eq('id', userId)
         .single();
 
       if (error) throw error;
-      setProfile(data as ProfileData);
-    } catch (e) {
-      const error = e as Error;
-      console.error('프로필 로드 실패:', error.message);
-      setProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
 
-  useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+      return {
+        nickname: data.nickname || '울끈불끈이',
 
-  return {
-    profile,
-    loading,
-    setProfile,
-    refreshProfile: fetchProfile,
-  };
+        avatar_url:
+          data.avatar_url && data.avatar_url.trim() !== ''
+            ? data.avatar_url
+            : undefined,
+        status_message: data.status_message || '울끈불끈!',
+        is_public: data.is_public ?? true,
+      };
+    },
+    enabled: !!userId,
+  });
 }

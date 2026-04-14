@@ -1,0 +1,97 @@
+@use '../../../../styles' as *;
+
+.statsContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .overviewWrapper {
+    display: flex;
+    gap: 12px;
+
+    .mainStatBox,
+    .streakBox {
+      @include flex-center;
+      flex: 1;
+      background: $liblue;
+      border: 1px solid $border-liblue;
+      border-radius: $radius-main;
+      padding: 20px 16px;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .statLabel {
+      @include font-sm;
+      color: $text-muted;
+    }
+
+    .statValue {
+      @include font-md-title;
+      color: $red;
+      font-weight: 800;
+
+      span {
+        @include font-body;
+        color: $text-muted;
+        font-weight: $font-light;
+        margin-left: 1px;
+      }
+    }
+  }
+
+  .recordsWrapper {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+
+    .recordsBox {
+      text-align: center;
+      display: flex;
+      background: $white;
+      border: 1px solid $border-soft;
+      padding: 12px;
+      border-radius: $radius-main;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+
+      .recordsHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 4px;
+        flex-direction: column;
+
+        .recordsLabel {
+          @include font-sm;
+          color: $text-dark;
+        }
+      }
+
+      .recordsValue {
+        @include font-body;
+        color: $blue;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        span {
+          @include font-sm;
+          color: $text-muted;
+          margin-left: 1px;
+        }
+      }
+
+      .recordsDate {
+        @include font-xs;
+        color: $text-muted;
+        white-space: nowrap;
+        text-align: center;
+      }
+    }
+  }
+}

@@ -19,6 +19,8 @@ import {
 
 import styles from './RecordChart.module.scss';
 
+import { StrengthRecord } from '@/types/record';
+
 import Button from '../shared/Button/Button';
 import Empty from '../shared/Empty/Empty';
 import Loading from '../shared/Loading/Loading';
@@ -26,8 +28,6 @@ import Loading from '../shared/Loading/Loading';
 import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
-
-import { StrengthRecord } from '@/types/record';
 
 type RecordChartProps = {
   userId?: string;
@@ -42,6 +42,7 @@ type ChartPart = {
 type CustomTooltipProps = {
   active?: boolean;
   payload?: Payload<ValueType, NameType>[];
+  activePart: ChartPart;
 };
 
 type ChartDataPoint = StrengthRecord & {
@@ -57,19 +58,32 @@ const PARTS: ChartPart[] = [
   { key: 'ohp', label: 'OHP', color: '#A855F7' },
 ];
 
+const CustomTooltip = ({ active, payload, activePart }: CustomTooltipProps) => {
+  if (active && payload && payload.length) {
+    const point = payload[0].payload as ChartDataPoint;
+    return (
+      <div className={styles.customTooltip}>
+        <p className={styles.tooltipDate}>{point.fullDate}</p>
+        <p className={styles.tooltipValue} style={{ color: payload[0].color }}>
+          {`${activePart.label}: ${payload[0].value}kg`}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function RecordChart({ userId }: RecordChartProps) {
   const { user } = useAuth();
-
   const targetId = userId || user?.id;
 
-  const { records, loading: recordsLoading } = useRecords(targetId);
-  const { profile, loading: profileLoading } = useProfile(targetId);
+  const { data: records = [], isLoading: recordsLoading } =
+    useRecords(targetId);
+  const { data: profile, isLoading: profileLoading } = useProfile(targetId);
 
   const [activePart, setActivePart] = useState<ChartPart>(PARTS[0]);
-
   const isReadOnly = !!userId;
-
-  const displayName = profile?.nickname || (isReadOnly ? '불끈이' : '울끈이');
+  const displayName = profile?.nickname || '';
 
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
@@ -96,35 +110,21 @@ export default function RecordChart({ userId }: RecordChartProps) {
       });
   }, [records, activePart]);
 
-  const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
-    if (active && payload && payload.length) {
-      const point = payload[0].payload as ChartDataPoint;
-      return (
-        <div className={styles.customTooltip}>
-          <p className={styles.tooltipDate}>{point.fullDate}</p>
-          <p
-            className={styles.tooltipValue}
-            style={{ color: payload[0].color }}
-          >
-            {`${activePart.label}: ${payload[0].value}kg`}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <div className={styles.chartContainer}>
       <h1>
-        <strong>{displayName}</strong> 님의 성장 곡선
+        {displayName && (
+          <>
+            <strong>{displayName}</strong> 님의{' '}
+          </>
+        )}
+        성장 곡선
       </h1>
 
       {!isPageLoading && records.length >= 2 && (
         <div className={styles.btnGroup}>
           {PARTS.map((part) => {
             const isActive = activePart.key === part.key;
-
             return (
               <Button
                 key={part.key}
@@ -192,7 +192,7 @@ export default function RecordChart({ userId }: RecordChartProps) {
                 unit='kg'
                 width={45}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip activePart={activePart} />} />
               <Line
                 name={activePart.label}
                 type='monotone'
