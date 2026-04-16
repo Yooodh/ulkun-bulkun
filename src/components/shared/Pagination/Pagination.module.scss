@@ -1,0 +1,51 @@
+@use '../../../styles' as *;
+
+%btn-base {
+  @include font-body;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+  font-weight: $font-light;
+  color: $text-dark;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.pagination {
+  @include flex-center;
+  padding-top: 1rem;
+  gap: 4px;
+
+  .arrow {
+    @extend %btn-base;
+    @include font-sm;
+    @include flex-center;
+  }
+
+  .page {
+    @extend %btn-base;
+
+    &.active {
+      @include font-body;
+      color: $blue;
+      font-weight: $font-bold;
+
+      &:hover {
+        background: transparent;
+        cursor: default;
+      }
+    }
+  }
+
+  .dots {
+    padding: 0 4px;
+    color: $text-dark;
+    user-select: none;
+  }
+}
