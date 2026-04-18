@@ -11,11 +11,13 @@
   width: 100%;
   margin: 0;
   padding: 2rem;
+  max-width: 100%;
+  min-width: 0;
 
-  h1 {
+  .title {
     text-align: center;
-    margin-bottom: 2rem;
-    @include font-md-title;
+    margin-bottom: 2.5rem;
+    @include font-lg-title;
   }
 
   form {
@@ -28,14 +30,65 @@
     .inputGroup {
       @include input-group;
 
+      .inputAction {
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+        align-items: stretch;
+
+        .mainInput {
+          flex: 3;
+          min-width: 0;
+          width: 100%;
+          @include font-sm;
+        }
+
+        .statusInput {
+          flex: 0.5;
+          min-width: 70px;
+          text-align: center;
+
+          cursor: default;
+          @include font-body;
+          border-width: 2px;
+          background-color: $white;
+          outline: none;
+
+          &.committed {
+            border-color: $blue;
+            background: $off-white;
+            color: $blue;
+          }
+
+          &.uncommitted {
+            border-color: $red;
+            color: $red;
+            opacity: 0.7;
+          }
+
+          &.uncommittedOptional {
+            border-color: $border-light;
+            color: $text-muted;
+          }
+        }
+
+        .commitBtn {
+          flex: 0.3;
+          min-width: 50px;
+          white-space: nowrap;
+        }
+      }
+
       .ohpdec {
         @include font-sm;
         color: $red;
-        margin-top: 4px;
+        margin-top: 8px;
+        display: block;
       }
     }
 
     .submitBtn {
+      @include font-body;
       padding: 1rem;
       width: 100%;
     }
@@ -43,9 +96,8 @@
 
   .totalGroup {
     @include input-group;
-    border-top: 2px dashed $dark;
-    margin-top: 10px;
-    padding-top: 20px;
+    border-top: 2px dashed $border-soft;
+    padding-top: 1rem;
 
     input.totalInput {
       @include font-md-title;
@@ -55,6 +107,7 @@
       text-align: center;
       width: 100%;
       box-sizing: border-box;
+      height: 50px;
 
       &:focus {
         border-color: $blue;

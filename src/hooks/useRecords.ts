@@ -1,93 +1,65 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
 
 import { StrengthRecord } from '@/types/record';
 
 export function useRecords(userId: string | null | undefined = null) {
-  // 데이터 페칭
+  const queryClient = useQueryClient();
+
+  // 데이터 가져오기
   const query = useQuery({
     queryKey: ['records', userId],
     queryFn: async (): Promise<StrengthRecord[]> => {
-      let targetId = userId;
-
-      // userId가 인자로 안 들어왔다면 현재 로그인한 유저 ID 확인
-      if (!targetId) {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        targetId = user?.id || null;
-      }
-
-      if (!targetId) return [];
-
       const { data, error } = await supabase
         .from('records')
         .select('*')
-        .eq('user_id', targetId)
+        .eq('user_id', userId!)
+        .eq('status', 'completed')
+        .order('recorded_at', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       return (data as StrengthRecord[]) || [];
     },
-    // userId가 있거나 인자가 없을 때만 실행
-    enabled: true,
+    enabled: !!userId,
     staleTime: 1000 * 60 * 5,
   });
 
-  // 삭제
-  const deleteRecord = async (id: string): Promise<boolean> => {
-    try {
+  // 데이터 삭제
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
       const { error } = await supabase.from('records').delete().eq('id', id);
       if (error) throw error;
-      return true;
-    } catch (e) {
-      console.error((e as Error).message);
-      return false;
-    }
-  };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['records', userId] });
+    },
+  });
 
   // 날짜 수정
-  const updateRecordDate = async (
-    id: string,
-    editDate: string,
-  ): Promise<boolean> => {
-    if (!editDate || !query.data) return false;
-
-    try {
-      const originalRecord = query.data.find((r) => r.id === id);
-      if (!originalRecord) return false;
-
-      const originalTime = new Date(originalRecord.created_at);
-      const newDate = new Date(editDate);
-
-      // 기존 기록의 시/분/초 유지
-      newDate.setHours(
-        originalTime.getHours(),
-        originalTime.getMinutes(),
-        originalTime.getSeconds(),
-      );
-
+  const updateDateMutation = useMutation({
+    mutationFn: async ({ id, editDate }: { id: string; editDate: string }) => {
       const { error } = await supabase
         .from('records')
-        .update({ created_at: newDate.toISOString() })
+        .update({ recorded_at: editDate })
         .eq('id', id);
-
       if (error) throw error;
-      return true;
-    } catch (e) {
-      console.error((e as Error).message);
-      return false;
-    }
-  };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['records', userId] });
+    },
+  });
 
   return {
     ...query,
     records: query.data || [],
     loading: query.isLoading,
-    deleteRecord,
-    updateRecordDate,
+    deleteRecord: deleteMutation.mutateAsync,
+    updateRecordDate: (id: string, editDate: string) =>
+      updateDateMutation.mutateAsync({ id, editDate }),
+    isMutating: deleteMutation.isPending || updateDateMutation.isPending,
   };
 }

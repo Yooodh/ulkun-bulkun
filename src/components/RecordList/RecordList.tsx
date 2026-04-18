@@ -1,12 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
 import styles from './RecordList.module.scss';
 
-import { StrengthRecord } from '@/types/record';
-
+import Pagination from '../shared/Pagination/Pagination';
 import Loading from '../shared/Loading/Loading';
 import Button from '../shared/Button/Button';
 import Empty from '../shared/Empty/Empty';
@@ -17,18 +15,21 @@ import { useAuth } from '@/hooks/useAuth';
 
 import { formatDate, toInputDate } from '@/utils/dateUtils';
 
+import { StrengthRecord } from '@/types/record';
+
 type RecordListProps = {
   userId?: string;
 };
 
+const PAGE_SIZE = 6;
+
 export default function RecordList({ userId }: RecordListProps) {
-  const queryClient = useQueryClient();
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
   const {
-    data: records = [],
-    isLoading: recordsLoading,
+    records,
+    loading: recordsLoading,
     deleteRecord,
     updateRecordDate,
   } = useRecords(targetId);
@@ -37,20 +38,23 @@ export default function RecordList({ userId }: RecordListProps) {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDate, setEditDate] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const isReadOnly = !!userId;
   const displayName = profile?.nickname || '';
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
   const handleBlur = async (id: string, originalDate: string) => {
-    if (toInputDate(originalDate) !== editDate) {
-      const success = await updateRecordDate(id, editDate);
-      if (success) {
-        setEditingId(null);
-        queryClient.invalidateQueries({ queryKey: ['records', targetId] });
-      }
-    } else {
+    if (toInputDate(originalDate) === editDate) {
       setEditingId(null);
+      return;
+    }
+
+    try {
+      await updateRecordDate(id, editDate);
+      setEditingId(null);
+    } catch (error) {
+      alert('날짜 수정에 실패했습니다.');
     }
   };
 
@@ -62,6 +66,15 @@ export default function RecordList({ userId }: RecordListProps) {
     if (e.key === 'Enter') handleBlur(id, originalDate);
     else if (e.key === 'Escape') setEditingId(null);
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [records.length]);
+
+  const paginatedRecords = records.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   return (
     <div className={styles.listContainer}>
@@ -81,13 +94,11 @@ export default function RecordList({ userId }: RecordListProps) {
           <Empty
             message={
               isReadOnly
-                ? `${displayName}님의 운동 기록이 없습니다.`
+                ? `${displayName}님의 기록이 없습니다.`
                 : '아직 기록된 운동이 없어요!'
             }
             subMessage={
-              !isReadOnly
-                ? '첫 번째 기록을 등록하고 성장을 추적해보세요!'
-                : '기록이 등록되면 히스토리를 볼 수 있어요!'
+              !isReadOnly ? '첫 번째 기록을 등록하고 성장을 추적해보세요!' : ''
             }
           />
         ) : (
@@ -105,70 +116,78 @@ export default function RecordList({ userId }: RecordListProps) {
                 </tr>
               </thead>
               <tbody>
-                {records.map((r: StrengthRecord) => (
-                  <tr key={r.id}>
-                    <td>
-                      {!isReadOnly && editingId === r.id ? (
-                        <input
-                          type='date'
-                          value={editDate}
-                          onChange={(e) => setEditDate(e.target.value)}
-                          onBlur={() => handleBlur(r.id, r.created_at)}
-                          onKeyDown={(e) =>
-                            handleKeyDown(e, r.id, r.created_at)
-                          }
-                          autoFocus
-                        />
-                      ) : (
-                        <span
-                          onClick={
-                            !isReadOnly
-                              ? () => {
-                                  setEditingId(r.id);
-                                  setEditDate(toInputDate(r.created_at));
-                                }
-                              : undefined
-                          }
-                          className={
-                            isReadOnly ? styles.pureDate : styles.clickableDate
-                          }
-                        >
-                          {formatDate(r.created_at)}
-                          {!isReadOnly && '✏️'}
-                        </span>
-                      )}
-                    </td>
-                    <td>{r.squat}kg</td>
-                    <td>{r.deadlift}kg</td>
-                    <td>{r.bench_press}kg</td>
-                    <td>{r.ohp !== null ? `${r.ohp}kg` : '-'}</td>
-                    <td className={styles.total}>{r.total_weight}kg</td>
-                    {!isReadOnly && (
+                {paginatedRecords.map((r: StrengthRecord) => {
+                  const displayDate = r.recorded_at || r.created_at;
+
+                  return (
+                    <tr key={r.id}>
                       <td>
-                        <Button
-                          variant='red'
-                          size='sm'
-                          onClick={async () => {
-                            if (!confirm('정말 삭제하시겠습니까?')) return;
-                            const success = await deleteRecord(r.id);
-                            if (success) {
-                              // 여기서도 캐시 무효화!
-                              queryClient.invalidateQueries({
-                                queryKey: ['records', targetId],
-                              });
-                            } else {
-                              alert('삭제에 실패했습니다.');
+                        {!isReadOnly && editingId === r.id ? (
+                          <input
+                            type='date'
+                            value={editDate}
+                            onChange={(e) => setEditDate(e.target.value)}
+                            onBlur={() => handleBlur(r.id, displayDate)}
+                            onKeyDown={(e) =>
+                              handleKeyDown(e, r.id, displayDate)
                             }
-                          }}
-                        >
-                          삭제
-                        </Button>
+                            autoFocus
+                          />
+                        ) : (
+                          <span
+                            onClick={
+                              !isReadOnly
+                                ? () => {
+                                    setEditingId(r.id);
+                                    setEditDate(toInputDate(displayDate));
+                                  }
+                                : undefined
+                            }
+                            className={
+                              isReadOnly
+                                ? styles.pureDate
+                                : styles.clickableDate
+                            }
+                          >
+                            {formatDate(displayDate)}
+                            {!isReadOnly && ' ✏️'}
+                          </span>
+                        )}
                       </td>
-                    )}
-                  </tr>
-                ))}
+                      <td>{r.squat}kg</td>
+                      <td>{r.deadlift}kg</td>
+                      <td>{r.bench_press}kg</td>
+                      <td>{r.ohp ?? '-'}</td>
+                      <td className={styles.total}>{r.total_weight}kg</td>
+                      {!isReadOnly && (
+                        <td>
+                          <Button
+                            variant='red'
+                            size='sm'
+                            onClick={async () => {
+                              if (!confirm('정말 삭제하시겠습니까?')) return;
+                              try {
+                                await deleteRecord(r.id);
+                              } catch (e) {
+                                alert('삭제에 실패했습니다.');
+                              }
+                            }}
+                          >
+                            삭제
+                          </Button>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
+            <Pagination
+              totalCount={records.length}
+              pageSize={PAGE_SIZE}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )}
       </div>

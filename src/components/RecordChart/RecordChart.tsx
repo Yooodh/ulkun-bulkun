@@ -10,7 +10,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
 import {
   ValueType,
   NameType,
@@ -19,8 +18,6 @@ import {
 
 import styles from './RecordChart.module.scss';
 
-import { StrengthRecord } from '@/types/record';
-
 import Button from '../shared/Button/Button';
 import Empty from '../shared/Empty/Empty';
 import Loading from '../shared/Loading/Loading';
@@ -28,6 +25,8 @@ import Loading from '../shared/Loading/Loading';
 import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
+
+import { StrengthRecord } from '@/types/record';
 
 type RecordChartProps = {
   userId?: string;
@@ -89,20 +88,25 @@ export default function RecordChart({ userId }: RecordChartProps) {
 
   const chartData = useMemo(() => {
     return [...records]
-      .sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-      )
+      .sort((a, b) => {
+        const dateA = new Date(a.recorded_at || a.created_at).getTime();
+        const dateB = new Date(b.recorded_at || b.created_at).getTime();
+        if (dateA !== dateB) return dateA - dateB;
+
+        return (
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+      })
       .map((r) => {
-        const dateObj = new Date(r.created_at);
+        const displayDate = r.recorded_at || r.created_at;
+        const dateObj = new Date(displayDate);
+
         return {
           ...r,
-          fullDate: dateObj.toLocaleString('ko-KR', {
+          fullDate: dateObj.toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
           }),
           displayValue:
             typeof r[activePart.key] === 'number' ? r[activePart.key] : 0,
@@ -174,7 +178,7 @@ export default function RecordChart({ userId }: RecordChartProps) {
                 className={styles.chartGrid}
               />
               <XAxis
-                dataKey='created_at'
+                dataKey={(r) => r.recorded_at || r.created_at}
                 tickFormatter={(val) => {
                   const d = new Date(val);
                   return `${d.getMonth() + 1}/${d.getDate()}`;
@@ -201,6 +205,7 @@ export default function RecordChart({ userId }: RecordChartProps) {
                 strokeWidth={3}
                 dot={{ r: 4, fill: activePart.color, strokeWidth: 0 }}
                 activeDot={{ r: 6, strokeWidth: 0 }}
+                isAnimationActive={true}
               />
             </LineChart>
           </ResponsiveContainer>
