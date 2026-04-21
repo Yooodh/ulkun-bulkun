@@ -23,5 +23,7 @@ export type ProfileWithRecords = {
     deadlift: number | null;
     total_weight: number | null;
     created_at: string;
+    recorded_at: string | null;
+    status: 'draft' | 'completed';
   }[];
 };
