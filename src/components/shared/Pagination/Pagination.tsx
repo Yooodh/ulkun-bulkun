@@ -1,6 +1,11 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react';
 
 import { usePagination, DOTS } from '@/hooks/usePagination';
 
@@ -32,6 +37,17 @@ export default function Pagination({
 
   return (
     <nav aria-label='페이지 탐색' className={styles.pagination}>
+      {/* 맨 앞으로 이동 */}
+      <button
+        onClick={() => onPageChange(1)}
+        disabled={currentPage === 1}
+        className={styles.arrow}
+        aria-label='첫 페이지로 이동'
+      >
+        <ChevronsLeft size={15} />
+      </button>
+
+      {/* 이전 페이지 */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -41,6 +57,7 @@ export default function Pagination({
         <ChevronLeft size={15} />
       </button>
 
+      {/* 페이지 번호 */}
       {pages.map((page, idx) =>
         page === DOTS ? (
           <span key={`dots-${idx}`} className={styles.dots}>
@@ -58,6 +75,7 @@ export default function Pagination({
         ),
       )}
 
+      {/* 다음 페이지 */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPageCount}
@@ -65,6 +83,16 @@ export default function Pagination({
         aria-label='다음 페이지'
       >
         <ChevronRight size={15} />
+      </button>
+
+      {/* 맨 끝으로 이동 */}
+      <button
+        onClick={() => onPageChange(totalPageCount)}
+        disabled={currentPage === totalPageCount}
+        className={styles.arrow}
+        aria-label='마지막 페이지로 이동'
+      >
+        <ChevronsRight size={15} />
       </button>
     </nav>
   );
