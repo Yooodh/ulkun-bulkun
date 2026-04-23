@@ -1,18 +1,22 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import styles from './Members.module.scss';
 
 import UserCard from './components/UserCard/UserCard';
 
+import Pagination from '@/components/shared/Pagination/Pagination';
 import Loading from '@/components/shared/Loading/Loading';
 import NavBar from '@/components/shared/NavBar/NavBar';
 
 import { useUsers } from '@/hooks/useUsers';
 
+const PAGE_SIZE = 8;
+
 export default function MembersPage() {
   const { users, loading } = useUsers();
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) => {
@@ -30,6 +34,13 @@ export default function MembersPage() {
     });
   }, [users]);
 
+  const paginatedUsers = useMemo(() => {
+    return sortedUsers.slice(
+      (currentPage - 1) * PAGE_SIZE,
+      currentPage * PAGE_SIZE,
+    );
+  }, [sortedUsers, currentPage]);
+
   if (loading)
     return <Loading fullHeight={true} message='울끈불끈이들 입장 중!' />;
 
@@ -39,10 +50,17 @@ export default function MembersPage() {
       <h1 className={styles.title}>🔥 울끈불끈이들 🔥</h1>
 
       <div className={styles.userGrid}>
-        {sortedUsers.map((user) => (
+        {paginatedUsers.map((user) => (
           <UserCard key={user.id} user={user} />
         ))}
       </div>
+
+      <Pagination
+        totalCount={sortedUsers.length}
+        pageSize={PAGE_SIZE}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

@@ -57,6 +57,7 @@ export function useRecords(userId: string | null | undefined = null) {
     ...query,
     records: query.data || [],
     loading: query.isLoading,
+    isReady: query.isSuccess,
     deleteRecord: deleteMutation.mutateAsync,
     updateRecordDate: (id: string, editDate: string) =>
       updateDateMutation.mutateAsync({ id, editDate }),
