@@ -44,6 +44,15 @@
   }
 }
 
+.white {
+  background-color: $white;
+  color: $text-dark;
+
+  &:hover:not(:disabled) {
+    background-color: $ligray-hover;
+  }
+}
+
 .ligray {
   background-color: $ligray;
   color: $ligray-text;
