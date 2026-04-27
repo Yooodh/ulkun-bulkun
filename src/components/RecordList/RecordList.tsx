@@ -15,6 +15,8 @@ import { useAuth } from '@/hooks/useAuth';
 
 import { formatDate, toInputDate } from '@/utils/dateUtils';
 
+import { StrengthRecord } from '@/types/record';
+
 type RecordListProps = {
   userId?: string;
 };
@@ -22,13 +24,12 @@ type RecordListProps = {
 const PAGE_SIZE = 6;
 
 export default function RecordList({ userId }: RecordListProps) {
-  const queryClient = useQueryClient();
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
   const {
-    data: records = [],
-    isLoading: recordsLoading,
+    records,
+    loading: recordsLoading,
     deleteRecord,
     updateRecordDate,
   } = useRecords(targetId);
