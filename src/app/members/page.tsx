@@ -41,6 +41,22 @@ export default function MembersPage() {
     );
   }, [sortedUsers, currentPage]);
 
+  const sortedUsers = useMemo(() => {
+    return [...users].sort((a, b) => {
+      if (a.is_public !== b.is_public) return a.is_public ? -1 : 1;
+
+      const totalA =
+        (a.max_squat || 0) + (a.max_bench || 0) + (a.max_deadlift || 0);
+      const totalB =
+        (b.max_squat || 0) + (b.max_bench || 0) + (b.max_deadlift || 0);
+
+      const finalA = totalA || a.max_total || 0;
+      const finalB = totalB || b.max_total || 0;
+
+      return finalB - finalA;
+    });
+  }, [users]);
+
   if (loading)
     return <Loading fullHeight={true} message='울끈불끈이들 입장 중!' />;
 

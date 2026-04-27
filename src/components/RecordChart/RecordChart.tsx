@@ -18,6 +18,8 @@ import {
 
 import styles from './RecordChart.module.scss';
 
+import { StrengthRecord } from '@/types/record';
+
 import Button from '../shared/Button/Button';
 import Empty from '../shared/Empty/Empty';
 import Loading from '../shared/Loading/Loading';
@@ -25,8 +27,6 @@ import Loading from '../shared/Loading/Loading';
 import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
-
-import { StrengthRecord } from '@/types/record';
 
 type RecordChartProps = {
   userId?: string;
