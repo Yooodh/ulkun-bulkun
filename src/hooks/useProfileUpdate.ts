@@ -16,14 +16,19 @@ export function useProfileUpdate(user: User) {
 
       // 기존 이미지 삭제
       if (prevAvatarUrl) {
-        const prevFileName = prevAvatarUrl.split('/').pop();
-        if (prevFileName) {
-          await supabase.storage.from('avatar').remove([prevFileName]);
+        // URL에서 폴더명/파일명만 추출
+        const urlParts = prevAvatarUrl.split('/');
+        const fileNameWithFolder = `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`;
+
+        if (fileNameWithFolder.includes(user.id)) {
+          // 내 폴더의 파일인지 확인
+          await supabase.storage.from('avatar').remove([fileNameWithFolder]);
         }
       }
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      // 파일명 앞에 유저 ID와 /를 붙여 폴더 지정
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatar')
@@ -34,6 +39,7 @@ export function useProfileUpdate(user: User) {
       const {
         data: { publicUrl },
       } = supabase.storage.from('avatar').getPublicUrl(fileName);
+
       return publicUrl;
     } catch (error) {
       console.error('Upload error:', error);

@@ -84,6 +84,7 @@ export default function ProfileCard({
 
     if (success) {
       queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
 
       alert(
         nextPublicStatus

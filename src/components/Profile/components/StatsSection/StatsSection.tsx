@@ -4,12 +4,12 @@ import { useMemo } from 'react';
 
 import styles from './StatsSection.module.scss';
 
-import { StrengthRecord } from '@/types/record';
-
 import Loading from '@/components/shared/Loading/Loading';
 
 import { formatDate } from '@/utils/dateUtils';
 import { getBestRecord, calculateWeeklyStreak } from '@/utils/recordUtils';
+
+import { StrengthRecord } from '@/types/record';
 
 type StatsSectionProps = {
   records: StrengthRecord[];
@@ -63,7 +63,7 @@ export default function StatsSection({ records, loading }: StatsSectionProps) {
         </div>
         <div className={styles.streakBox}>
           <strong className={styles.statValue}>{stats.weeklyStreak}</strong>
-          <label className={styles.statLabel}>주 연속 기록</label>
+          <label className={styles.statLabel}>🔥주 연속 기록🔥</label>
         </div>
       </div>
 
@@ -77,7 +77,6 @@ export default function StatsSection({ records, loading }: StatsSectionProps) {
               {s.value}
               {s.value > 0 && <span>kg</span>}
             </strong>
-
             <span className={styles.recordsDate}>
               {s.date ? formatDate(s.date) : '기록 없음'}
             </span>

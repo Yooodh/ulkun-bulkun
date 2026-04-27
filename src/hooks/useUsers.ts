@@ -1,86 +1,81 @@
-import { useEffect, useState } from 'react';
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
 
 import { UserSummary, ProfileWithRecords } from '@/types/user';
 
+async function fetchUsers(): Promise<UserSummary[]> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select<string, ProfileWithRecords>(
+      `
+    id, 
+    nickname, 
+    avatar_url, 
+    status_message,
+    is_public,
+    records (
+      squat, 
+      bench_press, 
+      deadlift, 
+      created_at,
+      recorded_at,
+      status
+    )
+  `,
+    )
+    .eq('records.status', 'completed');
+
+  if (error) throw error;
+  if (!data) return [];
+
+  return data.map((user) => {
+    const userRecords = user.records || [];
+
+    const stats = userRecords.reduce(
+      (acc, r) => {
+        const currentS = r.squat ?? 0;
+        const currentB = r.bench_press ?? 0;
+        const currentD = r.deadlift ?? 0;
+        const currentDate = (r.recorded_at || r.created_at).split('T')[0];
+
+        return {
+          maxS: Math.max(acc.maxS, currentS),
+          maxB: Math.max(acc.maxB, currentB),
+          maxD: Math.max(acc.maxD, currentD),
+          lastDate: currentDate > acc.lastDate ? currentDate : acc.lastDate,
+        };
+      },
+      { maxS: 0, maxB: 0, maxD: 0, lastDate: '' },
+    );
+
+    return {
+      id: user.id,
+      nickname: user.nickname || '울끈불끈이',
+      avatar_url: user.avatar_url || '',
+      status_message: user.status_message || '울끈불끈!',
+      max_squat: stats.maxS,
+      max_bench: stats.maxB,
+      max_deadlift: stats.maxD,
+      max_total: stats.maxS + stats.maxB + stats.maxD,
+      last_activity: stats.lastDate,
+      is_public: user.is_public ?? true,
+    };
+  });
+}
+
 export function useUsers() {
-  const [users, setUsers] = useState<UserSummary[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const query = useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+    staleTime: 1000 * 60 * 5,
+  });
 
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        setLoading(true);
-
-        const { data, error } = await supabase.from('profiles').select<
-          string,
-          ProfileWithRecords
-        >(`
-            id, 
-            nickname, 
-            avatar_url, 
-            status_message,
-            is_public,
-            records (
-              squat, 
-              bench_press, 
-              deadlift, 
-              total_weight, 
-              created_at
-            )
-          `);
-
-        if (error) throw error;
-        if (!data) return;
-
-        const userList: UserSummary[] = data.map((user) => {
-          const userRecords = user.records || [];
-
-          const maxSquat = Math.max(...userRecords.map((r) => r.squat ?? 0), 0);
-          const maxBench = Math.max(
-            ...userRecords.map((r) => r.bench_press ?? 0),
-            0,
-          );
-          const maxDead = Math.max(
-            ...userRecords.map((r) => r.deadlift ?? 0),
-            0,
-          );
-
-          const totalPR = maxSquat + maxBench + maxDead;
-
-          const lastActivity =
-            userRecords.length > 0
-              ? userRecords
-                  .map((r) => r.created_at)
-                  .sort(
-                    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
-                  )[0]
-              : '';
-
-          return {
-            id: user.id,
-            nickname: user.nickname || '울끈불끈이',
-            avatar_url: user.avatar_url || '',
-            status_message: user.status_message || '울끈불끈!',
-            max_squat: maxSquat,
-            max_bench: maxBench,
-            max_deadlift: maxDead,
-            max_total: totalPR,
-            last_activity: lastActivity,
-            is_public: user.is_public ?? true,
-          };
-        });
-
-        setUsers(userList);
-      } catch (e) {
-        console.error('유저 목록 로드 실패:', (e as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchUsers();
-  }, []);
-
-  return { users, loading };
+  return {
+    users: query.data || [],
+    loading: query.isLoading,
+    error: query.error,
+  };
 }
