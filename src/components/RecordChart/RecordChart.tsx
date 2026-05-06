@@ -46,6 +46,7 @@ type CustomTooltipProps = {
 
 type ChartDataPoint = StrengthRecord & {
   fullDate: string;
+  xKey: string;
   displayValue: number;
 };
 
@@ -108,6 +109,9 @@ export default function RecordChart({ userId }: RecordChartProps) {
             month: 'long',
             day: 'numeric',
           }),
+          xKey: r.recorded_at
+            ? `${r.recorded_at}_${r.created_at}`
+            : r.created_at,
           displayValue:
             typeof r[activePart.key] === 'number' ? r[activePart.key] : 0,
         };
@@ -178,9 +182,9 @@ export default function RecordChart({ userId }: RecordChartProps) {
                 className={styles.chartGrid}
               />
               <XAxis
-                dataKey={(r) => r.recorded_at || r.created_at}
+                dataKey='xKey'
                 tickFormatter={(val) => {
-                  const d = new Date(val);
+                  const d = new Date(val.split('_')[0]);
                   return `${d.getMonth() + 1}/${d.getDate()}`;
                 }}
                 tick={{ className: styles.chartTick }}
