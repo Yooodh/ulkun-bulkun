@@ -59,7 +59,7 @@ export default function RecordForm() {
   });
 
   const isAllRequiredCommitted = FIELDS.filter((f) => f.required).every(
-    (f) => lastCommits[f.name],
+    (f) => lastCommits[f.name] !== '',
   );
 
   return (
@@ -108,7 +108,7 @@ export default function RecordForm() {
                   size='sm'
                   className={styles.commitBtn}
                   onClick={() => handleCommit(name)}
-                  disabled={!user || !record[name]}
+                  disabled={!user || record[name] === ''}
                 >
                   기록
                 </Button>
