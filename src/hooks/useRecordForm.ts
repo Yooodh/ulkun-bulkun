@@ -175,7 +175,11 @@ export function useRecordForm({
       'deadlift',
       'bench_press',
     ];
-    if (required.some((f) => !lastCommits[f] || Number(lastCommits[f]) <= 0)) {
+    if (
+      required.some(
+        (f) => lastCommits[f] === '' || lastCommits[f] === undefined,
+      )
+    ) {
       return onError?.(
         '스쿼트, 데드리프트, 벤치프레스 기록을 모두 완료해주세요.',
       );
