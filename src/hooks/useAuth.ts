@@ -33,6 +33,9 @@ export function useAuth(): AuthHook {
       provider: 'google',
       options: {
         redirectTo: typeof window !== 'undefined' ? window.location.origin : '',
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     });
     if (error) throw error;
