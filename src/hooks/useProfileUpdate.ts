@@ -98,5 +98,36 @@ export function useProfileUpdate(user: User) {
     }
   };
 
-  return { uploadImage, saveFullProfile, resetProfile, uploading };
+  // 회원 탈퇴
+  const deleteAccount = async (): Promise<boolean> => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) return false;
+
+      const res = await fetch('/api/account/delete', {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error('Delete failed');
+
+      await supabase.auth.signOut();
+      return true;
+    } catch (error) {
+      console.error('Delete account error:', error);
+      return false;
+    }
+  };
+
+  return {
+    uploadImage,
+    saveFullProfile,
+    resetProfile,
+    deleteAccount,
+    uploading,
+  };
 }

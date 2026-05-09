@@ -7,10 +7,10 @@ import { Camera } from 'lucide-react';
 
 import styles from './ProfileEdit.module.scss';
 
-import Button from '../../../shared/Button/Button';
+import Button from '@/components/shared/Button/Button';
+import Loading from '@/components/shared/Loading/Loading';
 
 import { useProfileUpdate } from '@/hooks/useProfileUpdate';
-import Loading from '@/components/shared/Loading/Loading';
 
 type ProfileEditProps = {
   user: User;
@@ -36,8 +36,13 @@ export default function ProfileEdit({
   const [tempAvatar, setTempAvatar] = useState<string>(initialAvatar);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const { uploadImage, saveFullProfile, resetProfile, uploading } =
-    useProfileUpdate(user);
+  const {
+    uploadImage,
+    saveFullProfile,
+    resetProfile,
+    deleteAccount,
+    uploading,
+  } = useProfileUpdate(user);
 
   const handleFileChange = async (
     e: ChangeEvent<HTMLInputElement>,
@@ -119,8 +124,22 @@ export default function ProfileEdit({
     }
   };
 
-  const handleDeleteAccount = (): void => {
-    alert('준비 중인 기능이에요.');
+  const handleDeleteAccount = async (): Promise<void> => {
+    if (!confirm('정말 탈퇴하시겠습니까?')) return;
+    if (
+      !confirm(
+        '모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?',
+      )
+    )
+      return;
+
+    const success = await deleteAccount();
+    if (success) {
+      alert('탈퇴가 완료되었습니다.');
+      window.location.href = '/';
+    } else {
+      alert('탈퇴 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    }
   };
 
   return (
