@@ -19,6 +19,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { useRecords } from '@/hooks/useRecords';
 import { useProfileUpdate } from '@/hooks/useProfileUpdate';
 
+import { calculateTotalPR } from '@/utils/recordUtils';
+
 type ProfileCardProps = {
   userId?: string;
   readOnly?: boolean;
@@ -32,7 +34,11 @@ export default function ProfileCard({
   const targetId = userId || user?.id;
 
   const { data: profile, isLoading: loading, isFetched } = useProfile(targetId);
-  const { records, loading: recordsLoading } = useRecords(targetId);
+  const {
+    records,
+    loading: recordsLoading,
+    isReady: recordsReady,
+  } = useRecords(targetId);
   const { saveFullProfile } = useProfileUpdate(user!);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -121,10 +127,15 @@ export default function ProfileCard({
   if (isFetched && !loading && !profile)
     return <Empty message='프로필 정보를 불러올 수 없어요.' />;
 
+  const isCharacterReady = !loading && recordsReady;
+
   return (
     <div className={styles.profileContainer}>
       <div className={styles.characterSection}>
-        <CharacterView isLoading={loading} />
+        <CharacterView
+          isLoading={!isCharacterReady}
+          totalPR={calculateTotalPR(records)}
+        />
       </div>
 
       <div
