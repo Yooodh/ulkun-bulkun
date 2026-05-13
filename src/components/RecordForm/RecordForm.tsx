@@ -1,6 +1,7 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import styles from './RecordForm.module.scss';
 
@@ -47,15 +48,15 @@ export default function RecordForm() {
     lastCommits,
   } = useRecordForm({
     onSuccess: () => {
-      alert('모든 기록을 저장했어요!');
+      toast.success('모든 기록을 저장했어요!');
       if (user?.id)
         queryClient.invalidateQueries({ queryKey: ['records', user.id] });
     },
     onCommitSuccess: (fieldName) => {
       const field = FIELDS.find((f) => f.name === fieldName);
-      alert(`${field?.ko || fieldName} 기록 완료!`);
+      toast.success(`${field?.ko || fieldName} 기록 완료!`);
     },
-    onError: (message) => alert(`저장 실패: ${message}`),
+    onError: (message) => toast.error(`저장 실패: ${message}`),
   });
 
   const isAllRequiredCommitted = FIELDS.filter((f) => f.required).every(

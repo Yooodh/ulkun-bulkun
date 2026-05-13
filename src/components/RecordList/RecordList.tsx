@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import styles from './RecordList.module.scss';
 
@@ -54,7 +55,7 @@ export default function RecordList({ userId }: RecordListProps) {
       await updateRecordDate(id, editDate);
       setEditingId(null);
     } catch (error) {
-      alert('날짜 수정에 실패했습니다.');
+      toast.error('날짜 수정에 실패했습니다.');
     }
   };
 
@@ -169,7 +170,7 @@ export default function RecordList({ userId }: RecordListProps) {
                               try {
                                 await deleteRecord(r.id);
                               } catch (e) {
-                                alert('삭제에 실패했습니다.');
+                                toast.error('삭제에 실패했습니다.');
                               }
                             }}
                           >
