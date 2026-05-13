@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 import styles from './MemberDetail.module.scss';
 
@@ -27,7 +28,7 @@ export default function MemberDetailPage() {
 
   useEffect(() => {
     if (!loading && profile && !isMyPage && profile.is_public === false) {
-      alert('비공개 설정된 사용자입니다.');
+      toast.info('비공개 설정된 사용자입니다.');
       router.push('/members');
     }
   }, [loading, profile, isMyPage, router]);

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import styles from './Profile.module.scss';
 
@@ -92,7 +93,7 @@ export default function ProfileCard({
       queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
       queryClient.invalidateQueries({ queryKey: ['users'] });
 
-      alert(
+      toast.info(
         nextPublicStatus
           ? '프로필이 전체 공개로 설정되었습니다.'
           : '프로필이 비공개로 설정되었습니다.',
@@ -117,7 +118,7 @@ export default function ProfileCard({
       if (navigator.share) await navigator.share(shareData);
       else {
         await navigator.clipboard.writeText(window.location.href);
-        alert('프로필 링크가 클립보드에 복사되었습니다!');
+        toast.info('프로필 링크가 클립보드에 복사되었습니다!');
       }
     } catch (error) {
       console.error('공유 실패:', error);

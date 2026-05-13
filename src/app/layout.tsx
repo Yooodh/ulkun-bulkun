@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Toaster } from 'sonner';
 
 import styles from './layout.module.scss';
 
@@ -65,6 +66,16 @@ export default function RootLayout({
               {children}
             </main>
           </div>
+          <Toaster
+            position='top-center'
+            richColors
+            toastOptions={{
+              style: {
+                fontFamily: 'var(--font-title)',
+                fontSize: '18px',
+              },
+            }}
+          />
         </QueryProvider>
       </body>
     </html>

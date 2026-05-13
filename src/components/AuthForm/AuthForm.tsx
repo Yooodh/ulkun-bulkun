@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 import styles from './AuthForm.module.scss';
 
@@ -45,10 +46,10 @@ export default function AuthForm() {
             if (!confirm('로그아웃 하시겠습니까?')) return;
             try {
               await signOut();
-              alert('로그아웃 되었습니다. 내일도 득근!');
+              toast.info('로그아웃 되었습니다. 내일도 득근!');
               window.location.href = '/';
             } catch (error) {
-              alert(`로그아웃 중 오류 발생: ${(error as Error).message}`);
+              toast.error(`로그아웃 중 오류 발생: ${(error as Error).message}`);
             }
           }}
         >

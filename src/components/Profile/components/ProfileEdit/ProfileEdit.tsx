@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, useRef, ChangeEvent } from 'react';
 import { User } from '@supabase/supabase-js';
 import { Camera } from 'lucide-react';
+import { toast } from 'sonner';
 
 import styles from './ProfileEdit.module.scss';
 
@@ -58,19 +59,19 @@ export default function ProfileEdit({
     const trimmedStatus = tempStatus.trim();
 
     if (trimmedNickname.length < 2) {
-      alert('닉네임은 최소 2글자 이상 입력해 주세요.');
+      toast.info('닉네임은 최소 2글자 이상 입력해 주세요.');
       return;
     }
     if (trimmedNickname.length > 10) {
-      alert('닉네임은 최대 10글자까지 가능합니다.');
+      toast.info('닉네임은 최대 10글자까지 가능합니다.');
       return;
     }
     if (trimmedStatus.length < 2) {
-      alert('상태 메시지는 최소 2글자 이상 입력해 주세요.');
+      toast.info('상태 메시지는 최소 2글자 이상 입력해 주세요.');
       return;
     }
     if (trimmedStatus.length > 20) {
-      alert('상태 메시지는 최대 20글자까지 가능합니다.');
+      toast.info('상태 메시지는 최대 20글자까지 가능합니다.');
       return;
     }
 
@@ -84,7 +85,7 @@ export default function ProfileEdit({
       if (success) {
         onUpdate(trimmedNickname, tempAvatar, trimmedStatus);
         onEditingChange(false);
-        alert('프로필이 변경되었습니다!');
+        toast.success('프로필이 변경되었습니다!');
       }
     }
   };
@@ -120,7 +121,7 @@ export default function ProfileEdit({
       setTempStatus(defaultStatus);
       onUpdate(defaultNickname, defaultAvatar, defaultStatus);
       onEditingChange(false);
-      alert('프로필이 초기화되었습니다!');
+      toast.success('프로필이 초기화되었습니다!');
     }
   };
 
@@ -135,10 +136,10 @@ export default function ProfileEdit({
 
     const success = await deleteAccount();
     if (success) {
-      alert('탈퇴가 완료되었습니다.');
+      toast.success('탈퇴가 완료되었습니다.');
       window.location.href = '/';
     } else {
-      alert('탈퇴 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      toast.error('탈퇴 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
     }
   };
 
