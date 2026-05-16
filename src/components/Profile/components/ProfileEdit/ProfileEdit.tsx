@@ -10,6 +10,7 @@ import styles from './ProfileEdit.module.scss';
 
 import Button from '@/components/shared/Button/Button';
 import Loading from '@/components/shared/Loading/Loading';
+import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useProfileUpdate } from '@/hooks/useProfileUpdate';
 
@@ -54,7 +55,7 @@ export default function ProfileEdit({
     if (publicUrl) setTempAvatar(publicUrl);
   };
 
-  const handleConfirmSave = async (): Promise<void> => {
+  const handleConfirmSave = (): void => {
     const trimmedNickname = tempNickname.trim();
     const trimmedStatus = tempStatus.trim();
 
@@ -75,7 +76,7 @@ export default function ProfileEdit({
       return;
     }
 
-    if (confirm('정말 변경하시겠습니까?')) {
+    ConfirmToast('정말 변경하시겠습니까?', async () => {
       const success = await saveFullProfile(
         trimmedNickname,
         trimmedStatus,
@@ -87,7 +88,7 @@ export default function ProfileEdit({
         onEditingChange(false);
         toast.success('프로필이 변경되었습니다!');
       }
-    }
+    });
   };
 
   const handleCancel = () => {
@@ -97,50 +98,53 @@ export default function ProfileEdit({
       tempAvatar !== initialAvatar;
 
     if (isChanged) {
-      if (confirm('수정 중인 내용은 저장되지 않습니다. 취소하시겠습니까?')) {
+      ConfirmToast(
+        '수정 중인 내용은 저장되지 않습니다. 취소하시겠습니까?',
+        () => onEditingChange(false),
+      );
+    } else {
+      onEditingChange(false);
+    }
+  };
+
+  const handleReset = (): void => {
+    ConfirmToast('프로필을 처음 상태로 초기화할까요?', async () => {
+      const success = await resetProfile();
+      if (success) {
+        const defaultNickname =
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          '울끈불끈이';
+        const defaultAvatar =
+          user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+        const defaultStatus = '울끈불끈!';
+        setTempNickname(defaultNickname);
+        setTempAvatar(defaultAvatar);
+        setTempStatus(defaultStatus);
+        onUpdate(defaultNickname, defaultAvatar, defaultStatus);
         onEditingChange(false);
+        toast.success('프로필이 초기화되었습니다!');
       }
-    } else {
-      onEditingChange(false);
-    }
+    });
   };
 
-  const handleReset = async (): Promise<void> => {
-    if (!confirm('프로필을 처음 상태로 초기화할까요?')) return;
-    const success = await resetProfile();
-    if (success) {
-      const defaultNickname =
-        user.user_metadata?.full_name ||
-        user.user_metadata?.name ||
-        '울끈불끈이';
-      const defaultAvatar =
-        user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-      const defaultStatus = '울끈불끈!';
-      setTempNickname(defaultNickname);
-      setTempAvatar(defaultAvatar);
-      setTempStatus(defaultStatus);
-      onUpdate(defaultNickname, defaultAvatar, defaultStatus);
-      onEditingChange(false);
-      toast.success('프로필이 초기화되었습니다!');
-    }
-  };
-
-  const handleDeleteAccount = async (): Promise<void> => {
-    if (!confirm('정말 탈퇴하시겠습니까?')) return;
-    if (
-      !confirm(
-        '모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?',
-      )
-    )
-      return;
-
-    const success = await deleteAccount();
-    if (success) {
-      toast.success('탈퇴가 완료되었습니다.');
-      window.location.href = '/';
-    } else {
-      toast.error('탈퇴 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
-    }
+  const handleDeleteAccount = (): void => {
+    ConfirmToast('정말 탈퇴하시겠습니까?', () => {
+      ConfirmToast(
+        '모든 데이터가 삭제되며\n 복구할 수 없습니다.\n 정말 탈퇴하시겠습니까?',
+        async () => {
+          const success = await deleteAccount();
+          if (success) {
+            toast.success('탈퇴가 완료되었습니다.');
+            window.location.href = '/';
+          } else {
+            toast.error(
+              '탈퇴 처리 중 오류가 발생했습니다. 다시 시도해 주세요.',
+            );
+          }
+        },
+      );
+    });
   };
 
   return (

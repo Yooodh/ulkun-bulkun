@@ -14,6 +14,7 @@ import ActionsSection from './components/ActionsSection/ActionsSection';
 
 import Loading from '../shared/Loading/Loading';
 import Empty from '../shared/Empty/Empty';
+import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -71,7 +72,7 @@ export default function ProfileCard({
   };
 
   // 공개/비공개
-  const handleTogglePublic = async () => {
+  const handleTogglePublic = () => {
     if (!profile || !canEdit) return;
 
     const nextPublicStatus = !profile.is_public;
@@ -80,25 +81,25 @@ export default function ProfileCard({
       ? '내 기록을 공유하고 함께 운동해볼까요?'
       : '내 기록을 비밀로 유지할까요?';
 
-    if (!confirm(confirmMessage)) return;
-
-    const success = await saveFullProfile(
-      profile.nickname,
-      profile.status_message,
-      profile.avatar_url,
-      nextPublicStatus,
-    );
-
-    if (success) {
-      queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-
-      toast.info(
-        nextPublicStatus
-          ? '프로필이 전체 공개로 설정되었습니다.'
-          : '프로필이 비공개로 설정되었습니다.',
+    ConfirmToast(confirmMessage, async () => {
+      const success = await saveFullProfile(
+        profile.nickname,
+        profile.status_message,
+        profile.avatar_url,
+        nextPublicStatus,
       );
-    }
+
+      if (success) {
+        queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
+        queryClient.invalidateQueries({ queryKey: ['users'] });
+
+        toast.info(
+          nextPublicStatus
+            ? '프로필이 전체 공개로 설정되었습니다.'
+            : '프로필이 비공개로 설정되었습니다.',
+        );
+      }
+    });
   };
 
   const cycleStage = () => {
