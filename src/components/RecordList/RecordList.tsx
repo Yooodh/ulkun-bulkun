@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 import styles from './RecordList.module.scss';
 
+import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 import Pagination from '../shared/Pagination/Pagination';
 import Loading from '../shared/Loading/Loading';
 import Button from '../shared/Button/Button';
@@ -165,13 +166,17 @@ export default function RecordList({ userId }: RecordListProps) {
                           <Button
                             variant='red'
                             size='sm'
-                            onClick={async () => {
-                              if (!confirm('정말 삭제하시겠습니까?')) return;
-                              try {
-                                await deleteRecord(r.id);
-                              } catch (e) {
-                                toast.error('삭제에 실패했습니다.');
-                              }
+                            onClick={() => {
+                              ConfirmToast(
+                                '정말 삭제하시겠습니까?',
+                                async () => {
+                                  try {
+                                    await deleteRecord(r.id);
+                                  } catch (e) {
+                                    toast.error('삭제에 실패했습니다.');
+                                  }
+                                },
+                              );
                             }}
                           >
                             삭제
