@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+
 import {
   LineChart,
   Line,
@@ -9,7 +10,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Brush,
 } from 'recharts';
+
 import {
   ValueType,
   NameType,
@@ -58,6 +61,8 @@ const PARTS: ChartPart[] = [
   { key: 'ohp', label: 'OHP', color: '#A855F7' },
 ];
 
+const VISIBLE_COUNT = 10;
+
 const CustomTooltip = ({ active, payload, activePart }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     const point = payload[0].payload as ChartDataPoint;
@@ -93,7 +98,6 @@ export default function RecordChart({ userId }: RecordChartProps) {
         const dateA = new Date(a.recorded_at || a.created_at).getTime();
         const dateB = new Date(b.recorded_at || b.created_at).getTime();
         if (dateA !== dateB) return dateA - dateB;
-
         return (
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
@@ -101,7 +105,6 @@ export default function RecordChart({ userId }: RecordChartProps) {
       .map((r) => {
         const displayDate = r.recorded_at || r.created_at;
         const dateObj = new Date(displayDate);
-
         return {
           ...r,
           fullDate: dateObj.toLocaleDateString('ko-KR', {
@@ -112,11 +115,24 @@ export default function RecordChart({ userId }: RecordChartProps) {
           xKey: r.recorded_at
             ? `${r.recorded_at}_${r.created_at}`
             : r.created_at,
-          displayValue:
-            typeof r[activePart.key] === 'number' ? r[activePart.key] : 0,
         };
       });
-  }, [records, activePart]);
+  }, [records]);
+
+  const [brushRange, setBrushRange] = useState<
+    { startIndex: number; endIndex: number } | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (chartData.length <= VISIBLE_COUNT) {
+      setBrushRange(undefined);
+    } else {
+      setBrushRange({
+        startIndex: chartData.length - VISIBLE_COUNT,
+        endIndex: chartData.length - 1,
+      });
+    }
+  }, [records.length]);
 
   return (
     <div className={styles.chartContainer}>
@@ -170,11 +186,11 @@ export default function RecordChart({ userId }: RecordChartProps) {
             }
           />
         ) : (
-          <ResponsiveContainer width='100%' height={350}>
+          <ResponsiveContainer width='100%' height={brushRange ? 420 : 350}>
             <LineChart
               data={chartData}
               className={styles.chartWrapper}
-              margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+              margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
             >
               <CartesianGrid
                 strokeDasharray='3 3'
@@ -204,13 +220,43 @@ export default function RecordChart({ userId }: RecordChartProps) {
               <Line
                 name={activePart.label}
                 type='monotone'
-                dataKey='displayValue'
+                dataKey={(entry) =>
+                  typeof entry[activePart.key] === 'number'
+                    ? entry[activePart.key]
+                    : 0
+                }
                 stroke={activePart.color}
                 strokeWidth={3}
                 dot={{ r: 4, fill: activePart.color, strokeWidth: 0 }}
                 activeDot={{ r: 6, strokeWidth: 0 }}
                 isAnimationActive={true}
               />
+              {brushRange && (
+                <Brush
+                  dataKey='xKey'
+                  height={20}
+                  stroke={activePart.color}
+                  fill='transparent'
+                  startIndex={brushRange.startIndex}
+                  endIndex={brushRange.endIndex}
+                  travellerWidth={8}
+                  y={400}
+                  tickFormatter={(_, index) =>
+                    `${index + 1}/${chartData.length}`
+                  }
+                  onChange={(range) => {
+                    if (
+                      range.startIndex !== undefined &&
+                      range.endIndex !== undefined
+                    ) {
+                      setBrushRange({
+                        startIndex: range.startIndex,
+                        endIndex: range.endIndex,
+                      });
+                    }
+                  }}
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         )}
