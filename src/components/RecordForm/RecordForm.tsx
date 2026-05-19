@@ -14,25 +14,46 @@ import { blockInvalidNumberChars, stopWheelChange } from '@/utils/inputUtils';
 import { RecordFormState } from '@/types/record';
 
 const FIELDS: {
-  name: keyof RecordFormState;
+  name: keyof Pick<
+    RecordFormState,
+    'squat' | 'deadlift' | 'bench_press' | 'ohp'
+  >;
+  repsKey: keyof Pick<
+    RecordFormState,
+    'squat_reps' | 'deadlift_reps' | 'bench_press_reps' | 'ohp_reps'
+  >;
   label: string;
   required: boolean;
   ko: string;
 }[] = [
-  { name: 'squat', label: '스쿼트 (kg)', required: true, ko: '스쿼트' },
+  {
+    name: 'squat',
+    repsKey: 'squat_reps',
+    label: '스쿼트 (kg)',
+    required: true,
+    ko: '스쿼트',
+  },
   {
     name: 'deadlift',
+    repsKey: 'deadlift_reps',
     label: '데드리프트 (kg)',
     required: true,
     ko: '데드리프트',
   },
   {
     name: 'bench_press',
+    repsKey: 'bench_press_reps',
     label: '벤치프레스 (kg)',
     required: true,
     ko: '벤치프레스',
   },
-  { name: 'ohp', label: 'OHP (kg)', required: false, ko: 'OHP' },
+  {
+    name: 'ohp',
+    repsKey: 'ohp_reps',
+    label: 'OHP (kg)',
+    required: false,
+    ko: 'OHP',
+  },
 ];
 
 export default function RecordForm() {
@@ -67,7 +88,7 @@ export default function RecordForm() {
     <div className={styles.formContainer}>
       <h1 className={styles.title}>💪 울끈불끈 기록</h1>
       <form onSubmit={handleSubmit}>
-        {FIELDS.map(({ name, label, required }) => {
+        {FIELDS.map(({ name, repsKey, label, required }) => {
           const committedValue = lastCommits[name];
           const isFieldCommitted = !!committedValue;
 
@@ -89,6 +110,24 @@ export default function RecordForm() {
                   disabled={!user}
                   className={styles.mainInput}
                 />
+
+                <div className={styles.repsWrapper}>
+                  <input
+                    type='number'
+                    name={repsKey}
+                    inputMode='numeric'
+                    min={record[name] === '0' || record[name] === '' ? 0 : 1}
+                    max={30}
+                    onKeyDown={blockInvalidNumberChars}
+                    onWheel={stopWheelChange}
+                    value={record[repsKey]}
+                    onChange={handleChange}
+                    onFocus={(e) => e.target.select()}
+                    disabled={!user}
+                    className={`${styles.repsInput} ${isFieldCommitted ? styles.committed : ''}`}
+                  />
+                  <span className={styles.repsLabel}>회</span>
+                </div>
 
                 <input
                   type='text'
