@@ -37,6 +37,7 @@ type RecordChartProps = {
 
 type ChartPart = {
   key: keyof StrengthRecord;
+  rmKey: keyof ChartDataPoint;
   label: string;
   color: string;
 };
@@ -50,32 +51,51 @@ type CustomTooltipProps = {
 type ChartDataPoint = StrengthRecord & {
   fullDate: string;
   xKey: string;
-  displayValue: number;
+  squat_1rm: number;
+  deadlift_1rm: number;
+  bench_press_1rm: number;
+  ohp_1rm: number;
+  total_1rm: number;
 };
 
 const PARTS: ChartPart[] = [
-  { key: 'total_weight', label: 'Total', color: '#007bff' },
-  { key: 'squat', label: '스쿼트', color: '#EF4444' },
-  { key: 'deadlift', label: '데드', color: '#F97316' },
-  { key: 'bench_press', label: '벤치', color: '#22C55E' },
-  { key: 'ohp', label: 'OHP', color: '#A855F7' },
+  { key: 'total_weight', rmKey: 'total_1rm', label: 'Total', color: '#007bff' },
+  { key: 'squat', rmKey: 'squat_1rm', label: '스쿼트', color: '#EF4444' },
+  { key: 'deadlift', rmKey: 'deadlift_1rm', label: '데드', color: '#F97316' },
+  {
+    key: 'bench_press',
+    rmKey: 'bench_press_1rm',
+    label: '벤치',
+    color: '#22C55E',
+  },
+  { key: 'ohp', rmKey: 'ohp_1rm', label: 'OHP', color: '#A855F7' },
 ];
-
 const VISIBLE_COUNT = 10;
 
-const CustomTooltip = ({ active, payload, activePart }: CustomTooltipProps) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  activePart,
+  show1RM,
+}: CustomTooltipProps & { show1RM: boolean }) => {
   if (active && payload && payload.length) {
     const point = payload[0].payload as ChartDataPoint;
     return (
       <div className={styles.customTooltip}>
         <p className={styles.tooltipDate}>{point.fullDate}</p>
         <p className={styles.tooltipValue} style={{ color: payload[0].color }}>
-          {`${activePart.label}: ${payload[0].value}kg`}
+          {`${activePart.label}: ${payload[0].value}kg${show1RM ? ' (추정 1RM)' : ''}`}
         </p>
       </div>
     );
   }
   return null;
+};
+
+// 1RM 계산
+const calc1RM = (weight: number, reps: number): number => {
+  if (reps <= 1) return weight;
+  return Math.round(weight * (1 + reps / 30));
 };
 
 export default function RecordChart({ userId }: RecordChartProps) {
@@ -90,6 +110,8 @@ export default function RecordChart({ userId }: RecordChartProps) {
   const isReadOnly = !!userId;
   const displayName = profile?.nickname || '';
 
+  const [show1RM, setShow1RM] = useState(false);
+
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
   const chartData = useMemo(() => {
@@ -102,9 +124,25 @@ export default function RecordChart({ userId }: RecordChartProps) {
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
       })
+      .filter((r) => {
+        const val = r[activePart.key as keyof StrengthRecord];
+
+        // Total일 때는 3대 중 하나라도 0이면 제외
+        if (activePart.key === 'total_weight') {
+          return r.squat > 0 && r.deadlift > 0 && r.bench_press > 0;
+        }
+
+        return typeof val === 'number' && val > 0;
+      })
       .map((r) => {
         const displayDate = r.recorded_at || r.created_at;
         const dateObj = new Date(displayDate);
+
+        // 1RM 계산 추가
+        const squat1rm = calc1RM(r.squat, r.squat_reps ?? 1);
+        const deadlift1rm = calc1RM(r.deadlift, r.deadlift_reps ?? 1);
+        const benchPress1rm = calc1RM(r.bench_press, r.bench_press_reps ?? 1);
+        const ohp1rm = r.ohp ? calc1RM(r.ohp, r.ohp_reps ?? 1) : 0;
         return {
           ...r,
           fullDate: dateObj.toLocaleDateString('ko-KR', {
@@ -115,9 +153,14 @@ export default function RecordChart({ userId }: RecordChartProps) {
           xKey: r.recorded_at
             ? `${r.recorded_at}_${r.created_at}`
             : r.created_at,
+          squat_1rm: squat1rm,
+          deadlift_1rm: deadlift1rm,
+          bench_press_1rm: benchPress1rm,
+          ohp_1rm: ohp1rm,
+          total_1rm: squat1rm + deadlift1rm + benchPress1rm,
         };
       });
-  }, [records]);
+  }, [records, activePart]);
 
   const [brushRange, setBrushRange] = useState<
     { startIndex: number; endIndex: number } | undefined
@@ -146,27 +189,44 @@ export default function RecordChart({ userId }: RecordChartProps) {
       </h1>
 
       {!isPageLoading && records.length >= 2 && (
-        <div className={styles.btnGroup}>
-          {PARTS.map((part) => {
-            const isActive = activePart.key === part.key;
-            return (
-              <Button
-                key={part.key}
-                variant='ligray'
-                size='sm'
-                shape='round'
-                onClick={() => setActivePart(part)}
-                className={`${styles.partBtn} ${isActive ? styles.active : ''}`}
-                style={{
-                  backgroundColor: isActive ? part.color : '',
-                  borderColor: isActive ? part.color : '',
-                }}
-              >
-                {part.label}
-              </Button>
-            );
-          })}
-        </div>
+        <>
+          <div className={styles.btnGroup}>
+            {PARTS.map((part) => {
+              const isActive = activePart.key === part.key;
+              return (
+                <Button
+                  key={part.key}
+                  variant='ligray'
+                  size='sm'
+                  shape='round'
+                  onClick={() => setActivePart(part)}
+                  className={`${styles.partBtn} ${isActive ? styles.active : ''}`}
+                  style={{
+                    backgroundColor: isActive ? part.color : '',
+                    borderColor: isActive ? part.color : '',
+                  }}
+                >
+                  {part.label}
+                </Button>
+              );
+            })}
+          </div>
+
+          <div className={styles.rmToggle}>
+            <button
+              className={`${styles.rmToggleBtn} ${!show1RM ? styles.rmActive : ''}`}
+              onClick={() => setShow1RM(false)}
+            >
+              실제 무게
+            </button>
+            <button
+              className={`${styles.rmToggleBtn} ${show1RM ? styles.rmActive : ''}`}
+              onClick={() => setShow1RM(true)}
+            >
+              추정 1RM
+            </button>
+          </div>
+        </>
       )}
 
       <div className={styles.contentWrapper}>
@@ -216,15 +276,24 @@ export default function RecordChart({ userId }: RecordChartProps) {
                 unit='kg'
                 width={45}
               />
-              <Tooltip content={<CustomTooltip activePart={activePart} />} />
+              <Tooltip
+                content={
+                  <CustomTooltip activePart={activePart} show1RM={show1RM} />
+                }
+              />
               <Line
                 name={activePart.label}
                 type='monotone'
-                dataKey={(entry) =>
-                  typeof entry[activePart.key] === 'number'
-                    ? entry[activePart.key]
-                    : 0
-                }
+                connectNulls={false}
+                dataKey={(entry) => {
+                  const point = entry as ChartDataPoint;
+                  const val = show1RM
+                    ? point[activePart.rmKey]
+                    : point[activePart.key];
+
+                  if (typeof val !== 'number' || val === 0) return null;
+                  return val;
+                }}
                 stroke={activePart.color}
                 strokeWidth={3}
                 dot={{ r: 4, fill: activePart.color, strokeWidth: 0 }}
