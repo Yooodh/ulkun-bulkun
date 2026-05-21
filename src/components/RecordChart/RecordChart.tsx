@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-
 import {
   LineChart,
   Line,
@@ -12,12 +11,12 @@ import {
   ResponsiveContainer,
   Brush,
 } from 'recharts';
-
 import {
   ValueType,
   NameType,
   Payload,
 } from 'recharts/types/component/DefaultTooltipContent';
+import { InfoIcon } from 'lucide-react';
 
 import styles from './RecordChart.module.scss';
 
@@ -212,19 +211,36 @@ export default function RecordChart({ userId }: RecordChartProps) {
             })}
           </div>
 
-          <div className={styles.rmToggle}>
-            <button
-              className={`${styles.rmToggleBtn} ${!show1RM ? styles.rmActive : ''}`}
-              onClick={() => setShow1RM(false)}
-            >
-              실제 무게
-            </button>
-            <button
-              className={`${styles.rmToggleBtn} ${show1RM ? styles.rmActive : ''}`}
-              onClick={() => setShow1RM(true)}
-            >
-              추정 1RM
-            </button>
+          <div className={styles.rmToggleWrapper}>
+            <div className={styles.rmToggle}>
+              <button
+                className={`${styles.rmToggleBtn} ${!show1RM ? styles.rmActive : ''}`}
+                onClick={() => setShow1RM(false)}
+              >
+                실제 무게
+              </button>
+              <button
+                className={`${styles.rmToggleBtn} ${show1RM ? styles.rmActive : ''}`}
+                onClick={() => setShow1RM(true)}
+              >
+                추정 1RM
+              </button>
+            </div>
+            {show1RM && (
+              <div className={styles.infoWrapper}>
+                <InfoIcon className={styles.infoIcon} size={16} />
+                <div className={styles.infoTooltip}>
+                  <p className={styles.infoTitle}>추정 1RM 계산 방식</p>
+                  <p className={styles.infoFormula}>
+                    1RM = 무게 x (1 + 횟수 / 30)
+                  </p>
+                  <p className={styles.infoDesc}>
+                    Epley 공식을 사용하며 1회 수행 시 입력 무게가 그대로
+                    적용됩니다.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
