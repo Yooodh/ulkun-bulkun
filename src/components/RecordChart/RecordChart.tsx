@@ -57,6 +57,13 @@ type ChartDataPoint = StrengthRecord & {
   total_1rm: number;
 };
 
+type BrushRange = {
+  startIndex: number;
+  endIndex: number;
+  startRatio: number;
+  endRatio: number;
+};
+
 const PARTS: ChartPart[] = [
   { key: 'total_weight', rmKey: 'total_1rm', label: 'Total', color: '#007bff' },
   { key: 'squat', rmKey: 'squat_1rm', label: '스쿼트', color: '#EF4444' },
@@ -70,6 +77,8 @@ const PARTS: ChartPart[] = [
   { key: 'ohp', rmKey: 'ohp_1rm', label: 'OHP', color: '#A855F7' },
 ];
 const VISIBLE_COUNT = 10;
+
+let savedBrushRange: BrushRange | undefined = undefined;
 
 const CustomTooltip = ({
   active,
@@ -137,7 +146,6 @@ export default function RecordChart({ userId }: RecordChartProps) {
         const displayDate = r.recorded_at || r.created_at;
         const dateObj = new Date(displayDate);
 
-        // 1RM 계산 추가
         const squat1rm = calc1RM(r.squat, r.squat_reps ?? 1);
         const deadlift1rm = calc1RM(r.deadlift, r.deadlift_reps ?? 1);
         const benchPress1rm = calc1RM(r.bench_press, r.bench_press_reps ?? 1);
@@ -163,18 +171,58 @@ export default function RecordChart({ userId }: RecordChartProps) {
 
   const [brushRange, setBrushRange] = useState<
     { startIndex: number; endIndex: number } | undefined
-  >(undefined);
+  >(savedBrushRange);
 
+  // 브러쉬 리셋
   useEffect(() => {
-    if (chartData.length <= VISIBLE_COUNT) {
-      setBrushRange(undefined);
-    } else {
-      setBrushRange({
-        startIndex: chartData.length - VISIBLE_COUNT,
-        endIndex: chartData.length - 1,
-      });
+    savedBrushRange = undefined;
+    setBrushRange(undefined);
+  }, [targetId]);
+
+  // 브러쉬 범위 계산 및 세팅
+  useEffect(() => {
+    if (chartData.length < 2) return;
+
+    if (savedBrushRange) {
+      const startIndex = Math.round(
+        savedBrushRange.startRatio * (chartData.length - 1),
+      );
+      const endIndex = Math.round(
+        savedBrushRange.endRatio * (chartData.length - 1),
+      );
+
+      if (startIndex >= endIndex) {
+        const fallback: BrushRange = {
+          startIndex: Math.max(0, chartData.length - VISIBLE_COUNT),
+          endIndex: chartData.length - 1,
+          startRatio:
+            Math.max(0, chartData.length - VISIBLE_COUNT) /
+            (chartData.length - 1),
+          endRatio: 1,
+        };
+        savedBrushRange = fallback;
+        setBrushRange(fallback);
+        return;
+      }
+      setBrushRange({ startIndex, endIndex });
+      return;
     }
-  }, [records.length]);
+
+    if (chartData.length > VISIBLE_COUNT) {
+      const startIndex = chartData.length - VISIBLE_COUNT;
+      const endIndex = chartData.length - 1;
+      const initial: BrushRange = {
+        startIndex,
+        endIndex,
+        startRatio: startIndex / (chartData.length - 1),
+        endRatio: 1,
+      };
+      savedBrushRange = initial;
+      setBrushRange(initial);
+    } else {
+      setBrushRange(undefined);
+    }
+  }, [chartData.length, activePart.key]);
 
   return (
     <div className={styles.chartContainer}>
@@ -248,7 +296,7 @@ export default function RecordChart({ userId }: RecordChartProps) {
       <div className={styles.contentWrapper}>
         {isPageLoading ? (
           <Loading message='차트 데이터를 분석하고 있어요!' />
-        ) : records.length < 2 ? (
+        ) : chartData.length < 2 ? (
           <Empty
             message={
               isReadOnly
@@ -316,8 +364,9 @@ export default function RecordChart({ userId }: RecordChartProps) {
                 activeDot={{ r: 6, strokeWidth: 0 }}
                 isAnimationActive={true}
               />
-              {brushRange && (
+              {brushRange && brushRange.endIndex < chartData.length && (
                 <Brush
+                  key={activePart.key}
                   dataKey='xKey'
                   height={20}
                   stroke={activePart.color}
@@ -334,6 +383,12 @@ export default function RecordChart({ userId }: RecordChartProps) {
                       range.startIndex !== undefined &&
                       range.endIndex !== undefined
                     ) {
+                      savedBrushRange = {
+                        startIndex: range.startIndex,
+                        endIndex: range.endIndex,
+                        startRatio: range.startIndex / (chartData.length - 1),
+                        endRatio: range.endIndex / (chartData.length - 1),
+                      };
                       setBrushRange({
                         startIndex: range.startIndex,
                         endIndex: range.endIndex,
