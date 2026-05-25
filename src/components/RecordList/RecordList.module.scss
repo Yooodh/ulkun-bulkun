@@ -55,3 +55,48 @@
     }
   }
 }
+
+.weightCell {
+  position: relative;
+
+  .weightWithTooltip {
+    position: relative;
+    display: inline-block;
+    cursor: default;
+
+    &:hover .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+  }
+
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: $dark;
+    color: $white;
+    padding: 5px 10px;
+    border-radius: $radius-main;
+    @include font-sm;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+    z-index: 10;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: $dark;
+    }
+  }
+}
