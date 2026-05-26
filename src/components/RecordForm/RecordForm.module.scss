@@ -37,10 +37,39 @@
         align-items: stretch;
 
         .mainInput {
-          flex: 3;
+          flex: 2.5;
           min-width: 0;
           width: 100%;
           @include font-sm;
+        }
+
+        .repsWrapper {
+          flex: 0.5;
+          min-width: 60px;
+          display: flex;
+          align-items: center;
+          gap: 2px;
+
+          .repsInput {
+            width: 100%;
+            min-width: 0;
+            text-align: center;
+            @include font-sm;
+            border-width: 2px;
+
+            &.committed {
+              @include font-body;
+              border-color: $blue;
+              background: $off-white;
+              color: $blue;
+            }
+          }
+
+          .repsLabel {
+            @include font-sm;
+            color: $text-muted;
+            white-space: nowrap;
+          }
         }
 
         .statusInput {

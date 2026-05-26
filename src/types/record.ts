@@ -9,6 +9,10 @@ export type StrengthRecord = {
   ohp: number | null;
   total_weight: number;
   status: 'draft' | 'completed';
+  squat_reps: number;
+  deadlift_reps: number;
+  bench_press_reps: number;
+  ohp_reps: number;
 };
 
 export type RecordInput = Omit<StrengthRecord, 'id' | 'user_id' | 'created_at'>;
@@ -18,4 +22,10 @@ export type RecordFormState = {
   deadlift: string;
   bench_press: string;
   ohp: string;
+  squat_reps: string;
+  deadlift_reps: string;
+  bench_press_reps: string;
+  ohp_reps: string;
 };
+
+export type WeightField = 'squat' | 'deadlift' | 'bench_press' | 'ohp';

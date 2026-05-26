@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import styles from './RecordList.module.scss';
 
+import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 import Pagination from '../shared/Pagination/Pagination';
 import Loading from '../shared/Loading/Loading';
 import Button from '../shared/Button/Button';
@@ -22,6 +24,31 @@ type RecordListProps = {
 };
 
 const PAGE_SIZE = 6;
+
+type RepsTooltipProps = {
+  weight: number | null;
+  reps: number;
+  label: string;
+};
+
+function WeightCell({ weight, reps, label }: RepsTooltipProps) {
+  if (weight === null || weight === undefined) return <td>-</td>;
+
+  if (weight === 0) {
+    return <td>0kg</td>;
+  }
+
+  return (
+    <td className={styles.weightCell}>
+      <span className={styles.weightWithTooltip}>
+        {weight}kg
+        <span className={styles.tooltip}>
+          {label} {weight}kg x {reps}회
+        </span>
+      </span>
+    </td>
+  );
+}
 
 export default function RecordList({ userId }: RecordListProps) {
   const { user } = useAuth();
@@ -54,7 +81,7 @@ export default function RecordList({ userId }: RecordListProps) {
       await updateRecordDate(id, editDate);
       setEditingId(null);
     } catch (error) {
-      alert('날짜 수정에 실패했습니다.');
+      toast.error('날짜 수정에 실패했습니다.');
     }
   };
 
@@ -98,7 +125,9 @@ export default function RecordList({ userId }: RecordListProps) {
                 : '아직 기록된 운동이 없어요!'
             }
             subMessage={
-              !isReadOnly ? '첫 번째 기록을 등록하고 성장을 추적해보세요!' : ''
+              !isReadOnly
+                ? '첫 번째 기록을 등록하고 성장을 추적해보세요!'
+                : '아직 등록된 기록이 충분하지 않아요.'
             }
           />
         ) : (
@@ -154,23 +183,44 @@ export default function RecordList({ userId }: RecordListProps) {
                           </span>
                         )}
                       </td>
-                      <td>{r.squat}kg</td>
-                      <td>{r.deadlift}kg</td>
-                      <td>{r.bench_press}kg</td>
-                      <td>{r.ohp ?? '-'}</td>
+                      <WeightCell
+                        weight={r.squat}
+                        reps={r.squat_reps ?? 1}
+                        label='스쿼트'
+                      />
+                      <WeightCell
+                        weight={r.deadlift}
+                        reps={r.deadlift_reps ?? 1}
+                        label='데드'
+                      />
+                      <WeightCell
+                        weight={r.bench_press}
+                        reps={r.bench_press_reps ?? 1}
+                        label='벤치'
+                      />
+                      <WeightCell
+                        weight={r.ohp}
+                        reps={r.ohp_reps ?? 1}
+                        label='OHP'
+                      />
                       <td className={styles.total}>{r.total_weight}kg</td>
+
                       {!isReadOnly && (
                         <td>
                           <Button
                             variant='red'
                             size='sm'
-                            onClick={async () => {
-                              if (!confirm('정말 삭제하시겠습니까?')) return;
-                              try {
-                                await deleteRecord(r.id);
-                              } catch (e) {
-                                alert('삭제에 실패했습니다.');
-                              }
+                            onClick={() => {
+                              ConfirmToast(
+                                '정말 삭제하시겠습니까?',
+                                async () => {
+                                  try {
+                                    await deleteRecord(r.id);
+                                  } catch (e) {
+                                    toast.error('삭제에 실패했습니다.');
+                                  }
+                                },
+                              );
                             }}
                           >
                             삭제

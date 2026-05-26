@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import styles from './Profile.module.scss';
 
@@ -13,6 +14,7 @@ import ActionsSection from './components/ActionsSection/ActionsSection';
 
 import Loading from '../shared/Loading/Loading';
 import Empty from '../shared/Empty/Empty';
+import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -70,7 +72,7 @@ export default function ProfileCard({
   };
 
   // 공개/비공개
-  const handleTogglePublic = async () => {
+  const handleTogglePublic = () => {
     if (!profile || !canEdit) return;
 
     const nextPublicStatus = !profile.is_public;
@@ -79,25 +81,25 @@ export default function ProfileCard({
       ? '내 기록을 공유하고 함께 운동해볼까요?'
       : '내 기록을 비밀로 유지할까요?';
 
-    if (!confirm(confirmMessage)) return;
-
-    const success = await saveFullProfile(
-      profile.nickname,
-      profile.status_message,
-      profile.avatar_url,
-      nextPublicStatus,
-    );
-
-    if (success) {
-      queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-
-      alert(
-        nextPublicStatus
-          ? '프로필이 전체 공개로 설정되었습니다.'
-          : '프로필이 비공개로 설정되었습니다.',
+    ConfirmToast(confirmMessage, async () => {
+      const success = await saveFullProfile(
+        profile.nickname,
+        profile.status_message,
+        profile.avatar_url,
+        nextPublicStatus,
       );
-    }
+
+      if (success) {
+        queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
+        queryClient.invalidateQueries({ queryKey: ['users'] });
+
+        toast.info(
+          nextPublicStatus
+            ? '프로필이 전체 공개로 설정되었습니다.'
+            : '프로필이 비공개로 설정되었습니다.',
+        );
+      }
+    });
   };
 
   const cycleStage = () => {
@@ -117,7 +119,7 @@ export default function ProfileCard({
       if (navigator.share) await navigator.share(shareData);
       else {
         await navigator.clipboard.writeText(window.location.href);
-        alert('프로필 링크가 클립보드에 복사되었습니다!');
+        toast.info('프로필 링크가 클립보드에 복사되었습니다!');
       }
     } catch (error) {
       console.error('공유 실패:', error);

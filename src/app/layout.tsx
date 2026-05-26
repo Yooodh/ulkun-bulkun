@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Toaster } from 'sonner';
 
 import styles from './layout.module.scss';
 
@@ -27,26 +28,54 @@ export const metadata: Metadata = {
     title: '울끈불끈',
   },
   icons: {
+    icon: '/assets/images/muscle.png',
     apple: '/assets/images/muscle.png',
+  },
+
+  openGraph: {
+    title: '울끈불끈',
+    description: '울끈불끈 당신의 성장을 기록하세요.',
+    url: 'https://ulkunbulkun.vercel.app',
+    siteName: '울끈불끈',
+    images: [
+      {
+        url: '/assets/images/muscle_full_open_graph.png',
+        width: 1200,
+        height: 630,
+        alt: '울끈불끈 로고',
+      },
+    ],
+    locale: 'ko_KR',
+    type: 'website',
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang='ko'>
       <body className={Font.variable}>
+        <InstallBanner />
         <QueryProvider>
-          <InstallBanner />
           <div className={styles.wrapper}>
             <main className={styles.container}>
               <AuthForm />
               {children}
             </main>
           </div>
+          <Toaster
+            position='top-center'
+            richColors
+            toastOptions={{
+              style: {
+                fontFamily: 'var(--font-title)',
+                fontSize: '18px',
+              },
+            }}
+          />
         </QueryProvider>
       </body>
     </html>

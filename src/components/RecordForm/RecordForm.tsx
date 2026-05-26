@@ -1,6 +1,7 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import styles from './RecordForm.module.scss';
 
@@ -13,25 +14,46 @@ import { blockInvalidNumberChars, stopWheelChange } from '@/utils/inputUtils';
 import { RecordFormState } from '@/types/record';
 
 const FIELDS: {
-  name: keyof RecordFormState;
+  name: keyof Pick<
+    RecordFormState,
+    'squat' | 'deadlift' | 'bench_press' | 'ohp'
+  >;
+  repsKey: keyof Pick<
+    RecordFormState,
+    'squat_reps' | 'deadlift_reps' | 'bench_press_reps' | 'ohp_reps'
+  >;
   label: string;
   required: boolean;
   ko: string;
 }[] = [
-  { name: 'squat', label: '스쿼트 (kg)', required: true, ko: '스쿼트' },
+  {
+    name: 'squat',
+    repsKey: 'squat_reps',
+    label: '스쿼트 (kg)',
+    required: true,
+    ko: '스쿼트',
+  },
   {
     name: 'deadlift',
+    repsKey: 'deadlift_reps',
     label: '데드리프트 (kg)',
     required: true,
     ko: '데드리프트',
   },
   {
     name: 'bench_press',
+    repsKey: 'bench_press_reps',
     label: '벤치프레스 (kg)',
     required: true,
     ko: '벤치프레스',
   },
-  { name: 'ohp', label: 'OHP (kg)', required: false, ko: 'OHP' },
+  {
+    name: 'ohp',
+    repsKey: 'ohp_reps',
+    label: 'OHP (kg)',
+    required: false,
+    ko: 'OHP',
+  },
 ];
 
 export default function RecordForm() {
@@ -47,15 +69,15 @@ export default function RecordForm() {
     lastCommits,
   } = useRecordForm({
     onSuccess: () => {
-      alert('모든 기록을 저장했어요!');
+      toast.success('모든 기록을 저장했어요!');
       if (user?.id)
         queryClient.invalidateQueries({ queryKey: ['records', user.id] });
     },
     onCommitSuccess: (fieldName) => {
       const field = FIELDS.find((f) => f.name === fieldName);
-      alert(`${field?.ko || fieldName} 기록 완료!`);
+      toast.success(`${field?.ko || fieldName} 기록 완료!`);
     },
-    onError: (message) => alert(`저장 실패: ${message}`),
+    onError: (message) => toast.error(`저장 실패: ${message}`),
   });
 
   const isAllRequiredCommitted = FIELDS.filter((f) => f.required).every(
@@ -66,7 +88,7 @@ export default function RecordForm() {
     <div className={styles.formContainer}>
       <h1 className={styles.title}>💪 울끈불끈 기록</h1>
       <form onSubmit={handleSubmit}>
-        {FIELDS.map(({ name, label, required }) => {
+        {FIELDS.map(({ name, repsKey, label, required }) => {
           const committedValue = lastCommits[name];
           const isFieldCommitted = !!committedValue;
 
@@ -88,6 +110,24 @@ export default function RecordForm() {
                   disabled={!user}
                   className={styles.mainInput}
                 />
+
+                <div className={styles.repsWrapper}>
+                  <input
+                    type='number'
+                    name={repsKey}
+                    inputMode='numeric'
+                    min={record[name] === '0' || record[name] === '' ? 0 : 1}
+                    max={30}
+                    onKeyDown={blockInvalidNumberChars}
+                    onWheel={stopWheelChange}
+                    value={record[repsKey]}
+                    onChange={handleChange}
+                    onFocus={(e) => e.target.select()}
+                    disabled={!user}
+                    className={`${styles.repsInput} ${isFieldCommitted ? styles.committed : ''}`}
+                  />
+                  <span className={styles.repsLabel}>회</span>
+                </div>
 
                 <input
                   type='text'

@@ -6,11 +6,11 @@ import { useAuth } from './useAuth';
 
 import { supabase } from '@/lib/supabase';
 
-import { RecordFormState, StrengthRecord } from '@/types/record';
+import { RecordFormState, StrengthRecord, WeightField } from '@/types/record';
 
 type UseRecordFormOptions = {
   onSuccess?: () => void;
-  onCommitSuccess?: (fieldName: keyof RecordFormState) => void;
+  onCommitSuccess?: (fieldName: WeightField) => void;
   onError?: (message: string) => void;
 };
 
@@ -19,6 +19,10 @@ const INITIAL_STATE: RecordFormState = {
   deadlift: '',
   bench_press: '',
   ohp: '',
+  squat_reps: '1',
+  deadlift_reps: '1',
+  bench_press_reps: '1',
+  ohp_reps: '1',
 };
 
 const mapDataToState = (data: Partial<StrengthRecord>): RecordFormState => ({
@@ -26,6 +30,10 @@ const mapDataToState = (data: Partial<StrengthRecord>): RecordFormState => ({
   deadlift: data.deadlift?.toString() || '',
   bench_press: data.bench_press?.toString() || '',
   ohp: data.ohp?.toString() || '',
+  squat_reps: data.squat_reps?.toString() || '1',
+  deadlift_reps: data.deadlift_reps?.toString() || '1',
+  bench_press_reps: data.bench_press_reps?.toString() || '1',
+  ohp_reps: data.ohp_reps?.toString() || '1',
 });
 
 export function useRecordForm({
@@ -38,7 +46,7 @@ export function useRecordForm({
   const [lastCommits, setLastCommits] =
     useState<RecordFormState>(INITIAL_STATE);
 
-  // insert 진행 중일 때 중복 insert를 막기
+  // insert 진행 중일 때 중복 insert 막기
   const isInsertingRef = useRef(false);
 
   // insert 완료 후 대기 중인 commit들이 draftId를 참조할 수 있게 Promise로 공유
@@ -81,13 +89,31 @@ export function useRecordForm({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setRecord((prev) => ({ ...prev, [name]: value }));
+
+    setRecord((prev) => {
+      const updated = { ...prev, [name]: value };
+
+      // 무게를 0으로 입력하면 횟수도 자동으로 0
+      const repsKey = `${name}_reps` as keyof RecordFormState;
+      if (repsKey in prev && value === '0') {
+        updated[repsKey] = '0';
+      }
+
+      // 무게를 0이 아닌 값으로 바꾸면 횟수가 0이었을 때 1로 복구
+      if (repsKey in prev && value !== '0' && prev[repsKey] === '0') {
+        updated[repsKey] = '1';
+      }
+
+      return updated;
+    });
   };
 
   const getOrCreateDraftId = useCallback(
     async (
       firstFieldName: keyof RecordFormState,
       firstValue: number,
+      firstRepsKey: keyof RecordFormState,
+      firstRepsValue: number,
     ): Promise<string | null> => {
       // 이미 draftId가 있으면 바로 반환
       if (draftIdRef.current) return draftIdRef.current;
@@ -106,6 +132,7 @@ export function useRecordForm({
             .insert({
               user_id: user!.id,
               [firstFieldName]: firstValue,
+              [firstRepsKey]: firstRepsValue,
               status: 'draft',
             })
             .select('id')
@@ -135,25 +162,37 @@ export function useRecordForm({
   );
 
   // 필드 단위 저장
-  const handleCommit = async (fieldName: keyof RecordFormState) => {
+  const handleCommit = async (fieldName: WeightField) => {
     if (!user) return;
     const value = Number(record[fieldName]) || 0;
+    const repsKey = `${fieldName}_reps` as keyof RecordFormState;
+    const repsValue = Number(record[repsKey]) || 1;
 
     try {
       if (draftIdRef.current) {
-        // 이미 draft가 있으면 바로 update
         const { error } = await supabase
           .from('records')
-          .update({ [fieldName]: value })
+          .update({
+            [fieldName]: value,
+            [repsKey]: repsValue,
+          })
           .eq('id', draftIdRef.current);
         if (error) throw error;
       } else {
-        // draft가 없으면 getOrCreateDraftId로 단일 insert 보장
-        const id = await getOrCreateDraftId(fieldName, value);
+        const id = await getOrCreateDraftId(
+          fieldName,
+          value,
+          repsKey,
+          repsValue,
+        );
         if (!id) return;
       }
 
-      setLastCommits((prev) => ({ ...prev, [fieldName]: record[fieldName] }));
+      setLastCommits((prev) => ({
+        ...prev,
+        [fieldName]: record[fieldName],
+        [repsKey]: record[repsKey],
+      }));
       onCommitSuccess?.(fieldName);
     } catch (error) {
       const message =

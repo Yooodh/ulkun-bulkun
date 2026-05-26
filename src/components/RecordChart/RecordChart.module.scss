@@ -32,6 +32,104 @@
     }
   }
 
+  .rmToggleWrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .rmToggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid $border-soft;
+    border-radius: $radius-main;
+    overflow: hidden;
+    width: fit-content;
+
+    .rmToggleBtn {
+      padding: 6px 16px;
+      @include font-sm;
+      color: $text-muted;
+      background: $white;
+      border: none;
+      cursor: pointer;
+      transition: $transition-base;
+
+      &:first-child {
+        border-right: 1px solid $border-soft;
+      }
+
+      &.rmActive {
+        background: $blue;
+        color: $white;
+      }
+    }
+  }
+
+  .infoWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    &:hover .infoTooltip {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .infoIcon {
+      color: $blue;
+      cursor: default;
+      display: flex;
+      align-items: center;
+    }
+
+    .infoTooltip {
+      @include font-sm;
+      position: absolute;
+      left: 24px;
+      top: 50%;
+      transform: translateY(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: $transition-base;
+      background: $white;
+      border: 1px solid $border-soft;
+      border-radius: $radius-main;
+      box-shadow: $shadow-md;
+      padding: 12px 14px;
+      width: 220px;
+      z-index: 1;
+
+      @media (max-width: 768px) {
+        left: -60px;
+        top: 150%;
+        width: 200px;
+      }
+
+      .infoTitle {
+        color: $text-dark;
+        font-weight: 600;
+        margin: 0 0 6px 0;
+      }
+
+      .infoFormula {
+        color: $blue;
+        background: rgba($blue, 0.07);
+        border-radius: 4px;
+        padding: 4px 8px;
+        margin: 0 0 6px 0;
+      }
+
+      .infoDesc {
+        color: $text-muted;
+        margin: 0;
+        line-height: 1.5;
+      }
+    }
+  }
+
   .partBtn {
     border: 1px solid $border-soft;
     margin-bottom: 20px;

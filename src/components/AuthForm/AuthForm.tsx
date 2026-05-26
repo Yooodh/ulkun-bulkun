@@ -1,11 +1,13 @@
 'use client';
 
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 import styles from './AuthForm.module.scss';
 
 import Button from '../shared/Button/Button';
 import Loading from '../shared/Loading/Loading';
+import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -41,15 +43,18 @@ export default function AuthForm() {
         <Button
           variant='gray'
           size='sm'
-          onClick={async () => {
-            if (!confirm('로그아웃 하시겠습니까?')) return;
-            try {
-              await signOut();
-              alert('로그아웃 되었습니다. 내일도 득근!');
-              window.location.href = '/';
-            } catch (error) {
-              alert(`로그아웃 중 오류 발생: ${(error as Error).message}`);
-            }
+          onClick={() => {
+            ConfirmToast('로그아웃 하시겠습니까?', async () => {
+              try {
+                await signOut();
+                toast.info('로그아웃 되었습니다. 내일도 득근!');
+                window.location.href = '/';
+              } catch (error) {
+                toast.error(
+                  `로그아웃 중 오류 발생: ${(error as Error).message}`,
+                );
+              }
+            });
           }}
         >
           로그아웃
