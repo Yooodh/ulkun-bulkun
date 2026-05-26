@@ -314,7 +314,7 @@ export default function RecordChart({ userId }: RecordChartProps) {
             <LineChart
               data={chartData}
               className={styles.chartWrapper}
-              margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+              margin={{ top: 10, right: 20, left: 0, bottom: 40 }}
             >
               <CartesianGrid
                 strokeDasharray='3 3'
@@ -365,37 +365,47 @@ export default function RecordChart({ userId }: RecordChartProps) {
                 isAnimationActive={true}
               />
               {brushRange && brushRange.endIndex < chartData.length && (
-                <Brush
-                  key={activePart.key}
-                  dataKey='xKey'
-                  height={20}
-                  stroke={activePart.color}
-                  fill='transparent'
-                  startIndex={brushRange.startIndex}
-                  endIndex={brushRange.endIndex}
-                  travellerWidth={8}
-                  y={400}
-                  tickFormatter={(_, index) =>
-                    `${index + 1}/${chartData.length}`
-                  }
-                  onChange={(range) => {
-                    if (
-                      range.startIndex !== undefined &&
-                      range.endIndex !== undefined
-                    ) {
-                      savedBrushRange = {
-                        startIndex: range.startIndex,
-                        endIndex: range.endIndex,
-                        startRatio: range.startIndex / (chartData.length - 1),
-                        endRatio: range.endIndex / (chartData.length - 1),
-                      };
-                      setBrushRange({
-                        startIndex: range.startIndex,
-                        endIndex: range.endIndex,
-                      });
-                    }
-                  }}
-                />
+                <>
+                  <Brush
+                    key={activePart.key}
+                    dataKey='xKey'
+                    height={20}
+                    stroke={activePart.color}
+                    fill='transparent'
+                    startIndex={brushRange.startIndex}
+                    endIndex={brushRange.endIndex}
+                    travellerWidth={8}
+                    y={380}
+                    tickFormatter={() => ''}
+                    onChange={(range) => {
+                      if (
+                        range.startIndex !== undefined &&
+                        range.endIndex !== undefined
+                      ) {
+                        savedBrushRange = {
+                          startIndex: range.startIndex,
+                          endIndex: range.endIndex,
+                          startRatio: range.startIndex / (chartData.length - 1),
+                          endRatio: range.endIndex / (chartData.length - 1),
+                        };
+                        setBrushRange({
+                          startIndex: range.startIndex,
+                          endIndex: range.endIndex,
+                        });
+                      }
+                    }}
+                  />
+                  <text
+                    x='50%'
+                    y={420}
+                    textAnchor='middle'
+                    fontSize={11}
+                    className={styles.chartTick}
+                  >
+                    {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
+                    {chartData.length}개
+                  </text>
+                </>
               )}
             </LineChart>
           </ResponsiveContainer>
