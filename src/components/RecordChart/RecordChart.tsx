@@ -16,7 +16,7 @@ import {
   NameType,
   Payload,
 } from 'recharts/types/component/DefaultTooltipContent';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import styles from './RecordChart.module.scss';
 
@@ -224,6 +224,16 @@ export default function RecordChart({ userId }: RecordChartProps) {
     }
   }, [chartData.length, activePart.key]);
 
+  // 브러쉬 범위 업데이트
+  const updateBrushRange = (next: { startIndex: number; endIndex: number }) => {
+    savedBrushRange = {
+      ...next,
+      startRatio: next.startIndex / (chartData.length - 1),
+      endRatio: next.endIndex / (chartData.length - 1),
+    };
+    setBrushRange(next);
+  };
+
   return (
     <div className={styles.chartContainer}>
       <h1>
@@ -310,62 +320,74 @@ export default function RecordChart({ userId }: RecordChartProps) {
             }
           />
         ) : (
-          <ResponsiveContainer width='100%' height={brushRange ? 420 : 350}>
-            <LineChart
-              data={chartData}
-              className={styles.chartWrapper}
-              margin={{ top: 10, right: 20, left: 0, bottom: 40 }}
-            >
-              <CartesianGrid
-                strokeDasharray='3 3'
-                vertical={false}
-                className={styles.chartGrid}
-              />
-              <XAxis
-                dataKey='xKey'
-                tickFormatter={(val) => {
-                  const d = new Date(val.split('_')[0]);
-                  return `${d.getMonth() + 1}/${d.getDate()}`;
-                }}
-                tick={{ className: styles.chartTick }}
-                tickLine={false}
-                axisLine={false}
-                dy={10}
-              />
-              <YAxis
-                domain={['dataMin - 10', 'dataMax + 10']}
-                tick={{ className: styles.chartTick }}
-                tickLine={false}
-                axisLine={false}
-                unit='kg'
-                width={45}
-              />
-              <Tooltip
-                content={
-                  <CustomTooltip activePart={activePart} show1RM={show1RM} />
-                }
-              />
-              <Line
-                name={activePart.label}
-                type='monotone'
-                connectNulls={false}
-                dataKey={(entry) => {
-                  const point = entry as ChartDataPoint;
-                  const val = show1RM
-                    ? point[activePart.rmKey]
-                    : point[activePart.key];
+          <>
+            {/* 차트 */}
+            <ResponsiveContainer width='100%' height={brushRange ? 375 : 350}>
+              <LineChart
+                data={chartData}
+                className={styles.chartWrapper}
+                margin={{ top: 10, right: 20, left: 0, bottom: 20 }}
+              >
+                {/* 가로선 표시 그리드 */}
+                <CartesianGrid
+                  strokeDasharray='3 3'
+                  vertical={false}
+                  className={styles.chartGrid}
+                />
 
-                  if (typeof val !== 'number' || val === 0) return null;
-                  return val;
-                }}
-                stroke={activePart.color}
-                strokeWidth={3}
-                dot={{ r: 4, fill: activePart.color, strokeWidth: 0 }}
-                activeDot={{ r: 6, strokeWidth: 0 }}
-                isAnimationActive={true}
-              />
-              {brushRange && brushRange.endIndex < chartData.length && (
-                <>
+                {/* 월/일 */}
+                <XAxis
+                  dataKey='xKey'
+                  tickFormatter={(val) => {
+                    const d = new Date(val.split('_')[0]);
+                    return `${d.getMonth() + 1}/${d.getDate()}`;
+                  }}
+                  tick={{ className: styles.chartTick }}
+                  tickLine={false}
+                  axisLine={false}
+                  dy={10}
+                />
+
+                {/* 데이터 범위 */}
+                <YAxis
+                  domain={['dataMin - 10', 'dataMax + 10']}
+                  tick={{ className: styles.chartTick }}
+                  tickLine={false}
+                  axisLine={false}
+                  unit='kg'
+                  width={45}
+                />
+
+                <Tooltip
+                  content={
+                    <CustomTooltip activePart={activePart} show1RM={show1RM} />
+                  }
+                />
+
+                {/* 선택된 부위 데이터 */}
+                <Line
+                  name={activePart.label}
+                  type='monotone'
+                  connectNulls={false}
+                  dataKey={(entry) => {
+                    const point = entry as ChartDataPoint;
+                    const val = show1RM
+                      ? point[activePart.rmKey]
+                      : point[activePart.key];
+
+                    // 값이 없거나 0이면 점 미표시
+                    if (typeof val !== 'number' || val === 0) return null;
+                    return val;
+                  }}
+                  stroke={activePart.color}
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: activePart.color, strokeWidth: 0 }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  isAnimationActive={true}
+                />
+
+                {/* 브러쉬 슬라이더 */}
+                {brushRange && brushRange.endIndex < chartData.length && (
                   <Brush
                     key={activePart.key}
                     dataKey='xKey'
@@ -375,40 +397,101 @@ export default function RecordChart({ userId }: RecordChartProps) {
                     startIndex={brushRange.startIndex}
                     endIndex={brushRange.endIndex}
                     travellerWidth={8}
-                    y={380}
+                    className={styles.charBrush}
+                    y={345}
                     tickFormatter={() => ''}
                     onChange={(range) => {
                       if (
                         range.startIndex !== undefined &&
                         range.endIndex !== undefined
                       ) {
-                        savedBrushRange = {
-                          startIndex: range.startIndex,
-                          endIndex: range.endIndex,
-                          startRatio: range.startIndex / (chartData.length - 1),
-                          endRatio: range.endIndex / (chartData.length - 1),
-                        };
-                        setBrushRange({
+                        updateBrushRange({
                           startIndex: range.startIndex,
                           endIndex: range.endIndex,
                         });
                       }
                     }}
                   />
-                  <text
-                    x='50%'
-                    y={420}
-                    textAnchor='middle'
-                    fontSize={11}
-                    className={styles.chartTick}
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+
+            {/* 브러쉬 내비게이션 버튼 */}
+            {brushRange && brushRange.endIndex < chartData.length && (
+              <div className={styles.brushNav}>
+                {/* 시작점 버튼 */}
+                <div className={styles.brushNavGroup}>
+                  <button
+                    className={styles.brushNavBtn}
+                    onClick={() =>
+                      updateBrushRange({
+                        startIndex: Math.max(0, brushRange.startIndex - 1),
+                        endIndex: brushRange.endIndex,
+                      })
+                    }
+                    disabled={brushRange.startIndex === 0}
                   >
-                    {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
-                    {chartData.length}개
-                  </text>
-                </>
-              )}
-            </LineChart>
-          </ResponsiveContainer>
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    className={styles.brushNavBtn}
+                    onClick={() =>
+                      updateBrushRange({
+                        startIndex: Math.min(
+                          brushRange.startIndex + 1,
+                          brushRange.endIndex - 1,
+                        ),
+                        endIndex: brushRange.endIndex,
+                      })
+                    }
+                    disabled={brushRange.startIndex >= brushRange.endIndex - 1}
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+
+                {/* 현재 브러쉬 범위 텍스트 */}
+                <span className={styles.brushNavText}>
+                  {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
+                  {chartData.length}개
+                </span>
+
+                {/* 끝점 버튼 */}
+                <div className={styles.brushNavGroup}>
+                  <button
+                    className={styles.brushNavBtn}
+                    onClick={() =>
+                      updateBrushRange({
+                        startIndex: brushRange.startIndex,
+                        endIndex: Math.max(
+                          brushRange.endIndex - 1,
+                          brushRange.startIndex + 1,
+                        ),
+                      })
+                    }
+                    disabled={brushRange.endIndex <= brushRange.startIndex + 1}
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    className={styles.brushNavBtn}
+                    onClick={() =>
+                      updateBrushRange({
+                        startIndex: brushRange.startIndex,
+                        endIndex: Math.min(
+                          brushRange.endIndex + 1,
+                          chartData.length - 1,
+                        ),
+                      })
+                    }
+                    disabled={brushRange.endIndex === chartData.length - 1}
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
