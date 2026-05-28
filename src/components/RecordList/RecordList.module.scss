@@ -10,12 +10,11 @@
   overflow: hidden;
 
   h1 {
-    @include font-md-title;
+    @include font-lg-title;
     color: $text-dark;
     margin-bottom: 20px;
 
     strong {
-      @include font-md-title;
       color: $blue;
     }
   }
@@ -29,7 +28,7 @@
       text-align: center;
 
       th {
-        @include font-th;
+        @include font-md-title;
         background: $white;
         padding: 10px;
         color: $ligray-text;
@@ -42,7 +41,7 @@
       }
 
       td {
-        @include font-td;
+        @include font-body;
         padding: 12px;
         border-bottom: 1px solid $border-soft;
         white-space: nowrap;
@@ -87,7 +86,6 @@
     transition:
       opacity 0.15s ease,
       transform 0.15s ease;
-    z-index: 10;
 
     &::after {
       content: '';
@@ -97,6 +95,95 @@
       transform: translateX(-50%);
       border: 5px solid transparent;
       border-top-color: $dark;
+    }
+  }
+}
+
+// 모바일 카드
+@media (max-width: 768px) {
+  .listContainer {
+    padding: 20px 10px;
+  }
+
+  .listTable {
+    thead {
+      display: none;
+    }
+
+    tbody tr {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-areas:
+        'manage manage manage manage'
+        'date   date   date   date'
+        'lift1  lift2  lift3  lift4'
+        'total  total  total  total';
+      background: $white;
+      border: 1px solid $border-soft;
+      border-radius: $radius-main;
+      margin-bottom: 12px;
+      box-shadow: $shadow-md;
+      overflow: hidden;
+    }
+
+    td {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid $border-soft;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &::before {
+        content: attr(data-label);
+        @include font-body;
+        color: $ligray-text;
+        margin-bottom: 4px;
+      }
+    }
+
+    td:nth-child(1),
+    td:nth-child(6),
+    td:nth-child(7) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+
+      &::before {
+        margin-bottom: 0;
+        margin-right: 8px;
+      }
+    }
+
+    td:nth-child(1) {
+      grid-area: date;
+    }
+    td:nth-child(2) {
+      grid-area: lift1;
+      border-right: 1px solid $border-soft;
+    }
+    td:nth-child(3) {
+      grid-area: lift2;
+      border-right: 1px solid $border-soft;
+    }
+    td:nth-child(4) {
+      grid-area: lift3;
+      border-right: 1px solid $border-soft;
+    }
+    td:nth-child(5) {
+      grid-area: lift4;
+    }
+
+    td:nth-child(6) {
+      grid-area: total;
+      border-top: 2px solid $border-light;
+    }
+
+    td:nth-child(7) {
+      grid-area: manage;
     }
   }
 }
