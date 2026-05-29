@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import {
   LineChart,
   Line,
@@ -76,7 +76,9 @@ const PARTS: ChartPart[] = [
   },
   { key: 'ohp', rmKey: 'ohp_1rm', label: 'OHP', color: '#A855F7' },
 ];
+
 const VISIBLE_COUNT = 10;
+const MOBILE_VISIBLE_COUNT = 6;
 
 let savedBrushRange: BrushRange | undefined = undefined;
 
@@ -119,6 +121,16 @@ export default function RecordChart({ userId }: RecordChartProps) {
   const displayName = profile?.nickname || '';
 
   const [show1RM, setShow1RM] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const visibleCount = isMobile ? MOBILE_VISIBLE_COUNT : VISIBLE_COUNT;
 
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
@@ -173,6 +185,8 @@ export default function RecordChart({ userId }: RecordChartProps) {
     { startIndex: number; endIndex: number } | undefined
   >(savedBrushRange);
 
+  const prevVisibleCountRef = useRef(visibleCount);
+
   // 브러쉬 리셋
   useEffect(() => {
     savedBrushRange = undefined;
@@ -183,7 +197,10 @@ export default function RecordChart({ userId }: RecordChartProps) {
   useEffect(() => {
     if (chartData.length < 2) return;
 
-    if (savedBrushRange) {
+    const visibleCountChanged = prevVisibleCountRef.current !== visibleCount;
+    prevVisibleCountRef.current = visibleCount;
+
+    if (savedBrushRange && !visibleCountChanged) {
       const startIndex = Math.round(
         savedBrushRange.startRatio * (chartData.length - 1),
       );
@@ -193,10 +210,10 @@ export default function RecordChart({ userId }: RecordChartProps) {
 
       if (startIndex >= endIndex) {
         const fallback: BrushRange = {
-          startIndex: Math.max(0, chartData.length - VISIBLE_COUNT),
+          startIndex: Math.max(0, chartData.length - visibleCount),
           endIndex: chartData.length - 1,
           startRatio:
-            Math.max(0, chartData.length - VISIBLE_COUNT) /
+            Math.max(0, chartData.length - visibleCount) /
             (chartData.length - 1),
           endRatio: 1,
         };
@@ -208,8 +225,8 @@ export default function RecordChart({ userId }: RecordChartProps) {
       return;
     }
 
-    if (chartData.length > VISIBLE_COUNT) {
-      const startIndex = chartData.length - VISIBLE_COUNT;
+    if (chartData.length > visibleCount) {
+      const startIndex = chartData.length - visibleCount;
       const endIndex = chartData.length - 1;
       const initial: BrushRange = {
         startIndex,
@@ -220,9 +237,10 @@ export default function RecordChart({ userId }: RecordChartProps) {
       savedBrushRange = initial;
       setBrushRange(initial);
     } else {
+      savedBrushRange = undefined;
       setBrushRange(undefined);
     }
-  }, [chartData.length, activePart.key]);
+  }, [chartData.length, activePart.key, visibleCount]);
 
   // 브러쉬 범위 업데이트
   const updateBrushRange = (next: { startIndex: number; endIndex: number }) => {
@@ -252,6 +270,7 @@ export default function RecordChart({ userId }: RecordChartProps) {
               const isActive = activePart.key === part.key;
               return (
                 <Button
+                  type='button'
                   key={part.key}
                   variant='ligray'
                   size='sm'
@@ -272,12 +291,14 @@ export default function RecordChart({ userId }: RecordChartProps) {
           <div className={styles.rmToggleWrapper}>
             <div className={styles.rmToggle}>
               <button
+                type='button'
                 className={`${styles.rmToggleBtn} ${!show1RM ? styles.rmActive : ''}`}
                 onClick={() => setShow1RM(false)}
               >
                 실제 무게
               </button>
               <button
+                type='button'
                 className={`${styles.rmToggleBtn} ${show1RM ? styles.rmActive : ''}`}
                 onClick={() => setShow1RM(true)}
               >
@@ -396,7 +417,7 @@ export default function RecordChart({ userId }: RecordChartProps) {
                     fill='transparent'
                     startIndex={brushRange.startIndex}
                     endIndex={brushRange.endIndex}
-                    travellerWidth={8}
+                    travellerWidth={isMobile ? 0 : 8}
                     className={styles.charBrush}
                     y={345}
                     tickFormatter={() => ''}
@@ -405,10 +426,25 @@ export default function RecordChart({ userId }: RecordChartProps) {
                         range.startIndex !== undefined &&
                         range.endIndex !== undefined
                       ) {
-                        updateBrushRange({
-                          startIndex: range.startIndex,
-                          endIndex: range.endIndex,
-                        });
+                        if (isMobile) {
+                          // 윈도우 크기 고정 및 드래그로 전체 이동
+                          const size =
+                            brushRange.endIndex - brushRange.startIndex;
+                          const newStart = range.startIndex;
+                          const newEnd = Math.min(
+                            newStart + size,
+                            chartData.length - 1,
+                          );
+                          updateBrushRange({
+                            startIndex: newStart,
+                            endIndex: newEnd,
+                          });
+                        } else {
+                          updateBrushRange({
+                            startIndex: range.startIndex,
+                            endIndex: range.endIndex,
+                          });
+                        }
                       }
                     }}
                   />
@@ -419,76 +455,137 @@ export default function RecordChart({ userId }: RecordChartProps) {
             {/* 브러쉬 내비게이션 버튼 */}
             {brushRange && brushRange.endIndex < chartData.length && (
               <div className={styles.brushNav}>
-                {/* 시작점 버튼 */}
-                <div className={styles.brushNavGroup}>
-                  <button
-                    className={styles.brushNavBtn}
-                    onClick={() =>
-                      updateBrushRange({
-                        startIndex: Math.max(0, brushRange.startIndex - 1),
-                        endIndex: brushRange.endIndex,
-                      })
-                    }
-                    disabled={brushRange.startIndex === 0}
-                  >
-                    <ChevronLeft size={20} />
-                  </button>
-                  <button
-                    className={styles.brushNavBtn}
-                    onClick={() =>
-                      updateBrushRange({
-                        startIndex: Math.min(
-                          brushRange.startIndex + 1,
-                          brushRange.endIndex - 1,
-                        ),
-                        endIndex: brushRange.endIndex,
-                      })
-                    }
-                    disabled={brushRange.startIndex >= brushRange.endIndex - 1}
-                  >
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
+                {isMobile ? (
+                  // 모바일
+                  <>
+                    <button
+                      type='button'
+                      aria-label='이전 기록 보기'
+                      className={styles.brushNavBtn}
+                      onClick={() => {
+                        const size =
+                          brushRange.endIndex - brushRange.startIndex;
+                        const newStart = Math.max(0, brushRange.startIndex - 1);
+                        updateBrushRange({
+                          startIndex: newStart,
+                          endIndex: newStart + size,
+                        });
+                      }}
+                      disabled={brushRange.startIndex === 0}
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
 
-                {/* 현재 브러쉬 범위 텍스트 */}
-                <span className={styles.brushNavText}>
-                  {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
-                  {chartData.length}개
-                </span>
+                    <span className={styles.brushNavText}>
+                      {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
+                      {chartData.length}개
+                    </span>
 
-                {/* 끝점 버튼 */}
-                <div className={styles.brushNavGroup}>
-                  <button
-                    className={styles.brushNavBtn}
-                    onClick={() =>
-                      updateBrushRange({
-                        startIndex: brushRange.startIndex,
-                        endIndex: Math.max(
-                          brushRange.endIndex - 1,
-                          brushRange.startIndex + 1,
-                        ),
-                      })
-                    }
-                    disabled={brushRange.endIndex <= brushRange.startIndex + 1}
-                  >
-                    <ChevronLeft size={20} />
-                  </button>
-                  <button
-                    className={styles.brushNavBtn}
-                    onClick={() =>
-                      updateBrushRange({
-                        startIndex: brushRange.startIndex,
-                        endIndex: Math.min(
-                          brushRange.endIndex + 1,
+                    <button
+                      type='button'
+                      aria-label='다음 기록 보기'
+                      className={styles.brushNavBtn}
+                      onClick={() => {
+                        const size =
+                          brushRange.endIndex - brushRange.startIndex;
+                        const newEnd = Math.min(
                           chartData.length - 1,
-                        ),
-                      })
-                    }
-                    disabled={brushRange.endIndex === chartData.length - 1}
-                  >
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
+                          brushRange.endIndex + 1,
+                        );
+                        updateBrushRange({
+                          startIndex: newEnd - size,
+                          endIndex: newEnd,
+                        });
+                      }}
+                      disabled={brushRange.endIndex === chartData.length - 1}
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </>
+                ) : (
+                  // 데스크탑
+                  <>
+                    <div className={styles.brushNavGroup}>
+                      <button
+                        type='button'
+                        aria-label='시작 지점 왼쪽으로 이동'
+                        className={styles.brushNavBtn}
+                        onClick={() =>
+                          updateBrushRange({
+                            startIndex: Math.max(0, brushRange.startIndex - 1),
+                            endIndex: brushRange.endIndex,
+                          })
+                        }
+                        disabled={brushRange.startIndex === 0}
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        type='button'
+                        aria-label='시작 지점 오른쪽으로 이동'
+                        className={styles.brushNavBtn}
+                        onClick={() =>
+                          updateBrushRange({
+                            startIndex: Math.min(
+                              brushRange.startIndex + 1,
+                              brushRange.endIndex - 1,
+                            ),
+                            endIndex: brushRange.endIndex,
+                          })
+                        }
+                        disabled={
+                          brushRange.startIndex >= brushRange.endIndex - 1
+                        }
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+
+                    <span className={styles.brushNavText}>
+                      {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
+                      {chartData.length}개
+                    </span>
+
+                    <div className={styles.brushNavGroup}>
+                      <button
+                        type='button'
+                        aria-label='끝 지점 왼쪽으로 이동'
+                        className={styles.brushNavBtn}
+                        onClick={() =>
+                          updateBrushRange({
+                            startIndex: brushRange.startIndex,
+                            endIndex: Math.max(
+                              brushRange.endIndex - 1,
+                              brushRange.startIndex + 1,
+                            ),
+                          })
+                        }
+                        disabled={
+                          brushRange.endIndex <= brushRange.startIndex + 1
+                        }
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        type='button'
+                        aria-label='끝 지점 오른쪽으로 이동'
+                        className={styles.brushNavBtn}
+                        onClick={() =>
+                          updateBrushRange({
+                            startIndex: brushRange.startIndex,
+                            endIndex: Math.min(
+                              brushRange.endIndex + 1,
+                              chartData.length - 1,
+                            ),
+                          })
+                        }
+                        disabled={brushRange.endIndex === chartData.length - 1}
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </>
