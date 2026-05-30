@@ -9,6 +9,10 @@
   width: 100%;
   overflow: hidden;
 
+  @media (max-width: 768px) {
+    padding: 20px 10px;
+  }
+
   h1 {
     @include font-lg-title;
     color: $text-dark;
@@ -218,6 +222,14 @@
     &:disabled {
       opacity: 0.4;
       cursor: not-allowed;
+    }
+  }
+
+  .charBrush {
+    @media (max-width: 768px) {
+      :global(.recharts-brush-traveller) {
+        display: none;
+      }
     }
   }
 }
