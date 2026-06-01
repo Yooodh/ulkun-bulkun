@@ -1,133 +1,127 @@
 @use '../../../../styles' as *;
 
 .editContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
   width: 100%;
   padding-top: 8px;
 
-  .avatarContainer {
+  .editWrapper {
+    gap: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: 10px;
 
-    .avatarWrapper {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      overflow: hidden;
-      cursor: pointer;
-      flex-shrink: 0;
-      box-shadow: $shadow-md;
-      border: 1px solid $border-liblue;
-
-      &:hover .avatarOverlay {
-        opacity: 1;
-      }
-
-      .avatar {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .defaultAvatar {
-        @include font-xl-title;
-        @include flex-center;
-        line-height: 1;
-        user-select: none;
-        background-color: $white;
-      }
-
-      .avatarOverlay {
-        @include flex-center;
-        @include font-sm;
-        font-weight: 500;
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.4);
-        color: $white;
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-
-      .uploadLoading {
-        @include flex-center;
-        position: absolute;
-        top: 30;
-      }
-    }
-  }
-
-  .fieldList {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    width: 100%;
-
-    .field {
+    .avatarContainer {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      align-items: center;
 
-      label {
-        @include font-sm;
-        color: $text-muted;
-        font-weight: $font-medium;
-        padding-left: 2px;
-      }
-
-      .inputWrapper {
+      .avatarWrapper {
         position: relative;
-        width: 100%;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        flex-shrink: 0;
+        box-shadow: $shadow-md;
+        border: 1px solid $border-liblue;
 
-        input {
-          @include font-body;
-          width: 100%;
-          border: 1.5px solid $border-soft;
-          border-radius: $radius-main;
-          padding: 10px 44px 10px 12px;
-          outline: none;
-          background: $off-white;
-          color: $text-dark;
-          transition:
-            border-color 0.2s,
-            background 0.2s;
-
-          &:focus {
-            border-color: $blue;
-            background: $white;
-          }
-
-          &::placeholder {
-            color: $gray;
-            font-weight: $font-light;
-          }
+        &:hover .avatarOverlay {
+          opacity: 1;
         }
 
-        span {
+        .avatar {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .defaultAvatar {
+          @include font-xl-title;
+          @include flex-center;
+          line-height: 1;
+          user-select: none;
+          background-color: $white;
+        }
+
+        .avatarOverlay {
+          @include flex-center;
           @include font-sm;
+          font-weight: 500;
           position: absolute;
-          right: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: $gray;
-          pointer-events: none;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.4);
+          color: $white;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+
+        .uploadLoading {
+          @include flex-center;
+          position: absolute;
+          top: 30;
         }
       }
     }
-  }
 
-  .editBtns {
-    display: flex;
-    gap: 8px;
-    width: 100%;
+    .fieldList {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
 
-    button {
-      flex: 1;
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        label {
+          @include font-sm;
+          color: $text-muted;
+          font-weight: $font-medium;
+          padding-left: 2px;
+        }
+
+        .inputWrapper {
+          position: relative;
+          width: 100%;
+
+          input {
+            @include font-body;
+            width: 100%;
+            border: 1.5px solid $border-soft;
+            border-radius: $radius-main;
+            padding: 10px 44px 10px 12px;
+            outline: none;
+            background: $off-white;
+            color: $text-dark;
+            transition:
+              border-color 0.2s,
+              background 0.2s;
+
+            &:focus {
+              border-color: $blue;
+              background: $white;
+            }
+
+            &::placeholder {
+              color: $gray;
+              font-weight: $font-light;
+            }
+          }
+
+          span {
+            @include font-sm;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $gray;
+            pointer-events: none;
+          }
+        }
+      }
     }
   }
 
@@ -137,6 +131,19 @@
     gap: 8px;
     width: 100%;
     padding-top: 10px;
+    padding-bottom: 10px;
     border-top: 1px solid $border-soft;
+  }
+
+  .editBtns {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid $border-soft;
+
+    button {
+      flex: 1;
+    }
   }
 }
