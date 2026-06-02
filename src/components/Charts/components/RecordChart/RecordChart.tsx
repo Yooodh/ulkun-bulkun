@@ -18,20 +18,21 @@ import {
 } from 'recharts/types/component/DefaultTooltipContent';
 import { InfoIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
-import styles from './RecordChart.module.scss';
-
-import { StrengthRecord } from '@/types/record';
-
-import Button from '../shared/Button/Button';
-import Empty from '../shared/Empty/Empty';
-import Loading from '../shared/Loading/Loading';
+import Button from '@/components/shared/Button/Button';
+import Loading from '@/components/shared/Loading/Loading';
+import Empty from '@/components/shared/Empty/Empty';
 
 import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 
+import { StrengthRecord } from '@/types/record';
+
+import styles from './RecordChart.module.scss';
+
 type RecordChartProps = {
   userId?: string;
+  tabButtons?: React.ReactNode;
 };
 
 type ChartPart = {
@@ -108,7 +109,7 @@ const calc1RM = (weight: number, reps: number): number => {
   return Math.round(weight * (1 + reps / 30));
 };
 
-export default function RecordChart({ userId }: RecordChartProps) {
+export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
@@ -131,7 +132,6 @@ export default function RecordChart({ userId }: RecordChartProps) {
   }, []);
 
   const visibleCount = isMobile ? MOBILE_VISIBLE_COUNT : VISIBLE_COUNT;
-
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
   const chartData = useMemo(() => {
@@ -254,14 +254,17 @@ export default function RecordChart({ userId }: RecordChartProps) {
 
   return (
     <div className={styles.chartContainer}>
-      <h1>
-        {displayName && (
-          <>
-            <strong>{displayName}</strong> 님의{' '}
-          </>
-        )}
-        성장 곡선
-      </h1>
+      <div className={styles.header}>
+        <h1>
+          {displayName && (
+            <>
+              <strong>{displayName}</strong> 님의{' '}
+            </>
+          )}
+          성장 곡선
+        </h1>
+        {tabButtons}
+      </div>
 
       {!isPageLoading && records.length >= 2 && (
         <>
@@ -378,7 +381,6 @@ export default function RecordChart({ userId }: RecordChartProps) {
                   unit='kg'
                   width={45}
                 />
-
                 <Tooltip
                   content={
                     <CustomTooltip activePart={activePart} show1RM={show1RM} />
@@ -475,12 +477,10 @@ export default function RecordChart({ userId }: RecordChartProps) {
                     >
                       <ChevronLeft size={20} />
                     </button>
-
                     <span className={styles.brushNavText}>
                       {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
                       {chartData.length}개
                     </span>
-
                     <button
                       type='button'
                       aria-label='다음 기록 보기'
@@ -540,12 +540,10 @@ export default function RecordChart({ userId }: RecordChartProps) {
                         <ChevronRight size={20} />
                       </button>
                     </div>
-
                     <span className={styles.brushNavText}>
                       {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
                       {chartData.length}개
                     </span>
-
                     <div className={styles.brushNavGroup}>
                       <button
                         type='button'
