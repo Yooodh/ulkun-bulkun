@@ -3,15 +3,15 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import styles from './RecordForm.module.scss';
-
-import Button from '../shared/Button/Button';
+import Button from '@/components/shared/Button/Button';
 
 import { useRecordForm } from '@/hooks/useRecordForm';
 
 import { blockInvalidNumberChars, stopWheelChange } from '@/utils/inputUtils';
 
 import { RecordFormState } from '@/types/record';
+
+import styles from './RecordForm.module.scss';
 
 const FIELDS: {
   name: keyof Pick<
@@ -77,7 +77,7 @@ export default function RecordForm() {
       const field = FIELDS.find((f) => f.name === fieldName);
       toast.success(`${field?.ko || fieldName} 기록 완료!`);
     },
-    onError: (message) => toast.error(`저장 실패: ${message}`),
+    onError: (message) => toast.error(`${message}`),
   });
 
   const isAllRequiredCommitted = FIELDS.filter((f) => f.required).every(
@@ -100,6 +100,7 @@ export default function RecordForm() {
                   type='number'
                   name={name}
                   inputMode='numeric'
+                  max={9999}
                   onKeyDown={blockInvalidNumberChars}
                   onWheel={stopWheelChange}
                   value={record[name]}
@@ -117,7 +118,7 @@ export default function RecordForm() {
                     name={repsKey}
                     inputMode='numeric'
                     min={record[name] === '0' || record[name] === '' ? 0 : 1}
-                    max={30}
+                    max={99}
                     onKeyDown={blockInvalidNumberChars}
                     onWheel={stopWheelChange}
                     value={record[repsKey]}
@@ -145,7 +146,7 @@ export default function RecordForm() {
                 <Button
                   type='button'
                   variant='blue'
-                  size='sm'
+                  size='lg'
                   className={styles.commitBtn}
                   onClick={() => handleCommit(name)}
                   disabled={!user || record[name] === ''}
@@ -175,7 +176,7 @@ export default function RecordForm() {
 
         <Button
           variant='blue'
-          size='md'
+          size='lg'
           type='submit'
           className={styles.submitBtn}
           disabled={!user || !isAllRequiredCommitted}
