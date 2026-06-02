@@ -168,6 +168,16 @@ export function useRecordForm({
     const repsKey = `${fieldName}_reps` as keyof RecordFormState;
     const repsValue = Number(record[repsKey]) || 1;
 
+    if (value < 0 || value > 9999) {
+      onError?.('중량은 9999kg까지 기록할 수 있습니다.');
+      return;
+    }
+
+    if (repsValue < 0 || repsValue > 99) {
+      onError?.('횟수는 99회까지 기록할 수 있습니다.');
+      return;
+    }
+
     try {
       if (draftIdRef.current) {
         const { error } = await supabase
