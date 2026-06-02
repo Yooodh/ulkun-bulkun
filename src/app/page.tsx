@@ -1,16 +1,16 @@
 'use client';
 
-import styles from './page.module.scss';
-
-import RecordForm from '@/components/RecordForm/RecordForm';
-import RecordList from '@/components/RecordList/RecordList';
-import RecordChart from '@/components/RecordChart/RecordChart';
-import ProfileCard from '@/components/Profile';
-
 import Empty from '@/components/shared/Empty/Empty';
 import NavBar from '@/components/shared/NavBar/NavBar';
 
+import RecordForm from '@/components/RecordForm/RecordForm';
+import RecordList from '@/components/RecordList/RecordList';
+import Charts from '@/components/Charts';
+import ProfileCard from '@/components/Profile';
+
 import { useAuth } from '@/hooks/useAuth';
+
+import styles from './page.module.scss';
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -27,7 +27,7 @@ export default function Home() {
         {user ? (
           <>
             <ProfileCard />
-            <RecordChart />
+            <Charts />
             <RecordList />
           </>
         ) : (

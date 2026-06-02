@@ -4,17 +4,17 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-import styles from './MemberDetail.module.scss';
-
-import RecordChart from '@/components/RecordChart/RecordChart';
-import RecordList from '@/components/RecordList/RecordList';
-import ProfileCard from '@/components/Profile';
-
 import NavBar from '@/components/shared/NavBar/NavBar';
 import Empty from '@/components/shared/Empty/Empty';
 
+import Charts from '@/components/Charts';
+import ProfileCard from '@/components/Profile';
+import RecordList from '@/components/RecordList/RecordList';
+
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
+
+import styles from './MemberDetail.module.scss';
 
 export default function MemberDetailPage() {
   const params = useParams();
@@ -57,7 +57,7 @@ export default function MemberDetailPage() {
 
       <div className={styles.contents}>
         <ProfileCard userId={userId} readOnly={true} />
-        <RecordChart userId={userId} />
+        <Charts userId={userId} />
         <RecordList userId={userId} />
       </div>
     </div>
