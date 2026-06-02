@@ -7,12 +7,12 @@
   gap: 0.5rem;
 
   label {
-    @include font-body;
+    @include font-md-title;
     color: $dark;
   }
 
   input {
-    @include font-sm;
+    @include font-body;
 
     /* Chrome, Safari, Edge, Opera에서 화살표 제거 */
     &::-webkit-outer-spin-button,
