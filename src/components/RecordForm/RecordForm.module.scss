@@ -17,7 +17,7 @@
   .title {
     text-align: center;
     margin-bottom: 2.5rem;
-    @include font-lg-title;
+    @include font-xl-title;
   }
 
   form {
@@ -40,7 +40,7 @@
           flex: 2.5;
           min-width: 0;
           width: 100%;
-          @include font-sm;
+          @include font-body;
         }
 
         .repsWrapper {
@@ -54,7 +54,7 @@
             width: 100%;
             min-width: 0;
             text-align: center;
-            @include font-sm;
+            @include font-body;
             border-width: 2px;
 
             &.committed {
@@ -117,7 +117,6 @@
     }
 
     .submitBtn {
-      @include font-body;
       padding: 1rem;
       width: 100%;
     }
