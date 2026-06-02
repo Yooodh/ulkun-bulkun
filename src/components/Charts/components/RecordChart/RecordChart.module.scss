@@ -1,4 +1,4 @@
-@use '../../styles' as *;
+@use '../../../../styles' as *;
 
 .chartContainer {
   background: $white;
@@ -13,10 +13,17 @@
     padding: 20px 10px;
   }
 
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
   h1 {
     @include font-lg-title;
     color: $text-dark;
-    margin-bottom: 20px;
+    margin-bottom: 0;
 
     strong {
       color: $blue;
