@@ -3,3 +3,35 @@
 .chartsWrapper {
   width: 100%;
 }
+
+.tabGroup {
+  display: flex;
+  gap: 6px;
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: $radius-main;
+  border: 1px solid $border-soft;
+  background: $white;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition-base;
+  @include font-sm;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: $blue;
+    color: $blue;
+  }
+
+  &.active {
+    background: $blue;
+    border-color: $blue;
+    color: $white;
+  }
+}
