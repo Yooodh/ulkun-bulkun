@@ -237,6 +237,9 @@
       :global(.recharts-brush-traveller) {
         display: none;
       }
+      :global(.recharts-brush-slide) {
+        pointer-events: none;
+      }
     }
   }
 }

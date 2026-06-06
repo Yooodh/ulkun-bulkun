@@ -186,6 +186,7 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
   >(savedBrushRange);
 
   const prevVisibleCountRef = useRef(visibleCount);
+  const prevActivePartRef = useRef(activePart.key);
 
   // 브러쉬 리셋
   useEffect(() => {
@@ -198,9 +199,12 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
     if (chartData.length < 2) return;
 
     const visibleCountChanged = prevVisibleCountRef.current !== visibleCount;
-    prevVisibleCountRef.current = visibleCount;
+    const activePartChanged = prevActivePartRef.current !== activePart.key;
 
-    if (savedBrushRange && !visibleCountChanged) {
+    prevVisibleCountRef.current = visibleCount;
+    prevActivePartRef.current = activePart.key;
+
+    if (savedBrushRange && !visibleCountChanged && !activePartChanged) {
       const startIndex = Math.round(
         savedBrushRange.startRatio * (chartData.length - 1),
       );
