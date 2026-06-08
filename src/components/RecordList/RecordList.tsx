@@ -251,15 +251,18 @@ export default function RecordList({ userId }: RecordListProps) {
                 })}
               </tbody>
             </table>
-            <Pagination
-              totalCount={records.length}
-              pageSize={PAGE_SIZE}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
           </div>
         )}
       </div>
+
+      {records.length > 0 && (
+        <Pagination
+          totalCount={records.length}
+          pageSize={PAGE_SIZE}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }
