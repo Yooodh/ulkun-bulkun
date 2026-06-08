@@ -350,7 +350,7 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
         ) : (
           <>
             {/* 차트 */}
-            <ResponsiveContainer width='100%' height={brushRange ? 375 : 350}>
+            <ResponsiveContainer width='100%' height={375}>
               <LineChart
                 data={chartData}
                 className={styles.chartWrapper}
@@ -367,8 +367,27 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
                 <XAxis
                   dataKey='xKey'
                   tickFormatter={(val) => {
-                    const d = new Date(val.split('_')[0]);
-                    return `${d.getMonth() + 1}/${d.getDate()}`;
+                    const startIndex = brushRange?.startIndex ?? 0;
+                    const endIndex =
+                      brushRange?.endIndex ?? chartData.length - 1;
+                    const visibleCount = endIndex - startIndex + 1;
+
+                    if (visibleCount <= 10) {
+                      const d = new Date(val.split('_')[0]);
+                      return `${d.getMonth() + 1}/${d.getDate()}`;
+                    }
+
+                    const currentIndex = chartData.findIndex(
+                      (d) => d.xKey === val,
+                    );
+                    if (
+                      currentIndex === startIndex ||
+                      currentIndex === endIndex
+                    ) {
+                      const d = new Date(val.split('_')[0]);
+                      return `${d.getMonth() + 1}/${d.getDate()}`;
+                    }
+                    return '';
                   }}
                   tick={{ className: styles.chartTick }}
                   tickLine={false}
@@ -459,133 +478,156 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
             </ResponsiveContainer>
 
             {/* 브러쉬 내비게이션 버튼 */}
-            {brushRange && brushRange.endIndex < chartData.length && (
-              <div className={styles.brushNav}>
-                {isMobile ? (
-                  // 모바일
+            {(!isMobile ||
+              (brushRange && brushRange.endIndex < chartData.length)) && (
+              <div
+                className={styles.brushNav}
+                style={{
+                  visibility:
+                    brushRange && brushRange.endIndex < chartData.length
+                      ? 'visible'
+                      : 'hidden',
+                }}
+              >
+                {brushRange && brushRange.endIndex < chartData.length && (
                   <>
-                    <button
-                      type='button'
-                      aria-label='이전 기록 보기'
-                      className={styles.brushNavBtn}
-                      onClick={() => {
-                        const size =
-                          brushRange.endIndex - brushRange.startIndex;
-                        const newStart = Math.max(0, brushRange.startIndex - 1);
-                        updateBrushRange({
-                          startIndex: newStart,
-                          endIndex: newStart + size,
-                        });
-                      }}
-                      disabled={brushRange.startIndex === 0}
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
-                    <span className={styles.brushNavText}>
-                      {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
-                      {chartData.length}개
-                    </span>
-                    <button
-                      type='button'
-                      aria-label='다음 기록 보기'
-                      className={styles.brushNavBtn}
-                      onClick={() => {
-                        const size =
-                          brushRange.endIndex - brushRange.startIndex;
-                        const newEnd = Math.min(
-                          chartData.length - 1,
-                          brushRange.endIndex + 1,
-                        );
-                        updateBrushRange({
-                          startIndex: newEnd - size,
-                          endIndex: newEnd,
-                        });
-                      }}
-                      disabled={brushRange.endIndex === chartData.length - 1}
-                    >
-                      <ChevronRight size={20} />
-                    </button>
-                  </>
-                ) : (
-                  // 데스크탑
-                  <>
-                    <div className={styles.brushNavGroup}>
-                      <button
-                        type='button'
-                        aria-label='시작 지점 왼쪽으로 이동'
-                        className={styles.brushNavBtn}
-                        onClick={() =>
-                          updateBrushRange({
-                            startIndex: Math.max(0, brushRange.startIndex - 1),
-                            endIndex: brushRange.endIndex,
-                          })
-                        }
-                        disabled={brushRange.startIndex === 0}
-                      >
-                        <ChevronLeft size={20} />
-                      </button>
-                      <button
-                        type='button'
-                        aria-label='시작 지점 오른쪽으로 이동'
-                        className={styles.brushNavBtn}
-                        onClick={() =>
-                          updateBrushRange({
-                            startIndex: Math.min(
-                              brushRange.startIndex + 1,
-                              brushRange.endIndex - 1,
-                            ),
-                            endIndex: brushRange.endIndex,
-                          })
-                        }
-                        disabled={
-                          brushRange.startIndex >= brushRange.endIndex - 1
-                        }
-                      >
-                        <ChevronRight size={20} />
-                      </button>
-                    </div>
-                    <span className={styles.brushNavText}>
-                      {brushRange.startIndex + 1} - {brushRange.endIndex + 1} /{' '}
-                      {chartData.length}개
-                    </span>
-                    <div className={styles.brushNavGroup}>
-                      <button
-                        type='button'
-                        aria-label='끝 지점 왼쪽으로 이동'
-                        className={styles.brushNavBtn}
-                        onClick={() =>
-                          updateBrushRange({
-                            startIndex: brushRange.startIndex,
-                            endIndex: Math.max(
-                              brushRange.endIndex - 1,
-                              brushRange.startIndex + 1,
-                            ),
-                          })
-                        }
-                        disabled={
-                          brushRange.endIndex <= brushRange.startIndex + 1
-                        }
-                      >
-                        <ChevronLeft size={20} />
-                      </button>
-                      <button
-                        type='button'
-                        aria-label='끝 지점 오른쪽으로 이동'
-                        className={styles.brushNavBtn}
-                        onClick={() =>
-                          updateBrushRange({
-                            startIndex: brushRange.startIndex,
-                            endIndex: Math.min(
-                              brushRange.endIndex + 1,
+                    {isMobile ? (
+                      // 모바일
+                      <>
+                        <button
+                          type='button'
+                          aria-label='이전 기록 보기'
+                          className={styles.brushNavBtn}
+                          onClick={() => {
+                            const size =
+                              brushRange.endIndex - brushRange.startIndex;
+                            const newStart = Math.max(
+                              0,
+                              brushRange.startIndex - 1,
+                            );
+                            updateBrushRange({
+                              startIndex: newStart,
+                              endIndex: newStart + size,
+                            });
+                          }}
+                          disabled={brushRange.startIndex === 0}
+                        >
+                          <ChevronLeft size={20} />
+                        </button>
+                        <span className={styles.brushNavText}>
+                          {brushRange.startIndex + 1} -{' '}
+                          {brushRange.endIndex + 1} / {chartData.length}개
+                        </span>
+                        <button
+                          type='button'
+                          aria-label='다음 기록 보기'
+                          className={styles.brushNavBtn}
+                          onClick={() => {
+                            const size =
+                              brushRange.endIndex - brushRange.startIndex;
+                            const newEnd = Math.min(
                               chartData.length - 1,
-                            ),
-                          })
-                        }
-                        disabled={brushRange.endIndex === chartData.length - 1}
-                      >
-                        <ChevronRight size={20} />
-                      </button>
-                    </div>
+                              brushRange.endIndex + 1,
+                            );
+                            updateBrushRange({
+                              startIndex: newEnd - size,
+                              endIndex: newEnd,
+                            });
+                          }}
+                          disabled={
+                            brushRange.endIndex === chartData.length - 1
+                          }
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+                      </>
+                    ) : (
+                      // 데스크탑
+                      <>
+                        <div className={styles.brushNavGroup}>
+                          <button
+                            type='button'
+                            aria-label='시작 지점 왼쪽으로 이동'
+                            className={styles.brushNavBtn}
+                            onClick={() =>
+                              updateBrushRange({
+                                startIndex: Math.max(
+                                  0,
+                                  brushRange.startIndex - 1,
+                                ),
+                                endIndex: brushRange.endIndex,
+                              })
+                            }
+                            disabled={brushRange.startIndex === 0}
+                          >
+                            <ChevronLeft size={20} />
+                          </button>
+                          <button
+                            type='button'
+                            aria-label='시작 지점 오른쪽으로 이동'
+                            className={styles.brushNavBtn}
+                            onClick={() =>
+                              updateBrushRange({
+                                startIndex: Math.min(
+                                  brushRange.startIndex + 1,
+                                  brushRange.endIndex - 1,
+                                ),
+                                endIndex: brushRange.endIndex,
+                              })
+                            }
+                            disabled={
+                              brushRange.startIndex >= brushRange.endIndex - 1
+                            }
+                          >
+                            <ChevronRight size={20} />
+                          </button>
+                        </div>
+                        <span className={styles.brushNavText}>
+                          {brushRange.startIndex + 1} -{' '}
+                          {brushRange.endIndex + 1} / {chartData.length}개
+                        </span>
+                        <div className={styles.brushNavGroup}>
+                          <button
+                            type='button'
+                            aria-label='끝 지점 왼쪽으로 이동'
+                            className={styles.brushNavBtn}
+                            onClick={() =>
+                              updateBrushRange({
+                                startIndex: brushRange.startIndex,
+                                endIndex: Math.max(
+                                  brushRange.endIndex - 1,
+                                  brushRange.startIndex + 1,
+                                ),
+                              })
+                            }
+                            disabled={
+                              brushRange.endIndex <= brushRange.startIndex + 1
+                            }
+                          >
+                            <ChevronLeft size={20} />
+                          </button>
+                          <button
+                            type='button'
+                            aria-label='끝 지점 오른쪽으로 이동'
+                            className={styles.brushNavBtn}
+                            onClick={() =>
+                              updateBrushRange({
+                                startIndex: brushRange.startIndex,
+                                endIndex: Math.min(
+                                  brushRange.endIndex + 1,
+                                  chartData.length - 1,
+                                ),
+                              })
+                            }
+                            disabled={
+                              brushRange.endIndex === chartData.length - 1
+                            }
+                          >
+                            <ChevronRight size={20} />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
               </div>
