@@ -8,11 +8,21 @@
   padding: 20px;
   width: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .contentWrapper {
+    flex: 1;
+  }
 
   h1 {
     @include font-lg-title;
     color: $text-dark;
     margin-bottom: 20px;
+
+    @media (max-width: 400px) {
+      @include font-md-title;
+    }
 
     strong {
       color: $blue;
@@ -160,6 +170,7 @@
 
     td:nth-child(1) {
       grid-area: date;
+      background: $off-white;
     }
     td:nth-child(2) {
       grid-area: lift1;
