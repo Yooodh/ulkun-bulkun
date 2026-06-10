@@ -93,6 +93,10 @@
       padding: 0 24px 15px;
       display: flex;
       flex-direction: column;
+
+      @media (max-width: 768px) {
+        padding: 0 10px 15px;
+      }
     }
 
     .contentDetails {
