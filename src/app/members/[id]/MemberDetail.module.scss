@@ -46,7 +46,7 @@
     }
 
     .title {
-      @include font-lg-title;
+      @include font-xl-title;
       text-align: center;
       gap: 8px;
       white-space: nowrap;
