@@ -10,7 +10,7 @@
   white-space: nowrap;
 
   p {
-    @include font-body;
+    @include font-md-title;
     color: $text-dark;
     margin: 0;
   }
@@ -18,7 +18,7 @@
   span {
     display: block;
     margin-top: 8px;
-    @include font-sm;
+    @include font-body;
     color: $text-muted;
   }
 }
