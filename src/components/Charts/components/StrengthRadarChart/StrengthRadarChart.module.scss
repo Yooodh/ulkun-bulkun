@@ -25,6 +25,10 @@
     color: $text-dark;
     margin-bottom: 0;
 
+    @media (max-width: 400px) {
+      @include font-md-title;
+    }
+
     strong {
       color: $blue;
     }
@@ -40,6 +44,10 @@
       @include font-body;
       color: $text-muted;
       margin-bottom: 0;
+
+      @media (max-width: 400px) {
+        @include font-sm;
+      }
     }
 
     .infoWrapper {
@@ -132,7 +140,6 @@
       flex-direction: column;
       gap: 10px;
       margin-top: 8px;
-      padding: 0 8px;
 
       .scoreItem {
         display: flex;

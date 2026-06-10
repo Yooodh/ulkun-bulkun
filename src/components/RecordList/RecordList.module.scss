@@ -124,10 +124,10 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-areas:
-        'manage manage manage manage'
         'date   date   date   date'
         'lift1  lift2  lift3  lift4'
-        'total  total  total  total';
+        'total  total  total  total'
+        'manage manage manage manage';
       background: $white;
       border: 1px solid $border-soft;
       border-radius: $radius-main;

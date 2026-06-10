@@ -46,6 +46,10 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 
+    @media (max-width: 768px) {
+      gap: 5px;
+    }
+
     .recordsBox {
       text-align: center;
       display: flex;
@@ -56,6 +60,10 @@
       flex-direction: column;
       gap: 2px;
       overflow: hidden;
+
+      @media (max-width: 768px) {
+        padding: 10px;
+      }
 
       .recordsHeader {
         display: flex;

@@ -228,7 +228,7 @@ export default function StrengthRadarChart({
           />
         ) : (
           <>
-            <ResponsiveContainer width='100%' height={280}>
+            <ResponsiveContainer width='100%' height={285}>
               <RadarChart
                 accessibilityLayer={false}
                 data={chartData}

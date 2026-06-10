@@ -7,8 +7,6 @@
   border-radius: $radius-main;
   padding: 20px;
   width: 100%;
-  overflow: hidden;
-  min-height: 500px;
 
   @media (max-width: 768px) {
     padding: 20px 10px;
@@ -26,6 +24,10 @@
     color: $text-dark;
     margin-bottom: 0;
 
+    @media (max-width: 400px) {
+      @include font-md-title;
+    }
+
     strong {
       color: $blue;
     }
@@ -37,6 +39,10 @@
     overflow-x: auto;
     padding-bottom: 5px;
     flex-wrap: nowrap;
+
+    @media (max-width: 768px) {
+      gap: 6px;
+    }
 
     &::-webkit-scrollbar {
       display: none;
