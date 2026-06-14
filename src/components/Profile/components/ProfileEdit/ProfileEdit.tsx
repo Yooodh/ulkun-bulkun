@@ -149,88 +149,92 @@ export default function ProfileEdit({
 
   return (
     <div className={styles.editContainer}>
-      <div className={styles.avatarContainer}>
-        <div
-          className={styles.avatarWrapper}
-          onClick={() => !uploading && fileInputRef.current?.click()}
-        >
-          {tempAvatar ? (
-            <Image
-              src={tempAvatar}
-              alt={`${tempNickname}님의 프로필 편집`}
-              className={styles.avatar}
-              width={85}
-              height={85}
-              unoptimized
-            />
-          ) : (
-            <div className={`${styles.avatar} ${styles.defaultAvatar}`}>💪</div>
-          )}
-          <div className={styles.avatarOverlay}>
-            {uploading ? (
-              <div className={styles.avatarLoading}>
-                <Loading size='sm' message='' />
-              </div>
+      <div className={styles.editWrapper}>
+        <div className={styles.avatarContainer}>
+          <div
+            className={styles.avatarWrapper}
+            onClick={() => !uploading && fileInputRef.current?.click()}
+          >
+            {tempAvatar ? (
+              <Image
+                src={tempAvatar}
+                alt={`${tempNickname}님의 프로필 편집`}
+                className={styles.avatar}
+                width={85}
+                height={85}
+                unoptimized
+              />
             ) : (
-              <Camera size={18} strokeWidth={2} />
+              <div className={`${styles.avatar} ${styles.defaultAvatar}`}>
+                💪
+              </div>
             )}
+            <div className={styles.avatarOverlay}>
+              {uploading ? (
+                <div className={styles.avatarLoading}>
+                  <Loading size='sm' message='' />
+                </div>
+              ) : (
+                <Camera size={18} strokeWidth={2} />
+              )}
+            </div>
           </div>
-        </div>
-        <input
-          type='file'
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          hidden
-          accept='image/*'
-        />
-      </div>
-
-      <div className={styles.fieldList}>
-        <div className={styles.field}>
-          <label>상태 메시지</label>
-          <div className={styles.inputWrapper}>
-            <input
-              type='text'
-              value={tempStatus}
-              onChange={(e) => setTempStatus(e.target.value)}
-              placeholder='상태 메시지를 입력해주세요.'
-              maxLength={20}
-              autoFocus
-            />
-            <span>{tempStatus.length}/20</span>
-          </div>
+          <input
+            type='file'
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            hidden
+            accept='image/*'
+          />
         </div>
 
-        <div className={styles.field}>
-          <label>닉네임</label>
-          <div className={styles.inputWrapper}>
-            <input
-              type='text'
-              value={tempNickname}
-              onChange={(e) => setTempNickname(e.target.value)}
-              placeholder='닉네임을 입력해주세요.'
-              maxLength={10}
-            />
-            <span>{tempNickname.length}/10</span>
+        <div className={styles.fieldList}>
+          <div className={styles.field}>
+            <label>상태 메시지</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type='text'
+                value={tempStatus}
+                onChange={(e) => setTempStatus(e.target.value)}
+                placeholder='상태 메시지를 입력해주세요.'
+                maxLength={20}
+                autoFocus
+              />
+              <span>{tempStatus.length}/20</span>
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label>닉네임</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type='text'
+                value={tempNickname}
+                onChange={(e) => setTempNickname(e.target.value)}
+                placeholder='닉네임을 입력해주세요.'
+                maxLength={10}
+              />
+              <span>{tempNickname.length}/10</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className={styles.editBtns}>
-        <Button variant='blue' size='sm' onClick={handleConfirmSave}>
-          저장
-        </Button>
-        <Button variant='gray' size='sm' onClick={handleCancel}>
-          취소
-        </Button>
       </div>
 
       <div className={styles.dangerBtns}>
-        <Button variant='ligray' size='sm' onClick={handleReset}>
+        <Button variant='gray' size='sm' onClick={handleReset}>
           프로필 초기화
         </Button>
         <Button variant='red' size='sm' onClick={handleDeleteAccount}>
           회원 탈퇴
+        </Button>
+      </div>
+
+      <div className={styles.editBtns}>
+        <Button variant='ligray' size='md' onClick={handleCancel}>
+          취소
+        </Button>
+        <Button variant='blue' size='md' onClick={handleConfirmSave}>
+          저장
         </Button>
       </div>
     </div>

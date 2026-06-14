@@ -23,27 +23,40 @@ type RecordListProps = {
   userId?: string;
 };
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 7;
 
 type RepsTooltipProps = {
   weight: number | null;
   reps: number;
   label: string;
+  className?: string;
 };
 
-function WeightCell({ weight, reps, label }: RepsTooltipProps) {
-  if (weight === null || weight === undefined) return <td>-</td>;
+function WeightCell({ weight, reps, label, className }: RepsTooltipProps) {
+  if (weight === null || weight === undefined)
+    return (
+      <td data-label={label} className={className}>
+        -
+      </td>
+    );
 
   if (weight === 0) {
-    return <td>0kg</td>;
+    return (
+      <td data-label={label} className={className}>
+        0kg
+      </td>
+    );
   }
 
   return (
-    <td className={styles.weightCell}>
+    <td
+      data-label={label}
+      className={`${styles.weightCell} ${className ?? ''}`}
+    >
       <span className={styles.weightWithTooltip}>
         {weight}kg
         <span className={styles.tooltip}>
-          {label} {weight}kg x {reps}회
+          {weight}kg x {reps}회
         </span>
       </span>
     </td>
@@ -150,7 +163,7 @@ export default function RecordList({ userId }: RecordListProps) {
 
                   return (
                     <tr key={r.id}>
-                      <td>
+                      <td data-label='날짜'>
                         {!isReadOnly && editingId === r.id ? (
                           <input
                             type='date'
@@ -187,26 +200,32 @@ export default function RecordList({ userId }: RecordListProps) {
                         weight={r.squat}
                         reps={r.squat_reps ?? 1}
                         label='스쿼트'
+                        className={styles.liftCell}
                       />
                       <WeightCell
                         weight={r.deadlift}
                         reps={r.deadlift_reps ?? 1}
                         label='데드'
+                        className={styles.liftCell}
                       />
                       <WeightCell
                         weight={r.bench_press}
                         reps={r.bench_press_reps ?? 1}
                         label='벤치'
+                        className={styles.liftCell}
                       />
                       <WeightCell
                         weight={r.ohp}
                         reps={r.ohp_reps ?? 1}
                         label='OHP'
+                        className={styles.liftCell}
                       />
-                      <td className={styles.total}>{r.total_weight}kg</td>
+                      <td data-label='합계' className={styles.total}>
+                        {r.total_weight}kg
+                      </td>
 
                       {!isReadOnly && (
-                        <td>
+                        <td data-label='관리'>
                           <Button
                             variant='red'
                             size='sm'
@@ -232,15 +251,18 @@ export default function RecordList({ userId }: RecordListProps) {
                 })}
               </tbody>
             </table>
-            <Pagination
-              totalCount={records.length}
-              pageSize={PAGE_SIZE}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
           </div>
         )}
       </div>
+
+      {records.length > 0 && (
+        <Pagination
+          totalCount={records.length}
+          pageSize={PAGE_SIZE}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

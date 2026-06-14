@@ -1,4 +1,4 @@
-@use '../../styles' as *;
+@use '../../../../styles' as *;
 
 .chartContainer {
   background: $white;
@@ -7,15 +7,28 @@
   border-radius: $radius-main;
   padding: 20px;
   width: 100%;
-  overflow: hidden;
+
+  @media (max-width: 768px) {
+    padding: 20px 10px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
 
   h1 {
-    @include font-md-title;
+    @include font-lg-title;
     color: $text-dark;
-    margin-bottom: 20px;
+    margin-bottom: 0;
+
+    @media (max-width: 400px) {
+      @include font-md-title;
+    }
 
     strong {
-      @include font-md-title;
       color: $blue;
     }
   }
@@ -26,6 +39,10 @@
     overflow-x: auto;
     padding-bottom: 5px;
     flex-wrap: nowrap;
+
+    @media (max-width: 768px) {
+      gap: 6px;
+    }
 
     &::-webkit-scrollbar {
       display: none;
@@ -145,46 +162,92 @@
   :focus {
     outline: none;
   }
-}
 
-.contentWrapper {
-  width: 100%;
-}
+  .contentWrapper {
+    width: 100%;
+  }
 
-.chartWrapper {
-  width: 100%;
+  .chartWrapper {
+    width: 100%;
 
-  .chartGrid {
-    line {
-      stroke: $border-soft;
+    .chartGrid {
+      line {
+        stroke: $border-soft;
+      }
+    }
+
+    .chartTick {
+      @include font-td;
+      fill: $text-muted;
+    }
+
+    .line {
+      transition: $transition-base;
+    }
+
+    .customTooltip {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: $radius-main;
+      box-shadow: $shadow-md;
+      border: 1px solid $border-soft;
+      padding: 12px;
+
+      .tooltipDate {
+        @include font-sm;
+        margin: 0 0 4px 0;
+        color: $text-dark;
+      }
+
+      .tooltipValue {
+        @include font-body;
+        margin: 0;
+      }
     }
   }
 
-  .chartTick {
-    @include font-td;
-    fill: $text-muted;
+  .brushNav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 35px;
+    position: relative;
+    left: 12px;
+    min-height: 36px;
   }
 
-  .line {
-    transition: $transition-base;
+  .brushNavText {
+    @include font-sm;
+    color: $text-muted;
+    text-align: center;
   }
 
-  .customTooltip {
-    background-color: rgba(255, 255, 255, 0.95);
-    border-radius: $radius-main;
-    box-shadow: $shadow-md;
-    border: 1px solid $border-soft;
-    padding: 12px;
+  .brushNavGroup {
+    display: flex;
+    gap: 2px;
+  }
 
-    .tooltipDate {
-      @include font-sm;
-      margin: 0 0 4px 0;
-      color: $text-dark;
+  .brushNavBtn {
+    background: none;
+    border: none;
+    padding: 2px 8px;
+    cursor: pointer;
+    color: $text-dark;
+    transition: background 0.15s;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
+  }
 
-    .tooltipValue {
-      @include font-body;
-      margin: 0;
+  .charBrush {
+    @media (max-width: 768px) {
+      :global(.recharts-brush-traveller) {
+        display: none;
+      }
+      :global(.recharts-brush-slide) {
+        pointer-events: none;
+      }
     }
   }
 }
