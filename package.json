@@ -18,12 +18,14 @@
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
     "sass": "^1.97.3",
+    "serwist": "^9.5.11",
     "sonner": "^2.0.7",
     "three": "^0.184.0",
     "web-push": "^3.6.7",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@serwist/turbopack": "^9.5.11",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -31,6 +33,7 @@
     "@types/three": "^0.184.0",
     "@types/web-push": "^3.6.4",
     "babel-plugin-react-compiler": "1.0.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "typescript": "^5"
