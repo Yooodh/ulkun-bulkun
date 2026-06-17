@@ -11,10 +11,13 @@ import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { usePushNotification } from '@/hooks/usePushNotification';
 
 export default function AuthForm() {
   const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
   const { data: myProfile } = useProfile(user?.id);
+
+  usePushNotification(user?.id ?? null);
 
   if (authLoading) {
     return (
