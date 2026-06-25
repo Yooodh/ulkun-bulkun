@@ -237,6 +237,7 @@ export function useRecordForm({
     try {
       const today = new Date().toISOString().split('T')[0];
 
+      // DB에 기록 상태 completed로 업데이트
       const { error: updateError } = await supabase
         .from('records')
         .update({
@@ -245,18 +246,26 @@ export function useRecordForm({
           recorded_at: today,
         })
         .eq('id', draftIdRef.current);
+
       if (updateError) throw updateError;
 
-      await supabase
-        .from('profiles')
-        .update({ last_activity: new Date().toISOString() })
-        .eq('id', user.id);
+      // 알림 API 라우트 호출
+      fetch('/api/notify-followers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-secret':
+            process.env.NEXT_PUBLIC_INTERNAL_API_SECRET || '',
+        },
+        body: JSON.stringify({ user_id: user.id }),
+      }).catch((err) => console.error('알림 네트워크 에러:', err));
 
-      // 상태 초기화
+      // 성공 피드백 및 상태 초기화
+      onSuccess?.();
+
       draftIdRef.current = null;
       setRecord(INITIAL_STATE);
       setLastCommits(INITIAL_STATE);
-      onSuccess?.();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : '저장 중 에러가 발생했습니다.';
