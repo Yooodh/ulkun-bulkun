@@ -4,6 +4,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'gray' | 'red' | 'ligray' | 'blue' | 'white' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   shape?: 'square' | 'round';
+  active?: boolean;
 };
 
 export default function Button({
@@ -11,12 +12,13 @@ export default function Button({
   variant = 'gray',
   size = 'md',
   shape = 'square',
+  active,
   className,
   ...props
 }: ButtonProps) {
   return (
     <button
-      className={`${styles.button} ${styles[variant]} ${styles[size]} ${styles[shape]} ${className || ''}`}
+      className={`${styles.button} ${styles[variant]} ${styles[size]} ${styles[shape]} ${active ? styles.active : ''} ${className || ''}`}
       {...props}
     >
       {children}
