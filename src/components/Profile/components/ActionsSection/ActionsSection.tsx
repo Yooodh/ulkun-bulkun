@@ -1,6 +1,15 @@
 'use client';
 
-import { Edit, Share2, Bell, Eye, EyeOff } from 'lucide-react';
+import {
+  Edit,
+  Share2,
+  Bell,
+  BellOff,
+  Eye,
+  EyeOff,
+  UserRoundPlus,
+  UserRoundCheck,
+} from 'lucide-react';
 
 import styles from './ActionsSection.module.scss';
 
@@ -10,16 +19,26 @@ type ActionsSectionProps = {
   onShare?: () => void;
   onEditProfile?: () => void;
   onTogglePublic?: () => void;
+  onSubscribe?: () => void;
+  onToggleNotification?: () => void;
   isPublic?: boolean;
+  isSubscribed?: boolean;
+  isNotificationOn?: boolean;
   readOnly?: boolean;
+  isMyProfile?: boolean;
 };
 
 export default function ActionsSection({
   onShare,
   onEditProfile,
   onTogglePublic,
+  onSubscribe,
+  onToggleNotification,
   isPublic,
+  isSubscribed,
+  isNotificationOn,
   readOnly,
+  isMyProfile,
 }: ActionsSectionProps) {
   return (
     <section className={styles.actionContainer}>
@@ -35,16 +54,35 @@ export default function ActionsSection({
         공유
       </Button>
 
+      {readOnly && !isMyProfile && (
+        <Button variant='outline' active={isSubscribed} onClick={onSubscribe}>
+          {isSubscribed ? (
+            <UserRoundCheck size={16} strokeWidth={2} />
+          ) : (
+            <UserRoundPlus size={16} strokeWidth={2} />
+          )}
+          {isSubscribed ? '팔로잉' : '팔로우'}
+        </Button>
+      )}
+
       {!readOnly && (
         <>
-          <Button variant='outline' disabled>
-            <Bell size={16} strokeWidth={2} />
-            알림
-          </Button>
-
-          <Button variant='outline' onClick={onTogglePublic}>
+          <Button variant='outline' active={isPublic} onClick={onTogglePublic}>
             {isPublic ? <Eye size={16} /> : <EyeOff size={16} />}
             {isPublic ? '공개' : '비공개'}
+          </Button>
+
+          <Button
+            variant='outline'
+            active={isNotificationOn}
+            onClick={onToggleNotification}
+          >
+            {isNotificationOn ? (
+              <Bell size={16} strokeWidth={2} />
+            ) : (
+              <BellOff size={16} strokeWidth={2} />
+            )}
+            {isNotificationOn ? '알림 켬' : '알림 끔'}
           </Button>
         </>
       )}
