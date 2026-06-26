@@ -61,6 +61,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 150px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .subscribedBadge {
+      flex-shrink: 0;
+      color: $blue;
+    }
   }
 
   .userStats {
