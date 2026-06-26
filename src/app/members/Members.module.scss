@@ -22,3 +22,13 @@
     }
   }
 }
+
+.filterTabs {
+  @include flex-center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+
+  button {
+    color: $text-muted;
+  }
+}
