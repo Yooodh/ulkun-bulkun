@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { UserRoundCheck } from 'lucide-react';
 
 import styles from './UserCard.module.scss';
 
@@ -10,9 +11,10 @@ import { getDisplayDate, getCombinedTotalFromUser } from '@/utils/recordUtils';
 
 type UserCardProps = {
   user: UserSummary;
+  isSubscribed?: boolean;
 };
 
-export default function UserCard({ user }: UserCardProps) {
+export default function UserCard({ user, isSubscribed }: UserCardProps) {
   const isPrivate = user.is_public === false;
 
   const cardContent = (
@@ -34,7 +36,12 @@ export default function UserCard({ user }: UserCardProps) {
 
       <div className={styles.userInfo}>
         <p className={styles.statusMessage}>{user.status_message}</p>
-        <h3 className={styles.userName}>{user.nickname}</h3>
+        <h3 className={styles.userName}>
+          {user.nickname}
+          {isSubscribed && (
+            <UserRoundCheck size={18} className={styles.subscribedBadge} />
+          )}
+        </h3>
         <p className={styles.userStats}>
           PR:<span>{getCombinedTotalFromUser(user)}</span>
         </p>
