@@ -279,15 +279,18 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
                 <Button
                   type='button'
                   key={part.key}
-                  variant='ligray'
+                  variant='outline'
                   size='sm'
                   shape='round'
                   onClick={() => setActivePart(part)}
                   className={`${styles.partBtn} ${isActive ? styles.active : ''}`}
-                  style={{
-                    backgroundColor: isActive ? part.color : '',
-                    borderColor: isActive ? part.color : '',
-                  }}
+                  style={
+                    {
+                      backgroundColor: isActive ? part.color : '',
+                      borderColor: isActive ? part.color : '',
+                      '--part-color': part.color,
+                    } as React.CSSProperties
+                  }
                 >
                   {part.label}
                 </Button>
