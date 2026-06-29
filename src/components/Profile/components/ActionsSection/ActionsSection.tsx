@@ -26,6 +26,7 @@ type ActionsSectionProps = {
   isNotificationOn?: boolean;
   readOnly?: boolean;
   isMyProfile?: boolean;
+  isLoggedIn?: boolean;
 };
 
 export default function ActionsSection({
@@ -39,6 +40,7 @@ export default function ActionsSection({
   isNotificationOn,
   readOnly,
   isMyProfile,
+  isLoggedIn,
 }: ActionsSectionProps) {
   return (
     <section className={styles.actionContainer}>
@@ -54,7 +56,7 @@ export default function ActionsSection({
         공유
       </Button>
 
-      {readOnly && !isMyProfile && (
+      {readOnly && !isMyProfile && isLoggedIn && (
         <Button variant='outline' active={isSubscribed} onClick={onSubscribe}>
           {isSubscribed ? (
             <UserRoundCheck size={16} strokeWidth={2} />
