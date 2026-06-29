@@ -80,14 +80,17 @@ export function useSubscription(targetId?: string, myId?: string) {
           (prev) => new Set(prev ?? []).add(myId),
         );
 
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
         fetch('/api/notify-new-subscriber', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-internal-secret':
-              process.env.NEXT_PUBLIC_INTERNAL_API_SECRET || '',
+            Authorization: `Bearer ${session?.access_token ?? ''}`,
           },
-          body: JSON.stringify({ subscriber_id: myId, target_id: targetId }),
+          body: JSON.stringify({ target_id: targetId }),
         }).catch((err) => console.error('구독 알림 에러:', err));
       }
     }
