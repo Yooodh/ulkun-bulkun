@@ -55,6 +55,7 @@ export default function ProfileCard({
 
   const isMyProfile = !userId || userId === user?.id;
   const canEdit = isMyProfile && user && !readOnly;
+  const isLoggedIn = !!user;
 
   const { isNotificationOn, toggle: handleNotificationToggle } =
     useNotificationToggle(isMyProfile ? user?.id : null);
@@ -205,6 +206,7 @@ export default function ProfileCard({
                   isSubscribed={isSubscribed}
                   isNotificationOn={isNotificationOn}
                   readOnly={!canEdit}
+                  isLoggedIn={isLoggedIn}
                   isMyProfile={isMyProfile}
                 />
               </div>
