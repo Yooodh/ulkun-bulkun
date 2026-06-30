@@ -11,16 +11,20 @@ webpush.setVapidDetails(
 
 export async function POST(req: NextRequest) {
   // 내부 호출(DB 트리거)인지 검증
-  const secret = req.headers.get('x-internal-secret');
-  if (secret !== process.env.INTERNAL_API_SECRET) {
+  const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { user_id } = await req.json();
-
-  if (!user_id) {
-    return NextResponse.json({ error: 'user_id is required' }, { status: 400 });
+  const {
+    data: { user },
+    error: authError,
+  } = await supabaseAdmin.auth.getUser(token);
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
+
+  const user_id = user.id;
 
   try {
     // 해당 유저를 팔로우한 사람들 조회
