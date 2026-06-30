@@ -250,14 +250,16 @@ export function useRecordForm({
       if (updateError) throw updateError;
 
       // 알림 API 라우트 호출
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       fetch('/api/notify-followers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-internal-secret':
-            process.env.NEXT_PUBLIC_INTERNAL_API_SECRET || '',
+          Authorization: `Bearer ${session?.access_token ?? ''}`,
         },
-        body: JSON.stringify({ user_id: user.id }),
       }).catch((err) => console.error('알림 네트워크 에러:', err));
 
       // 성공 피드백 및 상태 초기화
