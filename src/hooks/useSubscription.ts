@@ -42,7 +42,7 @@ export function useSubscription(targetId?: string, myId?: string) {
 
       if (!error) {
         setIsSubscribed(false);
-        toast.info('구독을 취소했어요.');
+        toast.info('팔로우를 취소했어요.');
 
         queryClient.setQueryData<Set<string>>(
           ['mySubscriptions', myId],
@@ -69,7 +69,7 @@ export function useSubscription(targetId?: string, myId?: string) {
 
       if (!error) {
         setIsSubscribed(true);
-        toast.info('구독을 시작했어요!');
+        toast.info('팔로우를 시작했어요!');
 
         queryClient.setQueryData<Set<string>>(
           ['mySubscriptions', myId],
@@ -91,7 +91,7 @@ export function useSubscription(targetId?: string, myId?: string) {
             Authorization: `Bearer ${session?.access_token ?? ''}`,
           },
           body: JSON.stringify({ target_id: targetId }),
-        }).catch((err) => console.error('구독 알림 에러:', err));
+        }).catch((err) => console.error('팔로우 알림 에러:', err));
       }
     }
   };
