@@ -7,6 +7,7 @@ export type ProfileData = {
   avatar_url: string;
   status_message: string;
   is_public: boolean;
+  weight: number | null;
 };
 
 export function useProfile(userId: string | undefined) {
@@ -17,7 +18,7 @@ export function useProfile(userId: string | undefined) {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('nickname, avatar_url, status_message, is_public')
+        .select('nickname, avatar_url, status_message, is_public, weight')
         .eq('id', userId)
         .single();
 
@@ -25,13 +26,13 @@ export function useProfile(userId: string | undefined) {
 
       return {
         nickname: data.nickname || '울끈불끈이',
-
         avatar_url:
           data.avatar_url && data.avatar_url.trim() !== ''
             ? data.avatar_url
             : undefined,
         status_message: data.status_message || '울끈불끈!',
         is_public: data.is_public ?? true,
+        weight: data.weight ?? null,
       };
     },
     enabled: !!userId,
