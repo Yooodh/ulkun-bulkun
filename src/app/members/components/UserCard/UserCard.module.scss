@@ -65,9 +65,29 @@
     align-items: center;
     gap: 6px;
 
+    .subscribedBadgeBtn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 2px;
+      margin: 0;
+      cursor: pointer;
+      line-height: 0;
+      border-radius: 4px;
+      transition: $transition-base;
+
+      &:hover {
+        background: rgba($blue, 0.1);
+      }
+    }
+
     .subscribedBadge {
       flex-shrink: 0;
       color: $blue;
+      pointer-events: none;
     }
   }
 
