@@ -55,6 +55,7 @@ export function useProfileUpdate(user: User) {
     status: string,
     avatarUrl: string,
     isPublic: boolean,
+    weight?: number | null,
   ) => {
     try {
       const { error } = await supabase.from('profiles').upsert({
@@ -63,6 +64,7 @@ export function useProfileUpdate(user: User) {
         status_message: status || '울끈불끈!',
         avatar_url: avatarUrl,
         is_public: isPublic,
+        weight: weight ?? null,
         updated_at: new Date().toISOString(),
       });
 
@@ -87,6 +89,7 @@ export function useProfileUpdate(user: User) {
         status_message: '울끈불끈!',
         avatar_url: originalAvatar,
         is_public: true,
+        weight: null,
         updated_at: new Date().toISOString(),
       });
 
