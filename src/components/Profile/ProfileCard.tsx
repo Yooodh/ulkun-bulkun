@@ -67,6 +67,7 @@ export default function ProfileCard({
     nickname: string,
     avatar_url: string,
     status_message: string,
+    weight: number | null,
   ) => {
     if (!profile) return;
     const success = await saveFullProfile(
@@ -74,6 +75,7 @@ export default function ProfileCard({
       status_message,
       avatar_url,
       profile.is_public,
+      weight,
     );
 
     if (success) {
@@ -98,6 +100,7 @@ export default function ProfileCard({
         profile.status_message,
         profile.avatar_url,
         nextPublicStatus,
+        profile.weight,
       );
 
       if (success) {
@@ -187,6 +190,7 @@ export default function ProfileCard({
                 initialAvatar={profile.avatar_url}
                 initialStatus={profile.status_message}
                 initialIsPublic={profile.is_public}
+                initialWeight={profile.weight}
                 onUpdate={handleUpdate}
                 onEditingChange={setIsEditing}
               />
