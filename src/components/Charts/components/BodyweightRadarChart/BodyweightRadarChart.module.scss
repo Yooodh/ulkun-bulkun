@@ -1,0 +1,252 @@
+@use '../../../../styles' as *;
+
+.container {
+  background: $white;
+  box-shadow: $shadow-md;
+  border: 1px solid $border-soft;
+  border-radius: $radius-main;
+  padding: 20px;
+  width: 100%;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    padding: 20px 10px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+
+    @media (max-width: 768px) {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  }
+
+  h1 {
+    @include font-lg-title;
+    color: $text-dark;
+    margin-bottom: 0;
+
+    @media (max-width: 768px) {
+      margin-left: 6px;
+    }
+
+    strong {
+      color: $blue;
+    }
+  }
+
+  .subtitleRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+
+    .subtitle {
+      @include font-body;
+      color: $text-muted;
+      margin-bottom: 0;
+
+      @media (max-width: 768px) {
+        margin-left: 6px;
+      }
+
+      @media (max-width: 400px) {
+        @include font-sm;
+      }
+    }
+
+    .infoWrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      &:hover .infoTooltip {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      .infoIcon {
+        color: $blue;
+        cursor: default;
+      }
+
+      .infoTooltip {
+        @include font-sm;
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(4px);
+        opacity: 0;
+        pointer-events: none;
+        transition: $transition-base;
+        background: $white;
+        border: 1px solid $border-soft;
+        border-radius: $radius-main;
+        box-shadow: $shadow-md;
+        padding: 12px 14px;
+        width: 230px;
+        z-index: 1;
+
+        @media (max-width: 768px) {
+          left: auto;
+          right: 0;
+          top: 150%;
+        }
+
+        .infoTitle {
+          color: $text-dark;
+          font-weight: 600;
+          margin: 0 0 8px 0;
+        }
+
+        .infoList {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 8px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          li {
+            display: flex;
+            justify-content: space-between;
+            color: $text-muted;
+
+            strong {
+              color: $blue;
+              font-weight: 600;
+            }
+          }
+        }
+
+        .infoDesc {
+          color: $text-muted;
+          margin: 0;
+          line-height: 1.5;
+          border-top: 1px solid $border-soft;
+          padding-top: 8px;
+        }
+      }
+    }
+  }
+
+  .bodyweightBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($blue, 0.07);
+    border: 1px solid rgba($blue, 0.2);
+    border-radius: 50px;
+    padding: 4px 12px;
+    margin-bottom: 4px;
+
+    .badgeLabel {
+      @include font-sm;
+      color: $text-muted;
+    }
+
+    .badgeValue {
+      @include font-sm;
+      font-weight: 700;
+      color: $blue;
+    }
+  }
+
+  .contentWrapper {
+    width: 100%;
+
+    :global(.recharts-wrapper),
+    :global(.recharts-wrapper *),
+    :global(.recharts-surface),
+    :global(.recharts-surface *) {
+      outline: none;
+    }
+  }
+
+  .summary {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+
+    .summaryItem {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: $radius-main;
+      padding: 12px 14px;
+
+      &.strong {
+        background: rgba(#22c55e, 0.07);
+        border: 1px solid rgba(#22c55e, 0.2);
+      }
+
+      &.weak {
+        background: rgba(#f97316, 0.07);
+        border: 1px solid rgba(#f97316, 0.2);
+      }
+
+      .summaryIcon {
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .summaryLabel {
+        @include font-sm;
+        color: $text-muted;
+        margin: 0 0 2px 0;
+      }
+
+      .summaryValue {
+        @include font-body;
+        font-weight: 700;
+        color: $text-dark;
+        margin: 0;
+
+        span {
+          font-weight: 400;
+          color: $text-muted;
+        }
+      }
+    }
+  }
+}
+
+.tooltip {
+  background: $white;
+  border: 1px solid $border-soft;
+  border-radius: $radius-main;
+  box-shadow: $shadow-md;
+  padding: 12px 14px;
+  min-width: 160px;
+
+  .tooltipTitle {
+    @include font-body;
+    font-weight: 600;
+    color: $text-dark;
+    margin: 0 0 8px 0;
+  }
+
+  .tooltipRow {
+    @include font-sm;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 4px 0 0 0;
+    color: $text-muted;
+
+    strong {
+      font-weight: 600;
+    }
+  }
+}
