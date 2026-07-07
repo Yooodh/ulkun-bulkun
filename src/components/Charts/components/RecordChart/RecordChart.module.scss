@@ -17,6 +17,12 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: 8px;
+    }
   }
 
   h1 {
@@ -24,8 +30,8 @@
     color: $text-dark;
     margin-bottom: 0;
 
-    @media (max-width: 400px) {
-      @include font-md-title;
+    @media (max-width: 768px) {
+      margin-left: 6px;
     }
 
     strong {

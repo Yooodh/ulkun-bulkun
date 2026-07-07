@@ -20,8 +20,8 @@
     color: $text-dark;
     margin-bottom: 20px;
 
-    @media (max-width: 400px) {
-      @include font-md-title;
+    @media (max-width: 768px) {
+      margin-left: 6px;
     }
 
     strong {
