@@ -7,6 +7,12 @@
 .tabGroup {
   display: flex;
   gap: 6px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+  }
 }
 
 .tabBtn {
