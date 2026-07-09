@@ -20,6 +20,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useRecords } from '@/hooks/useRecords';
 import { useProfileUpdate } from '@/hooks/useProfileUpdate';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useNotificationToggle } from '@/hooks/useNotificationToggle';
 
 import { calculateTotalPR } from '@/utils/recordUtils';
 
@@ -46,8 +48,17 @@ export default function ProfileCard({
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [stage, setStage] = useState<1 | 2>(1);
 
+  const { isSubscribed, toggle: handleSubscribe } = useSubscription(
+    targetId,
+    user?.id,
+  );
+
   const isMyProfile = !userId || userId === user?.id;
   const canEdit = isMyProfile && user && !readOnly;
+  const isLoggedIn = !!user;
+
+  const { isNotificationOn, toggle: handleNotificationToggle } =
+    useNotificationToggle(isMyProfile ? user?.id : null);
 
   const queryClient = useQueryClient();
 
@@ -56,6 +67,7 @@ export default function ProfileCard({
     nickname: string,
     avatar_url: string,
     status_message: string,
+    weight: number | null,
   ) => {
     if (!profile) return;
     const success = await saveFullProfile(
@@ -63,6 +75,7 @@ export default function ProfileCard({
       status_message,
       avatar_url,
       profile.is_public,
+      weight,
     );
 
     if (success) {
@@ -87,6 +100,7 @@ export default function ProfileCard({
         profile.status_message,
         profile.avatar_url,
         nextPublicStatus,
+        profile.weight,
       );
 
       if (success) {
@@ -176,6 +190,7 @@ export default function ProfileCard({
                 initialAvatar={profile.avatar_url}
                 initialStatus={profile.status_message}
                 initialIsPublic={profile.is_public}
+                initialWeight={profile.weight}
                 onUpdate={handleUpdate}
                 onEditingChange={setIsEditing}
               />
@@ -189,8 +204,14 @@ export default function ProfileCard({
                     setIsEditing(true);
                   }}
                   onTogglePublic={handleTogglePublic}
+                  onSubscribe={handleSubscribe}
+                  onToggleNotification={handleNotificationToggle}
                   isPublic={profile?.is_public}
+                  isSubscribed={isSubscribed}
+                  isNotificationOn={isNotificationOn}
                   readOnly={!canEdit}
+                  isLoggedIn={isLoggedIn}
+                  isMyProfile={isMyProfile}
                 />
               </div>
             )}

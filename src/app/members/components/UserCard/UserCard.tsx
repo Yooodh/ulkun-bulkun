@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { UserRoundCheck } from 'lucide-react';
 
 import styles from './UserCard.module.scss';
 
@@ -8,12 +11,29 @@ import { UserSummary } from '@/types/user';
 import { formatDate } from '@/utils/dateUtils';
 import { getDisplayDate, getCombinedTotalFromUser } from '@/utils/recordUtils';
 
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
+import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
+
 type UserCardProps = {
   user: UserSummary;
+  isSubscribed?: boolean;
 };
 
-export default function UserCard({ user }: UserCardProps) {
+export default function UserCard({ user, isSubscribed }: UserCardProps) {
   const isPrivate = user.is_public === false;
+
+  const { user: currentUser } = useAuth();
+  const { toggle } = useSubscription(user.id, currentUser?.id);
+
+  const handleUnsubscribeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    ConfirmToast(`${user.nickname}님 팔로우를 취소할까요?`, () => {
+      toggle();
+    });
+  };
 
   const cardContent = (
     <>
@@ -34,7 +54,19 @@ export default function UserCard({ user }: UserCardProps) {
 
       <div className={styles.userInfo}>
         <p className={styles.statusMessage}>{user.status_message}</p>
-        <h3 className={styles.userName}>{user.nickname}</h3>
+        <h3 className={styles.userName}>
+          {user.nickname}
+          {isSubscribed && (
+            <button
+              type='button'
+              aria-label='팔로우 취소'
+              className={styles.subscribedBadgeBtn}
+              onClick={handleUnsubscribeClick}
+            >
+              <UserRoundCheck size={18} className={styles.subscribedBadge} />
+            </button>
+          )}
+        </h3>
         <p className={styles.userStats}>
           PR:<span>{getCombinedTotalFromUser(user)}</span>
         </p>

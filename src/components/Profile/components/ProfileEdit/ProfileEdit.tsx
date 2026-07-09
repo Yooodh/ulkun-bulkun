@@ -20,7 +20,13 @@ type ProfileEditProps = {
   initialAvatar: string;
   initialStatus: string;
   initialIsPublic: boolean;
-  onUpdate: (nickname: string, avatar: string, status: string) => void;
+  initialWeight: number | null;
+  onUpdate: (
+    nickname: string,
+    avatar: string,
+    status: string,
+    weight: number | null,
+  ) => void;
   onEditingChange: (v: boolean) => void;
 };
 
@@ -30,12 +36,16 @@ export default function ProfileEdit({
   initialAvatar,
   initialStatus,
   initialIsPublic,
+  initialWeight,
   onUpdate,
   onEditingChange,
 }: ProfileEditProps) {
   const [tempNickname, setTempNickname] = useState<string>(initialNickname);
   const [tempStatus, setTempStatus] = useState<string>(initialStatus);
   const [tempAvatar, setTempAvatar] = useState<string>(initialAvatar);
+  const [tempWeight, setTempWeight] = useState<string>(
+    initialWeight != null ? String(initialWeight) : '',
+  );
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const {
@@ -76,15 +86,24 @@ export default function ProfileEdit({
       return;
     }
 
+    const parsedWeight = tempWeight.trim() !== '' ? Number(tempWeight) : null;
+    if (parsedWeight !== null) {
+      if (isNaN(parsedWeight) || parsedWeight < 30 || parsedWeight > 300) {
+        toast.info('체중은 30kg ~ 300kg 사이로 입력해 주세요.');
+        return;
+      }
+    }
+
     ConfirmToast('정말 변경하시겠습니까?', async () => {
       const success = await saveFullProfile(
         trimmedNickname,
         trimmedStatus,
         tempAvatar,
         initialIsPublic,
+        parsedWeight,
       );
       if (success) {
-        onUpdate(trimmedNickname, tempAvatar, trimmedStatus);
+        onUpdate(trimmedNickname, tempAvatar, trimmedStatus, parsedWeight);
         onEditingChange(false);
         toast.success('프로필이 변경되었습니다!');
       }
@@ -95,7 +114,8 @@ export default function ProfileEdit({
     const isChanged =
       tempNickname !== initialNickname ||
       tempStatus !== initialStatus ||
-      tempAvatar !== initialAvatar;
+      tempAvatar !== initialAvatar ||
+      tempWeight !== (initialWeight != null ? String(initialWeight) : '');
 
     if (isChanged) {
       ConfirmToast(
@@ -121,7 +141,8 @@ export default function ProfileEdit({
         setTempNickname(defaultNickname);
         setTempAvatar(defaultAvatar);
         setTempStatus(defaultStatus);
-        onUpdate(defaultNickname, defaultAvatar, defaultStatus);
+        setTempWeight('');
+        onUpdate(defaultNickname, defaultAvatar, defaultStatus, null);
         onEditingChange(false);
         toast.success('프로필이 초기화되었습니다!');
       }
@@ -215,6 +236,21 @@ export default function ProfileEdit({
                 maxLength={10}
               />
               <span>{tempNickname.length}/10</span>
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label>체중 (kg)</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type='number'
+                value={tempWeight}
+                onChange={(e) => setTempWeight(e.target.value)}
+                placeholder='체중을 입력해주세요. (선택)'
+                min={30}
+                max={300}
+              />
+              <span>kg</span>
             </div>
           </div>
         </div>
