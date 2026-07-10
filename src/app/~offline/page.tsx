@@ -1,4 +1,4 @@
-import styles from './offline.module.scss';
+import styles from './Offline.module.scss';
 
 export default function OfflinePage() {
   return (
