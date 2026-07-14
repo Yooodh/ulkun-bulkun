@@ -23,8 +23,13 @@ export async function subscribeAndSave(userId: string): Promise<boolean> {
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') return false;
 
-    const registration =
-      await navigator.serviceWorker.register('/serwist/sw.js');
+    const registration = await navigator.serviceWorker.register(
+      '/serwist/sw.js',
+      {
+        scope: '/',
+      },
+    );
+
     await navigator.serviceWorker.ready;
 
     let subscription = await registration.pushManager.getSubscription();
