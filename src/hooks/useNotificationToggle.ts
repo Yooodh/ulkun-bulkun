@@ -46,39 +46,43 @@ export function useNotificationToggle(userId?: string | null) {
     const next = !isNotificationOn;
     setToggling(true);
 
-    const { data, error } = await supabase
-      .from('push_subscriptions')
-      .update({ is_active: next })
-      .eq('user_id', userId)
-      .select('user_id');
+    try {
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .update({ is_active: next })
+        .eq('user_id', userId)
+        .select('user_id');
 
-    if (error) {
-      setToggling(false);
-      console.error('알림 상태 변경 실패:', error);
-      toast.error('알림 설정을 변경하지 못했어요. 잠시 후 다시 시도해주세요.');
-      return;
-    }
-
-    // 구독 row가 없는 상태일 때 자동 재구독 시도
-    if (!data || data.length === 0) {
-      const resubscribed = await subscribeAndSave(userId);
-      setToggling(false);
-
-      if (!resubscribed) {
+      if (error) {
         toast.error(
-          '알림 권한이 필요해요. 브라우저 설정에서 알림을 허용한 뒤 다시 시도해주세요.',
+          '알림 설정을 변경할 수 없어요. 잠시 후 다시 시도해 주세요.',
         );
         return;
       }
 
-      setIsNotificationOn(true);
-      toast.info('전체 알림을 켰어요!');
-      return;
-    }
+      if (!data || data.length === 0) {
+        const resubscribed = await subscribeAndSave(userId);
 
-    setToggling(false);
-    setIsNotificationOn(next);
-    toast.info(next ? '전체 알림을 켰어요!' : '전체 알림을 껐어요!');
+        if (!resubscribed) {
+          toast.error(
+            '알림 권한이 필요해요. 브라우저 설정에서 알림을 허용한 뒤 다시 시도해 주세요.',
+          );
+          return;
+        }
+
+        setIsNotificationOn(true);
+        toast.info('전체 알림을 켰어요!');
+        return;
+      }
+
+      setIsNotificationOn(next);
+      toast.info(next ? '전체 알림을 켰어요!' : '전체 알림을 껐어요!');
+    } catch (e) {
+      console.error('알림 토글 처리 중 예외 발생:', e);
+      toast.error('알 수 없는 오류가 발생했어요.');
+    } finally {
+      setToggling(false);
+    }
   };
 
   return { isNotificationOn, loading, toggling, toggle };
