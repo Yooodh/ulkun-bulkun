@@ -257,7 +257,7 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
   };
 
   return (
-    <div className={styles.chartContainer}>
+    <div className={styles.container}>
       <div className={styles.header}>
         <h1>
           {displayName && (
@@ -342,7 +342,7 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
             message={
               isReadOnly
                 ? `${displayName}님의 차트 데이터가 부족합니다.`
-                : '차트를 그리려면 최소 2개 이상의 기록이 필요합니다.'
+                : '최소 2개 이상의 기록이 필요합니다.'
             }
             subMessage={
               !isReadOnly

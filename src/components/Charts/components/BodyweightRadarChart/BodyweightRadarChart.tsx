@@ -236,7 +236,7 @@ export default function BodyweightRadarChart({
             subMessage={
               isReadOnly
                 ? `${displayName}님이 아직 체중을 등록하지 않았어요.`
-                : '프로필 편집에서 체중을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
+                : '프로필 수정에서 체중을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
             }
           />
         ) : !hasEnoughData ? (
@@ -312,7 +312,7 @@ export default function BodyweightRadarChart({
                       fill={
                         entry.score >= 100
                           ? COLORS[entry.subject as keyof typeof COLORS]
-                          : `${COLORS[entry.subject as keyof typeof COLORS]}66` // 목표 미달 시 반투명
+                          : `${COLORS[entry.subject as keyof typeof COLORS]}66`
                       }
                     />
                   ))}
