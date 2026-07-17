@@ -8,6 +8,7 @@
   padding: 20px;
   width: 100%;
   overflow: hidden;
+  min-width: 0;
 
   @media (max-width: 768px) {
     padding: 20px 10px;

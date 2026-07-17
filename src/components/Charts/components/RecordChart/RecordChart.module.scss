@@ -1,12 +1,13 @@
 @use '../../../../styles' as *;
 
-.chartContainer {
+.container {
   background: $white;
   box-shadow: $shadow-md;
   border: 1px solid $border-soft;
   border-radius: $radius-main;
   padding: 20px;
   width: 100%;
+  min-width: 0;
 
   @media (max-width: 768px) {
     padding: 20px 10px;
