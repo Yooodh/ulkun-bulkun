@@ -20,9 +20,9 @@ import { useProfile } from '@/hooks/useProfile';
 
 import { StrengthRecord } from '@/types/record';
 
-import styles from './StrengthRadarChart.module.scss';
+import styles from './StrengthChart.module.scss';
 
-type StrengthRadarChartProps = {
+type StrengthChartProps = {
   userId?: string;
   tabButtons?: React.ReactNode;
 };
@@ -101,10 +101,10 @@ const CustomTooltip = ({
   return null;
 };
 
-export default function StrengthRadarChart({
+export default function StrengthChart({
   userId,
   tabButtons,
-}: StrengthRadarChartProps) {
+}: StrengthChartProps) {
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
