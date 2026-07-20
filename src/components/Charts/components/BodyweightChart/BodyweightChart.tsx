@@ -24,9 +24,9 @@ import { useProfile } from '@/hooks/useProfile';
 
 import { StrengthRecord } from '@/types/record';
 
-import styles from './BodyweightRadarChart.module.scss';
+import styles from './BodyweightChart.module.scss';
 
-type BodyweightRadarChartProps = {
+type BodyweightChartProps = {
   userId?: string;
   tabButtons?: React.ReactNode;
 };
@@ -107,10 +107,10 @@ const CustomTooltip = ({
   return null;
 };
 
-export default function BodyweightRadarChart({
+export default function BodyweightChart({
   userId,
   tabButtons,
-}: BodyweightRadarChartProps) {
+}: BodyweightChartProps) {
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
