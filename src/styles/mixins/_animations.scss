@@ -25,3 +25,20 @@
 @mixin fade-in-anim($duration: 0.3s) {
   animation: fadeIn $duration ease forwards;
 }
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-8deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
+}
+
+@mixin wiggle-anim($duration: 0.25s) {
+  animation: wiggle $duration ease-in-out infinite alternate;
+}

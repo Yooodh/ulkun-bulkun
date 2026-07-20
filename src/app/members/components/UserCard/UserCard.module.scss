@@ -11,10 +11,23 @@
   transition: $transition-base;
   position: relative;
 
-  &:hover {
-    transform: $lift-sm;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+
+  @media (hover: hover) {
+    &:hover:not(.privateCard) {
+      transform: $lift-sm;
+      border-color: $blue;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    }
+  }
+
+  &:active:not(.privateCard):not(:has(.subscribedBadgeBtn:active)) {
+    transform: scale(0.98);
     border-color: $blue;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.15);
   }
 }
 
@@ -80,7 +93,9 @@
       transition: $transition-base;
 
       &:hover {
-        background: rgba($blue, 0.1);
+        .subscribedBadge {
+          @include wiggle-anim(0.25s);
+        }
       }
     }
 
@@ -88,6 +103,7 @@
       flex-shrink: 0;
       color: $blue;
       pointer-events: none;
+      transition: transform 0.2s ease-in-out;
     }
   }
 
@@ -129,5 +145,9 @@
     color: $white;
     padding: 2px 6px;
     border-radius: 4px;
+  }
+
+  .subscribedBadgeBtn {
+    pointer-events: auto;
   }
 }
