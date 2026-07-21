@@ -6,13 +6,13 @@ import { User } from '@supabase/supabase-js';
 import { Camera } from 'lucide-react';
 import { toast } from 'sonner';
 
-import styles from './ProfileEdit.module.scss';
-
 import Button from '@/components/shared/Button/Button';
 import Loading from '@/components/shared/Loading/Loading';
 import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useProfileUpdate } from '@/hooks/useProfileUpdate';
+
+import styles from './ProfileEdit.module.scss';
 
 type ProfileEditProps = {
   user: User;
@@ -21,11 +21,13 @@ type ProfileEditProps = {
   initialStatus: string;
   initialIsPublic: boolean;
   initialWeight: number | null;
+  initialGender: 'male' | 'female' | null;
   onUpdate: (
     nickname: string,
     avatar: string,
     status: string,
     weight: number | null,
+    gender: 'male' | 'female' | null,
   ) => void;
   onEditingChange: (v: boolean) => void;
 };
@@ -37,6 +39,7 @@ export default function ProfileEdit({
   initialStatus,
   initialIsPublic,
   initialWeight,
+  initialGender,
   onUpdate,
   onEditingChange,
 }: ProfileEditProps) {
@@ -45,6 +48,9 @@ export default function ProfileEdit({
   const [tempAvatar, setTempAvatar] = useState<string>(initialAvatar);
   const [tempWeight, setTempWeight] = useState<string>(
     initialWeight != null ? String(initialWeight) : '',
+  );
+  const [tempGender, setTempGender] = useState<'male' | 'female' | null>(
+    initialGender,
   );
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -101,9 +107,16 @@ export default function ProfileEdit({
         tempAvatar,
         initialIsPublic,
         parsedWeight,
+        tempGender,
       );
       if (success) {
-        onUpdate(trimmedNickname, tempAvatar, trimmedStatus, parsedWeight);
+        onUpdate(
+          trimmedNickname,
+          tempAvatar,
+          trimmedStatus,
+          parsedWeight,
+          tempGender,
+        );
         onEditingChange(false);
         toast.success('프로필이 변경되었습니다!');
       }
@@ -115,7 +128,8 @@ export default function ProfileEdit({
       tempNickname !== initialNickname ||
       tempStatus !== initialStatus ||
       tempAvatar !== initialAvatar ||
-      tempWeight !== (initialWeight != null ? String(initialWeight) : '');
+      tempWeight !== (initialWeight != null ? String(initialWeight) : '') ||
+      tempGender !== initialGender;
 
     if (isChanged) {
       ConfirmToast(
@@ -142,7 +156,8 @@ export default function ProfileEdit({
         setTempAvatar(defaultAvatar);
         setTempStatus(defaultStatus);
         setTempWeight('');
-        onUpdate(defaultNickname, defaultAvatar, defaultStatus, null);
+        setTempGender(null);
+        onUpdate(defaultNickname, defaultAvatar, defaultStatus, null, null);
         onEditingChange(false);
         toast.success('프로필이 초기화되었습니다!');
       }
@@ -251,6 +266,26 @@ export default function ProfileEdit({
                 max={300}
               />
               <span>kg</span>
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label>성별</label>
+            <div className={styles.genderToggle}>
+              <button
+                type='button'
+                className={`${styles.genderBtn} ${tempGender === 'male' ? styles.active : ''}`}
+                onClick={() => setTempGender('male')}
+              >
+                남성
+              </button>
+              <button
+                type='button'
+                className={`${styles.genderBtn} ${tempGender === 'female' ? styles.active : ''}`}
+                onClick={() => setTempGender('female')}
+              >
+                여성
+              </button>
             </div>
           </div>
         </div>
