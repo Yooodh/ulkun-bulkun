@@ -34,12 +34,24 @@ type BodyweightChartProps = {
 // 중급자 목표 기준 (체중 배수)
 // 출처: ExRx.net Strength Standards (Adult, 18-39세 기준)
 // 다수의 트레이닝 참고자료(Legion, TrainCalc 등)에서 공통으로 수렴하는 값
-// 성별/체급에 따른 정밀 보정 필요
-const STANDARD_MULTIPLIERS: Record<string, number> = {
-  스쿼트: 1.5,
-  데드: 2.0,
-  벤치: 1.25,
-  OHP: 0.8,
+// 성별 보정 적용 완료 (여성: 하체 약 80%, 상체 약 65% — 남성 대비)
+// TODO: 연령대별 보정 추가 예정
+const STANDARD_MULTIPLIERS: Record<
+  'male' | 'female',
+  Record<string, number>
+> = {
+  male: {
+    스쿼트: 1.5,
+    데드: 2.0,
+    벤치: 1.25,
+    OHP: 0.8,
+  },
+  female: {
+    스쿼트: 1.2,
+    데드: 1.6,
+    벤치: 0.8,
+    OHP: 0.52,
+  },
 };
 
 const COLORS: Record<string, string> = {
@@ -121,6 +133,7 @@ export default function BodyweightChart({
   const isReadOnly = !!userId;
   const displayName = profile?.nickname || '';
   const bodyweight = profile?.weight ?? null;
+  const gender = profile?.gender ?? null;
   const isPageLoading = recordsLoading || profileLoading;
 
   const bestRecords = useMemo(() => {
@@ -134,7 +147,7 @@ export default function BodyweightChart({
   }, [records]);
 
   const chartData = useMemo(() => {
-    if (!bestRecords || !bodyweight) return [];
+    if (!bestRecords || !bodyweight || !gender) return [];
 
     const items = [
       { subject: '스쿼트', my1RM: bestRecords.squat1rm },
@@ -143,11 +156,12 @@ export default function BodyweightChart({
       { subject: 'OHP', my1RM: bestRecords.ohp1rm },
     ];
 
+    const multipliers = STANDARD_MULTIPLIERS[gender];
+
     return items.map((item) => {
       const ratio =
         item.my1RM > 0 ? Math.round((item.my1RM / bodyweight) * 100) / 100 : 0;
-      const standard = STANDARD_MULTIPLIERS[item.subject];
-      // 기준 대비 달성률 (100% = 기준 배수 달성)
+      const standard = multipliers[item.subject];
       const score =
         standard > 0 ? Math.round((ratio / standard) * 1000) / 10 : 0;
 
@@ -160,14 +174,15 @@ export default function BodyweightChart({
         fullMark: 150,
       };
     });
-  }, [bestRecords, bodyweight]);
+  }, [bestRecords, bodyweight, gender]);
 
   const hasEnoughData =
     !!bestRecords &&
     bestRecords.squat1rm > 0 &&
     bestRecords.deadlift1rm > 0 &&
     bestRecords.bench1rm > 0 &&
-    !!bodyweight;
+    !!bodyweight &&
+    !!gender;
 
   const strongest = chartData.length
     ? chartData.reduce((a, b) => (a.score > b.score ? a : b))
@@ -178,6 +193,8 @@ export default function BodyweightChart({
     : null;
 
   const noWeight = !isPageLoading && records.length > 0 && !bodyweight;
+  const noGender =
+    !isPageLoading && records.length > 0 && !!bodyweight && !gender;
 
   return (
     <div className={styles.container}>
@@ -200,28 +217,34 @@ export default function BodyweightChart({
         <div className={styles.infoWrapper}>
           <InfoIcon size={15} className={styles.infoIcon} />
           <div className={styles.infoTooltip}>
-            <p className={styles.infoTitle}>중급자 목표 기준 (체중 배수)</p>
+            <p className={styles.infoTitle}>
+              {gender === 'female' ? '여성' : '남성'} 중급자 목표 기준 (체중
+              배수)
+            </p>
             <ul className={styles.infoList}>
               <li>
                 <span>스쿼트</span>
-                <strong>x 1.5</strong>
+                <strong>
+                  x {STANDARD_MULTIPLIERS[gender ?? 'male'].스쿼트}
+                </strong>
               </li>
               <li>
                 <span>데드리프트</span>
-                <strong>x 2.0</strong>
+                <strong>x {STANDARD_MULTIPLIERS[gender ?? 'male'].데드}</strong>
               </li>
               <li>
                 <span>벤치프레스</span>
-                <strong>x 1.25</strong>
+                <strong>x {STANDARD_MULTIPLIERS[gender ?? 'male'].벤치}</strong>
               </li>
               <li>
                 <span>OHP</span>
-                <strong>x 0.8</strong>
+                <strong>x {STANDARD_MULTIPLIERS[gender ?? 'male'].OHP}</strong>
               </li>
             </ul>
             <p className={styles.infoDesc}>
-              ExRx.net 근력 기준(성인 18-39세)을 참고한 일반적인 중급자
-              지표이며, 성별·체급에 따라 다를 수 있어요. 참고용 지표입니다.
+              ExRx.net 근력 기준(성인 {gender === 'female' ? '여성' : '남성'}{' '}
+              18-39세) 기반의 중급자 참고 지표입니다. 체급·훈련 경력에 따라 다를
+              수 있어요.
             </p>
           </div>
         </div>
@@ -237,6 +260,15 @@ export default function BodyweightChart({
               isReadOnly
                 ? `${displayName}님이 아직 체중을 등록하지 않았어요.`
                 : '프로필 수정에서 체중을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
+            }
+          />
+        ) : noGender ? (
+          <Empty
+            message='성별 정보가 없어요.'
+            subMessage={
+              isReadOnly
+                ? `${displayName}님이 아직 성별을 등록하지 않았어요.`
+                : '프로필 수정에서 성별을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
             }
           />
         ) : !hasEnoughData ? (
