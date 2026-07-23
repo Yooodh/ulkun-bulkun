@@ -69,6 +69,7 @@ export default function ProfileCard({
     status_message: string,
     weight: number | null,
     gender: 'male' | 'female' | null,
+    birthDate: string | null,
   ) => {
     if (!profile) return;
     const success = await saveFullProfile(
@@ -78,6 +79,7 @@ export default function ProfileCard({
       profile.is_public,
       weight,
       gender,
+      birthDate,
     );
 
     if (success) {
@@ -104,6 +106,7 @@ export default function ProfileCard({
         nextPublicStatus,
         profile.weight,
         profile.gender,
+        profile.birth_date,
       );
 
       if (success) {
@@ -195,6 +198,7 @@ export default function ProfileCard({
                 initialIsPublic={profile.is_public}
                 initialWeight={profile.weight}
                 initialGender={profile.gender}
+                initialBirthDate={profile.birth_date}
                 onUpdate={handleUpdate}
                 onEditingChange={setIsEditing}
               />
