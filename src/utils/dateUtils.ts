@@ -1,7 +1,6 @@
 /**
  * 한국 시간 기준 YY. MM. DD 형식 포맷팅 함수
  */
-
 export const formatDate = (dateString: string | Date) => {
   if (!dateString) return '-';
 
@@ -20,7 +19,6 @@ export const formatDate = (dateString: string | Date) => {
 /**
  * 날짜 객체나 문자열을 HTML input 태그에 적합한 'YYYY-MM-DD' 형식으로 변환 함수
  */
-
 export const toInputDate = (dateString: string | Date) => {
   if (!dateString) return '';
   const d = new Date(dateString);
@@ -28,4 +26,32 @@ export const toInputDate = (dateString: string | Date) => {
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+/**
+ * 만 나이 계산 (YYYY-MM-DD 포맷)
+ * Date 타임존 이슈 방지를 위해 문자열 직접 분할 파싱
+ */
+export const calculateAge = (birthDate: string): number => {
+  if (!birthDate) return 0;
+
+  const [year, month, day] = birthDate.split(/[-/.]/).map(Number);
+
+  if (!year || !month || !day) return 0;
+
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1;
+  const currentDay = today.getDate();
+
+  let age = currentYear - year;
+
+  const isBeforeBirthday =
+    currentMonth < month || (currentMonth === month && currentDay < day);
+
+  if (isBeforeBirthday) {
+    age--;
+  }
+
+  return Math.max(0, age);
 };
