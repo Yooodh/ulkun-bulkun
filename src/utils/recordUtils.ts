@@ -1,6 +1,16 @@
 import { StrengthRecord } from '@/types/record';
 import { UserSummary } from '@/types/user';
 
+// StrengthRecord 중 'number' 타입을 가진 키만 추출
+type RecordNumberKey = {
+  [K in keyof StrengthRecord]: StrengthRecord[K] extends
+    | number
+    | null
+    | undefined
+    ? K
+    : never;
+}[keyof StrengthRecord];
+
 /**
  * 특정 날짜의 ISO 8601 기준 연도-주차 정보 반환
  */
@@ -42,7 +52,7 @@ const getPrivacyGuard = (isPublic: boolean | undefined): string | null => {
 };
 
 /**
- * 특정 종목의 역대 최고 기록 및 해당 날짜 추출
+ * 특정 종목의 역대 최고 기록(원본 무게 그대로) 및 해당 날짜 추출
  */
 export const getBestRecord = (
   records: StrengthRecord[],
@@ -152,4 +162,38 @@ export const getCombinedTotalFromUser = (user: UserSummary): string => {
   if (total > 0) return `${total}kg`;
   if (user.max_total) return `${user.max_total}kg`;
   return '기록 없음';
+};
+
+/**
+ * 1RM 계산 (Epley 공식)
+ * 고반복(12회 초과)은 근지구력의 영역이므로 1RM 추정 오차가 커집니다. (최대 15회로 제한 권장)
+ */
+export const calc1RM = (weight: number, reps: number): number => {
+  if (weight <= 0 || reps <= 0) return 0;
+  if (reps === 1) return weight;
+
+  const effectiveReps = Math.min(reps, 15);
+  return Math.round(weight * (1 + effectiveReps / 30));
+};
+
+/**
+ * 기록 목록 중 최고 1RM을 탐색 (반복 횟수까지 반영)
+ */
+export const getBest1RM = (
+  records: StrengthRecord[],
+  weightKey: RecordNumberKey,
+  repsKey: RecordNumberKey,
+): number => {
+  if (!records || records.length === 0) return 0;
+
+  return records.reduce((best, record) => {
+    const rawWeight = record[weightKey];
+    const rawReps = record[repsKey];
+
+    const weight = typeof rawWeight === 'number' ? rawWeight : 0;
+    const reps = typeof rawReps === 'number' ? rawReps : 1;
+    const current1RM = calc1RM(weight, reps);
+
+    return current1RM > best ? current1RM : best;
+  }, 0);
 };
