@@ -22,12 +22,14 @@ type ProfileEditProps = {
   initialIsPublic: boolean;
   initialWeight: number | null;
   initialGender: 'male' | 'female' | null;
+  initialBirthDate: string | null;
   onUpdate: (
     nickname: string,
     avatar: string,
     status: string,
     weight: number | null,
     gender: 'male' | 'female' | null,
+    birthDate: string | null,
   ) => void;
   onEditingChange: (v: boolean) => void;
 };
@@ -40,6 +42,7 @@ export default function ProfileEdit({
   initialIsPublic,
   initialWeight,
   initialGender,
+  initialBirthDate,
   onUpdate,
   onEditingChange,
 }: ProfileEditProps) {
@@ -51,6 +54,9 @@ export default function ProfileEdit({
   );
   const [tempGender, setTempGender] = useState<'male' | 'female' | null>(
     initialGender,
+  );
+  const [tempBirthDate, setTempBirthDate] = useState<string>(
+    initialBirthDate ?? '',
   );
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -100,6 +106,21 @@ export default function ProfileEdit({
       }
     }
 
+    const trimmedBirthDate = tempBirthDate.trim();
+    if (trimmedBirthDate) {
+      const birth = new Date(trimmedBirthDate);
+      const today = new Date();
+      if (isNaN(birth.getTime()) || birth > today) {
+        toast.info('생년월일을 올바르게 입력해 주세요.');
+        return;
+      }
+      const age = today.getFullYear() - birth.getFullYear();
+      if (age > 120 || age < 10) {
+        toast.info('생년월일을 다시 확인해 주세요.');
+        return;
+      }
+    }
+
     ConfirmToast('정말 변경하시겠습니까?', async () => {
       const success = await saveFullProfile(
         trimmedNickname,
@@ -108,6 +129,7 @@ export default function ProfileEdit({
         initialIsPublic,
         parsedWeight,
         tempGender,
+        trimmedBirthDate || null,
       );
       if (success) {
         onUpdate(
@@ -116,6 +138,7 @@ export default function ProfileEdit({
           trimmedStatus,
           parsedWeight,
           tempGender,
+          trimmedBirthDate || null,
         );
         onEditingChange(false);
         toast.success('프로필이 변경되었습니다!');
@@ -129,7 +152,8 @@ export default function ProfileEdit({
       tempStatus !== initialStatus ||
       tempAvatar !== initialAvatar ||
       tempWeight !== (initialWeight != null ? String(initialWeight) : '') ||
-      tempGender !== initialGender;
+      tempGender !== initialGender ||
+      tempBirthDate !== (initialBirthDate ?? '');
 
     if (isChanged) {
       ConfirmToast(
@@ -157,7 +181,15 @@ export default function ProfileEdit({
         setTempStatus(defaultStatus);
         setTempWeight('');
         setTempGender(null);
-        onUpdate(defaultNickname, defaultAvatar, defaultStatus, null, null);
+        setTempBirthDate('');
+        onUpdate(
+          defaultNickname,
+          defaultAvatar,
+          defaultStatus,
+          null,
+          null,
+          null,
+        );
         onEditingChange(false);
         toast.success('프로필이 초기화되었습니다!');
       }
@@ -286,6 +318,18 @@ export default function ProfileEdit({
               >
                 여성
               </button>
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label>생년월일</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type='date'
+                value={tempBirthDate}
+                onChange={(e) => setTempBirthDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+              />
             </div>
           </div>
         </div>
