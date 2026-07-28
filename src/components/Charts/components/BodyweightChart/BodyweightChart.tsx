@@ -10,9 +10,10 @@ import {
   ResponsiveContainer,
   Tooltip,
   ReferenceLine,
-  Cell,
+  Rectangle,
   LabelList,
 } from 'recharts';
+import type { RectangleProps } from 'recharts';
 import { InfoIcon } from 'lucide-react';
 
 import Loading from '@/components/shared/Loading/Loading';
@@ -22,7 +23,19 @@ import { useRecords } from '@/hooks/useRecords';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 
-import { StrengthRecord } from '@/types/record';
+import {
+  LIFT_SUBJECTS,
+  COLORS,
+  getAgeBracket,
+  getStandardKg,
+  getReferenceBodyweight,
+  type LiftSubject,
+  type Gender,
+  type AgeBracket,
+} from '../../constants/strengthStandards';
+
+import { getBest1RM } from '@/utils/recordUtils';
+import { calculateAge } from '@/utils/dateUtils';
 
 import styles from './BodyweightChart.module.scss';
 
@@ -31,52 +44,14 @@ type BodyweightChartProps = {
   tabButtons?: React.ReactNode;
 };
 
-// 중급자 목표 기준 (체중 배수)
-// 출처: ExRx.net Strength Standards (Adult, 18-39세 기준)
-// 다수의 트레이닝 참고자료(Legion, TrainCalc 등)에서 공통으로 수렴하는 값
-// 성별 보정 적용 완료 (여성: 하체 약 80%, 상체 약 65% — 남성 대비)
-// TODO: 연령대별 보정 추가 예정
-const STANDARD_MULTIPLIERS: Record<
-  'male' | 'female',
-  Record<string, number>
-> = {
-  male: {
-    스쿼트: 1.5,
-    데드: 2.0,
-    벤치: 1.25,
-    OHP: 0.8,
-  },
-  female: {
-    스쿼트: 1.2,
-    데드: 1.6,
-    벤치: 0.8,
-    OHP: 0.52,
-  },
-};
-
-const COLORS: Record<string, string> = {
-  스쿼트: '#EF4444',
-  데드: '#F97316',
-  벤치: '#22C55E',
-  OHP: '#A855F7',
-};
-
-const calc1RM = (weight: number, reps: number): number => {
-  if (reps <= 1) return weight;
-  return Math.round(weight * (1 + reps / 30));
-};
-
-const getBest1RM = (
-  records: StrengthRecord[],
-  weightKey: keyof StrengthRecord,
-  repsKey: keyof StrengthRecord,
-): number => {
-  return records.reduce((best, record) => {
-    const weight = Number(record[weightKey] ?? 0);
-    const reps = Number(record[repsKey] ?? 1);
-    const oneRm = weight > 0 ? calc1RM(weight, reps) : 0;
-    return oneRm > best ? oneRm : best;
-  }, 0);
+type ChartDataItem = {
+  subject: LiftSubject;
+  ratio: number;
+  my1RM: number;
+  standard: number;
+  standardKg: number;
+  score: number;
+  fullMark: number;
 };
 
 const CustomTooltip = ({
@@ -85,13 +60,7 @@ const CustomTooltip = ({
 }: {
   active?: boolean;
   payload?: {
-    payload: {
-      subject: string;
-      ratio: number;
-      my1RM: number;
-      standard: number;
-      score: number;
-    };
+    payload: ChartDataItem;
   }[];
 }) => {
   if (active && payload && payload.length) {
@@ -111,7 +80,9 @@ const CustomTooltip = ({
         </p>
         <p className={styles.tooltipRow}>
           <span>목표 기준</span>
-          <strong>{d.standard.toFixed(2)}배</strong>
+          <strong>
+            {d.standardKg.toFixed(1)}kg ({d.standard.toFixed(2)}배)
+          </strong>
         </p>
       </div>
     );
@@ -134,6 +105,9 @@ export default function BodyweightChart({
   const displayName = profile?.nickname || '';
   const bodyweight = profile?.weight ?? null;
   const gender = profile?.gender ?? null;
+  const birthDate = profile?.birth_date ?? null;
+  const age = birthDate ? calculateAge(birthDate) : null;
+  const ageBracket = age !== null ? getAgeBracket(age) : null;
   const isPageLoading = recordsLoading || profileLoading;
 
   const bestRecords = useMemo(() => {
@@ -146,35 +120,43 @@ export default function BodyweightChart({
     };
   }, [records]);
 
-  const chartData = useMemo(() => {
-    if (!bestRecords || !bodyweight || !gender) return [];
+  const chartData: ChartDataItem[] = useMemo(() => {
+    if (!bestRecords || !bodyweight || !gender || !ageBracket) return [];
 
-    const items = [
+    const items: { subject: LiftSubject; my1RM: number }[] = [
       { subject: '스쿼트', my1RM: bestRecords.squat1rm },
       { subject: '데드', my1RM: bestRecords.deadlift1rm },
       { subject: '벤치', my1RM: bestRecords.bench1rm },
       { subject: 'OHP', my1RM: bestRecords.ohp1rm },
     ];
 
-    const multipliers = STANDARD_MULTIPLIERS[gender];
-
     return items.map((item) => {
       const ratio =
         item.my1RM > 0 ? Math.round((item.my1RM / bodyweight) * 100) / 100 : 0;
-      const standard = multipliers[item.subject];
+
+      // 체중/연령대 보간 + 연령 보정
+      const standardKg = getStandardKg(
+        gender,
+        item.subject,
+        ageBracket,
+        bodyweight,
+      );
+      const standard =
+        standardKg > 0 ? Math.round((standardKg / bodyweight) * 100) / 100 : 0;
       const score =
-        standard > 0 ? Math.round((ratio / standard) * 1000) / 10 : 0;
+        standardKg > 0 ? Math.round((item.my1RM / standardKg) * 1000) / 10 : 0;
 
       return {
         subject: item.subject,
         ratio,
         my1RM: item.my1RM,
         standard,
+        standardKg,
         score: Math.min(score, 200),
         fullMark: 150,
       };
     });
-  }, [bestRecords, bodyweight, gender]);
+  }, [bestRecords, bodyweight, gender, ageBracket]);
 
   const hasEnoughData =
     !!bestRecords &&
@@ -182,7 +164,8 @@ export default function BodyweightChart({
     bestRecords.deadlift1rm > 0 &&
     bestRecords.bench1rm > 0 &&
     !!bodyweight &&
-    !!gender;
+    !!gender &&
+    !!ageBracket;
 
   const strongest = chartData.length
     ? chartData.reduce((a, b) => (a.score > b.score ? a : b))
@@ -195,6 +178,17 @@ export default function BodyweightChart({
   const noWeight = !isPageLoading && records.length > 0 && !bodyweight;
   const noGender =
     !isPageLoading && records.length > 0 && !!bodyweight && !gender;
+  const noBirthDate =
+    !isPageLoading &&
+    records.length > 0 &&
+    !!bodyweight &&
+    !!gender &&
+    !ageBracket;
+
+  // 실제 체중/연령대가 있으면 그 값으로, 없으면 대표 체중+ 기본 연령대(18-39)로 근사치
+  const infoGender: Gender = gender ?? 'male';
+  const infoBodyweight = bodyweight ?? getReferenceBodyweight(infoGender);
+  const infoAgeBracket: AgeBracket = ageBracket ?? '18-39';
 
   return (
     <div className={styles.container}>
@@ -218,33 +212,44 @@ export default function BodyweightChart({
           <InfoIcon size={15} className={styles.infoIcon} />
           <div className={styles.infoTooltip}>
             <p className={styles.infoTitle}>
-              {gender === 'female' ? '여성' : '남성'} 중급자 목표 기준 (체중
-              배수)
+              {infoGender === 'female' ? '여성' : '남성'}
+              {ageBracket ? ` ${ageBracket}세` : ''}{' '}
+              {bodyweight ? `${bodyweight}kg` : `${infoBodyweight}kg 참고`}{' '}
+              중급자 목표 기준
             </p>
             <ul className={styles.infoList}>
-              <li>
-                <span>스쿼트</span>
-                <strong>
-                  x {STANDARD_MULTIPLIERS[gender ?? 'male'].스쿼트}
-                </strong>
-              </li>
-              <li>
-                <span>데드리프트</span>
-                <strong>x {STANDARD_MULTIPLIERS[gender ?? 'male'].데드}</strong>
-              </li>
-              <li>
-                <span>벤치프레스</span>
-                <strong>x {STANDARD_MULTIPLIERS[gender ?? 'male'].벤치}</strong>
-              </li>
-              <li>
-                <span>OHP</span>
-                <strong>x {STANDARD_MULTIPLIERS[gender ?? 'male'].OHP}</strong>
-              </li>
+              {LIFT_SUBJECTS.map((subject) => {
+                const adjustedKg = getStandardKg(
+                  infoGender,
+                  subject,
+                  infoAgeBracket,
+                  infoBodyweight,
+                );
+                const multiple =
+                  Math.round((adjustedKg / infoBodyweight) * 100) / 100;
+                const label =
+                  subject === '데드'
+                    ? '데드리프트'
+                    : subject === '벤치'
+                      ? '벤치프레스'
+                      : subject;
+                return (
+                  <li key={subject}>
+                    <span>{label}</span>
+                    <strong>
+                      {adjustedKg}kg (x{multiple.toFixed(2)})
+                    </strong>
+                  </li>
+                );
+              })}
             </ul>
             <p className={styles.infoDesc}>
-              ExRx.net 근력 기준(성인 {gender === 'female' ? '여성' : '남성'}{' '}
-              18-39세) 기반의 중급자 참고 지표입니다. 체급·훈련 경력에 따라 다를
-              수 있어요.
+              ExRx.net 근력 기준(성인{' '}
+              {infoGender === 'female' ? '여성' : '남성'}{' '}
+              {ageBracket ?? '18-39'}세)을 체중 구간별로 보간한 값입니다.
+              체급·훈련 경력에 따라 다를 수 있어요.
+              {!bodyweight &&
+                ' (체중 미등록 상태라 참고용 체중 기준으로 표시 중이에요)'}
             </p>
           </div>
         </div>
@@ -271,6 +276,15 @@ export default function BodyweightChart({
                 : '프로필 수정에서 성별을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
             }
           />
+        ) : noBirthDate ? (
+          <Empty
+            message='생년월일 정보가 없어요.'
+            subMessage={
+              isReadOnly
+                ? `${displayName}님이 아직 생년월일을 등록하지 않았어요.`
+                : '프로필 수정에서 생년월일을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
+            }
+          />
         ) : !hasEnoughData ? (
           <Empty
             message='밸런스 분석을 위한 데이터가 부족합니다.'
@@ -279,8 +293,22 @@ export default function BodyweightChart({
         ) : (
           <>
             <div className={styles.bodyweightBadge}>
-              <span className={styles.badgeLabel}>현재 체중</span>
-              <span className={styles.badgeValue}>{bodyweight}kg</span>
+              <div className={styles.badgeItem}>
+                <span className={styles.badgeLabel}>체중</span>
+                <span className={styles.badgeValue}>{bodyweight}kg</span>
+              </div>
+              <span className={styles.badgeDivider} />
+              <div className={styles.badgeItem}>
+                <span className={styles.badgeLabel}>성별</span>
+                <span className={styles.badgeValue}>
+                  {gender === 'female' ? '여성' : '남성'}
+                </span>
+              </div>
+              <span className={styles.badgeDivider} />
+              <div className={styles.badgeItem}>
+                <span className={styles.badgeLabel}>나이</span>
+                <span className={styles.badgeValue}>{age}세</span>
+              </div>
             </div>
 
             <ResponsiveContainer width='100%' height={260}>
@@ -300,7 +328,7 @@ export default function BodyweightChart({
                   tickLine={false}
                   tick={({ x, y, payload }) => {
                     const color =
-                      COLORS[payload.value as keyof typeof COLORS] ?? '#6b7280';
+                      COLORS[payload.value as LiftSubject] ?? '#6b7280';
                     return (
                       <text
                         x={x}
@@ -323,7 +351,6 @@ export default function BodyweightChart({
                   cursor={{ fill: 'rgba(0,0,0,0.03)' }}
                 />
 
-                {/* 기준선 (100%) */}
                 <ReferenceLine
                   y={100}
                   stroke='#d1d5db'
@@ -337,17 +364,31 @@ export default function BodyweightChart({
                   }}
                 />
 
-                <Bar dataKey='score' radius={[6, 6, 0, 0]} maxBarSize={48}>
-                  {chartData.map((entry) => (
-                    <Cell
-                      key={entry.subject}
-                      fill={
-                        entry.score >= 100
-                          ? COLORS[entry.subject as keyof typeof COLORS]
-                          : `${COLORS[entry.subject as keyof typeof COLORS]}66`
-                      }
-                    />
-                  ))}
+                <Bar
+                  dataKey='score'
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={48}
+                  shape={(
+                    props: RectangleProps & { payload?: ChartDataItem },
+                  ) => {
+                    const { x, y, width, height, payload } = props;
+                    if (!payload) return <Rectangle {...props} />;
+
+                    const color = COLORS[payload.subject] ?? '#6b7280';
+                    const fill = payload.score >= 100 ? color : `${color}66`;
+
+                    return (
+                      <Rectangle
+                        x={x}
+                        y={y}
+                        width={width}
+                        height={height}
+                        radius={[6, 6, 0, 0]}
+                        fill={fill}
+                      />
+                    );
+                  }}
+                >
                   <LabelList
                     dataKey='ratio'
                     position='top'
