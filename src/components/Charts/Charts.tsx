@@ -41,15 +41,24 @@ export default function Charts({ userId }: ChartsProps) {
 
   return (
     <div className={styles.chartsWrapper}>
-      {activeView === 'record' && (
+      <div
+        className={styles.chartPane}
+        style={{ display: activeView === 'record' ? 'block' : 'none' }}
+      >
         <RecordChart userId={userId} tabButtons={tabButtons} />
-      )}
-      {activeView === 'strength' && (
+      </div>
+      <div
+        className={styles.chartPane}
+        style={{ display: activeView === 'strength' ? 'block' : 'none' }}
+      >
         <StrengthChart userId={userId} tabButtons={tabButtons} />
-      )}
-      {activeView === 'bodyweight' && (
+      </div>
+      <div
+        className={styles.chartPane}
+        style={{ display: activeView === 'bodyweight' ? 'block' : 'none' }}
+      >
         <BodyweightChart userId={userId} tabButtons={tabButtons} />
-      )}
+      </div>
     </div>
   );
 }
