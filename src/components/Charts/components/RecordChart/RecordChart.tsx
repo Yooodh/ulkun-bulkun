@@ -353,132 +353,137 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
         ) : (
           <>
             {/* 차트 */}
-            <ResponsiveContainer width='100%' height={375}>
-              <LineChart
-                data={chartData}
-                className={styles.chartWrapper}
-                margin={{ top: 10, right: 20, left: 0, bottom: 20 }}
-              >
-                {/* 가로선 표시 그리드 */}
-                <CartesianGrid
-                  strokeDasharray='3 3'
-                  vertical={false}
-                  className={styles.chartGrid}
-                />
-
-                {/* 월/일 */}
-                <XAxis
-                  dataKey='xKey'
-                  tickFormatter={(val) => {
-                    const startIndex = brushRange?.startIndex ?? 0;
-                    const endIndex =
-                      brushRange?.endIndex ?? chartData.length - 1;
-                    const visibleCount = endIndex - startIndex + 1;
-
-                    if (visibleCount <= 10) {
-                      const d = new Date(val.split('_')[0]);
-                      return `${d.getMonth() + 1}/${d.getDate()}`;
-                    }
-
-                    const currentIndex = chartData.findIndex(
-                      (d) => d.xKey === val,
-                    );
-                    if (
-                      currentIndex === startIndex ||
-                      currentIndex === endIndex
-                    ) {
-                      const d = new Date(val.split('_')[0]);
-                      return `${d.getMonth() + 1}/${d.getDate()}`;
-                    }
-                    return '';
-                  }}
-                  tick={{ className: styles.chartTick }}
-                  tickLine={false}
-                  axisLine={false}
-                  dy={10}
-                />
-
-                {/* 데이터 범위 */}
-                <YAxis
-                  domain={['dataMin - 10', 'dataMax + 10']}
-                  tick={{ className: styles.chartTick }}
-                  tickLine={false}
-                  axisLine={false}
-                  unit='kg'
-                  width={45}
-                />
-                <Tooltip
-                  content={
-                    <CustomTooltip activePart={activePart} show1RM={show1RM} />
-                  }
-                />
-
-                {/* 선택된 부위 데이터 */}
-                <Line
-                  name={activePart.label}
-                  type='monotone'
-                  connectNulls={false}
-                  dataKey={(entry) => {
-                    const point = entry as ChartDataPoint;
-                    const val = show1RM
-                      ? point[activePart.rmKey]
-                      : point[activePart.key];
-
-                    // 값이 없거나 0이면 점 미표시
-                    if (typeof val !== 'number' || val === 0) return null;
-                    return val;
-                  }}
-                  stroke={activePart.color}
-                  strokeWidth={3}
-                  dot={{ r: 4, fill: activePart.color, strokeWidth: 0 }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                  isAnimationActive={true}
-                />
-
-                {/* 브러쉬 슬라이더 */}
-                {brushRange && brushRange.endIndex < chartData.length && (
-                  <Brush
-                    key={activePart.key}
-                    dataKey='xKey'
-                    height={20}
-                    stroke={activePart.color}
-                    fill='transparent'
-                    startIndex={brushRange.startIndex}
-                    endIndex={brushRange.endIndex}
-                    travellerWidth={isMobile ? 0 : 8}
-                    className={styles.charBrush}
-                    y={345}
-                    tickFormatter={() => ''}
-                    onChange={(range) => {
-                      if (
-                        range.startIndex !== undefined &&
-                        range.endIndex !== undefined
-                      ) {
-                        if (isMobile) {
-                          // 윈도우 크기 고정 및 드래그로 전체 이동
-                          const size =
-                            brushRange.endIndex - brushRange.startIndex;
-                          const newStart = range.startIndex;
-                          const newEnd = Math.min(
-                            newStart + size,
-                            chartData.length - 1,
-                          );
-                          updateBrushRange({
-                            startIndex: newStart,
-                            endIndex: newEnd,
-                          });
-                        } else {
-                          updateBrushRange({
-                            startIndex: range.startIndex,
-                            endIndex: range.endIndex,
-                          });
-                        }
-                      }
-                    }}
+            <div className={styles.chartArea}>
+              <ResponsiveContainer width='100%' height='100%'>
+                <LineChart
+                  data={chartData}
+                  className={styles.chartWrapper}
+                  margin={{ top: 10, right: 20, left: 0, bottom: 20 }}
+                >
+                  {/* 가로선 표시 그리드 */}
+                  <CartesianGrid
+                    strokeDasharray='3 3'
+                    vertical={false}
+                    className={styles.chartGrid}
                   />
-                )}
-              </LineChart>
-            </ResponsiveContainer>
+
+                  {/* 월/일 */}
+                  <XAxis
+                    dataKey='xKey'
+                    tickFormatter={(val) => {
+                      const startIndex = brushRange?.startIndex ?? 0;
+                      const endIndex =
+                        brushRange?.endIndex ?? chartData.length - 1;
+                      const visibleCount = endIndex - startIndex + 1;
+
+                      if (visibleCount <= 10) {
+                        const d = new Date(val.split('_')[0]);
+                        return `${d.getMonth() + 1}/${d.getDate()}`;
+                      }
+
+                      const currentIndex = chartData.findIndex(
+                        (d) => d.xKey === val,
+                      );
+                      if (
+                        currentIndex === startIndex ||
+                        currentIndex === endIndex
+                      ) {
+                        const d = new Date(val.split('_')[0]);
+                        return `${d.getMonth() + 1}/${d.getDate()}`;
+                      }
+                      return '';
+                    }}
+                    tick={{ className: styles.chartTick }}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={10}
+                  />
+
+                  {/* 데이터 범위 */}
+                  <YAxis
+                    domain={['dataMin - 10', 'dataMax + 10']}
+                    tick={{ className: styles.chartTick }}
+                    tickLine={false}
+                    axisLine={false}
+                    unit='kg'
+                    width={45}
+                  />
+                  <Tooltip
+                    content={
+                      <CustomTooltip
+                        activePart={activePart}
+                        show1RM={show1RM}
+                      />
+                    }
+                  />
+
+                  {/* 선택된 부위 데이터 */}
+                  <Line
+                    name={activePart.label}
+                    type='monotone'
+                    connectNulls={false}
+                    dataKey={(entry) => {
+                      const point = entry as ChartDataPoint;
+                      const val = show1RM
+                        ? point[activePart.rmKey]
+                        : point[activePart.key];
+
+                      // 값이 없거나 0이면 점 미표시
+                      if (typeof val !== 'number' || val === 0) return null;
+                      return val;
+                    }}
+                    stroke={activePart.color}
+                    strokeWidth={3}
+                    dot={{ r: 4, fill: activePart.color, strokeWidth: 0 }}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
+                    isAnimationActive={true}
+                  />
+
+                  {/* 브러쉬 슬라이더 */}
+                  {brushRange && brushRange.endIndex < chartData.length && (
+                    <Brush
+                      key={activePart.key}
+                      dataKey='xKey'
+                      height={20}
+                      stroke={activePart.color}
+                      fill='transparent'
+                      startIndex={brushRange.startIndex}
+                      endIndex={brushRange.endIndex}
+                      travellerWidth={isMobile ? 0 : 8}
+                      className={styles.charBrush}
+                      y={345}
+                      tickFormatter={() => ''}
+                      onChange={(range) => {
+                        if (
+                          range.startIndex !== undefined &&
+                          range.endIndex !== undefined
+                        ) {
+                          if (isMobile) {
+                            // 윈도우 크기 고정 및 드래그로 전체 이동
+                            const size =
+                              brushRange.endIndex - brushRange.startIndex;
+                            const newStart = range.startIndex;
+                            const newEnd = Math.min(
+                              newStart + size,
+                              chartData.length - 1,
+                            );
+                            updateBrushRange({
+                              startIndex: newStart,
+                              endIndex: newEnd,
+                            });
+                          } else {
+                            updateBrushRange({
+                              startIndex: range.startIndex,
+                              endIndex: range.endIndex,
+                            });
+                          }
+                        }
+                      }}
+                    />
+                  )}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
 
             {/* 브러쉬 내비게이션 버튼 */}
             {(!isMobile ||

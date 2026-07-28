@@ -228,59 +228,62 @@ export default function StrengthChart({
           />
         ) : (
           <>
-            <ResponsiveContainer width='100%' height={285}>
-              <RadarChart
-                accessibilityLayer={false}
-                data={chartData}
-                margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
-              >
-                <PolarGrid stroke='var(--border-soft, #e5e7eb)' />
-                <PolarAngleAxis
-                  dataKey='subject'
-                  tick={({ x, y, payload }) => {
-                    const color =
-                      COLORS[payload.value as keyof typeof COLORS] ?? '#6b7280';
+            <div className={styles.chartArea}>
+              <ResponsiveContainer width='100%' height='100%'>
+                <RadarChart
+                  accessibilityLayer={false}
+                  data={chartData}
+                  margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
+                >
+                  <PolarGrid stroke='var(--border-soft, #e5e7eb)' />
+                  <PolarAngleAxis
+                    dataKey='subject'
+                    tick={({ x, y, payload }) => {
+                      const color =
+                        COLORS[payload.value as keyof typeof COLORS] ??
+                        '#6b7280';
 
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        textAnchor='middle'
-                        dominantBaseline='central'
-                        fill={color}
-                        fontSize={13}
-                        fontWeight={600}
-                      >
-                        {payload.value}
-                      </text>
-                    );
-                  }}
-                />
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          textAnchor='middle'
+                          dominantBaseline='central'
+                          fill={color}
+                          fontSize={13}
+                          fontWeight={600}
+                        >
+                          {payload.value}
+                        </text>
+                      );
+                    }}
+                  />
 
-                <Tooltip content={<CustomTooltip />} cursor={false} />
+                  <Tooltip content={<CustomTooltip />} cursor={false} />
 
-                <Radar
-                  name='기준'
-                  dataKey={() => 100}
-                  stroke='#d1d5db'
-                  fill='#f3f4f6'
-                  fillOpacity={0.4}
-                  strokeDasharray='4 4'
-                  strokeWidth={1.5}
-                  dot={false}
-                />
+                  <Radar
+                    name='기준'
+                    dataKey={() => 100}
+                    stroke='#d1d5db'
+                    fill='#f3f4f6'
+                    fillOpacity={0.4}
+                    strokeDasharray='4 4'
+                    strokeWidth={1.5}
+                    dot={false}
+                  />
 
-                <Radar
-                  name='수치'
-                  dataKey='score'
-                  stroke='#007bff'
-                  fill='#007bff'
-                  fillOpacity={0.2}
-                  strokeWidth={2.5}
-                  dot={{ r: 4, fill: '#007bff', strokeWidth: 0 }}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
+                  <Radar
+                    name='수치'
+                    dataKey='score'
+                    stroke='#007bff'
+                    fill='#007bff'
+                    fillOpacity={0.2}
+                    strokeWidth={2.5}
+                    dot={{ r: 4, fill: '#007bff', strokeWidth: 0 }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
 
             <div className={styles.scoreList}>
               {chartData.map((item) => {

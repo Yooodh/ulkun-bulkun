@@ -311,99 +311,101 @@ export default function BodyweightChart({
               </div>
             </div>
 
-            <ResponsiveContainer width='100%' height={260}>
-              <BarChart
-                data={chartData}
-                margin={{ top: 20, right: 30, bottom: 10, left: 30 }}
-                barCategoryGap='30%'
-              >
-                <CartesianGrid
-                  vertical={false}
-                  stroke='var(--border-soft, #e5e7eb)'
-                />
-
-                <XAxis
-                  dataKey='subject'
-                  axisLine={false}
-                  tickLine={false}
-                  tick={({ x, y, payload }) => {
-                    const color =
-                      COLORS[payload.value as LiftSubject] ?? '#6b7280';
-                    return (
-                      <text
-                        x={x}
-                        y={Number(y) + 12}
-                        textAnchor='middle'
-                        fill={color}
-                        fontSize={13}
-                        fontWeight={600}
-                      >
-                        {payload.value}
-                      </text>
-                    );
-                  }}
-                />
-
-                <YAxis hide domain={[0, 'dataMax + 20']} />
-
-                <Tooltip
-                  content={<CustomTooltip />}
-                  cursor={{ fill: 'rgba(0,0,0,0.03)' }}
-                />
-
-                <ReferenceLine
-                  y={100}
-                  stroke='#d1d5db'
-                  strokeDasharray='4 4'
-                  strokeWidth={1.5}
-                  label={{
-                    value: '목표',
-                    position: 'right',
-                    fill: '#9ca3af',
-                    fontSize: 11,
-                  }}
-                />
-
-                <Bar
-                  dataKey='score'
-                  radius={[6, 6, 0, 0]}
-                  maxBarSize={48}
-                  shape={(
-                    props: RectangleProps & { payload?: ChartDataItem },
-                  ) => {
-                    const { x, y, width, height, payload } = props;
-                    if (!payload) return <Rectangle {...props} />;
-
-                    const color = COLORS[payload.subject] ?? '#6b7280';
-                    const fill = payload.score >= 100 ? color : `${color}66`;
-
-                    return (
-                      <Rectangle
-                        x={x}
-                        y={y}
-                        width={width}
-                        height={height}
-                        radius={[6, 6, 0, 0]}
-                        fill={fill}
-                      />
-                    );
-                  }}
+            <div className={styles.chartArea}>
+              <ResponsiveContainer width='100%' height='100%'>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 20, right: 30, bottom: 10, left: 30 }}
+                  barCategoryGap='30%'
                 >
-                  <LabelList
-                    dataKey='ratio'
-                    position='top'
-                    formatter={(v: unknown) => {
-                      if (v === null || v === undefined) return '';
-                      const num = Number(v);
-                      return Number.isNaN(num) ? '' : `${num.toFixed(2)}배`;
-                    }}
-                    fontSize={12}
-                    fontWeight={600}
-                    fill='#374151'
+                  <CartesianGrid
+                    vertical={false}
+                    stroke='var(--border-soft, #e5e7eb)'
                   />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+
+                  <XAxis
+                    dataKey='subject'
+                    axisLine={false}
+                    tickLine={false}
+                    tick={({ x, y, payload }) => {
+                      const color =
+                        COLORS[payload.value as LiftSubject] ?? '#6b7280';
+                      return (
+                        <text
+                          x={x}
+                          y={Number(y) + 12}
+                          textAnchor='middle'
+                          fill={color}
+                          fontSize={13}
+                          fontWeight={600}
+                        >
+                          {payload.value}
+                        </text>
+                      );
+                    }}
+                  />
+
+                  <YAxis hide domain={[0, 'dataMax + 20']} />
+
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ fill: 'rgba(0,0,0,0.03)' }}
+                  />
+
+                  <ReferenceLine
+                    y={100}
+                    stroke='#d1d5db'
+                    strokeDasharray='4 4'
+                    strokeWidth={1.5}
+                    label={{
+                      value: '목표',
+                      position: 'right',
+                      fill: '#9ca3af',
+                      fontSize: 11,
+                    }}
+                  />
+
+                  <Bar
+                    dataKey='score'
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={48}
+                    shape={(
+                      props: RectangleProps & { payload?: ChartDataItem },
+                    ) => {
+                      const { x, y, width, height, payload } = props;
+                      if (!payload) return <Rectangle {...props} />;
+
+                      const color = COLORS[payload.subject] ?? '#6b7280';
+                      const fill = payload.score >= 100 ? color : `${color}66`;
+
+                      return (
+                        <Rectangle
+                          x={x}
+                          y={y}
+                          width={width}
+                          height={height}
+                          radius={[6, 6, 0, 0]}
+                          fill={fill}
+                        />
+                      );
+                    }}
+                  >
+                    <LabelList
+                      dataKey='ratio'
+                      position='top'
+                      formatter={(v: unknown) => {
+                        if (v === null || v === undefined) return '';
+                        const num = Number(v);
+                        return Number.isNaN(num) ? '' : `${num.toFixed(2)}배`;
+                      }}
+                      fontSize={12}
+                      fontWeight={600}
+                      fill='#374151'
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
 
             {strongest && weakest && strongest.subject !== weakest.subject && (
               <div className={styles.summary}>
