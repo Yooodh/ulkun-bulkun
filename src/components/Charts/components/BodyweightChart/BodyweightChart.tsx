@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -42,6 +42,7 @@ import styles from './BodyweightChart.module.scss';
 type BodyweightChartProps = {
   userId?: string;
   tabButtons?: React.ReactNode;
+  onHasDataChange?: (hasData: boolean) => void;
 };
 
 type ChartDataItem = {
@@ -93,6 +94,7 @@ const CustomTooltip = ({
 export default function BodyweightChart({
   userId,
   tabButtons,
+  onHasDataChange,
 }: BodyweightChartProps) {
   const { user } = useAuth();
   const targetId = userId || user?.id;
@@ -166,6 +168,12 @@ export default function BodyweightChart({
     !!bodyweight &&
     !!gender &&
     !!ageBracket;
+
+  useEffect(() => {
+    if (!isPageLoading) {
+      onHasDataChange?.(hasEnoughData);
+    }
+  }, [isPageLoading, hasEnoughData, onHasDataChange]);
 
   const strongest = chartData.length
     ? chartData.reduce((a, b) => (a.score > b.score ? a : b))
@@ -257,39 +265,49 @@ export default function BodyweightChart({
 
       <div className={styles.contentWrapper}>
         {isPageLoading ? (
-          <Loading message='체중 대비 데이터를 분석하고 있어요!' />
+          <div className={styles.stateWrapper}>
+            <Loading message='체중 대비 데이터를 분석하고 있어요!' />
+          </div>
         ) : noWeight ? (
-          <Empty
-            message='체중 정보가 없어요.'
-            subMessage={
-              isReadOnly
-                ? `${displayName}님이 아직 체중을 등록하지 않았어요.`
-                : '프로필 수정에서 체중을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
-            }
-          />
+          <div className={styles.stateWrapper}>
+            <Empty
+              message='체중 정보가 없어요.'
+              subMessage={
+                isReadOnly
+                  ? `${displayName}님이 아직 체중을 등록하지 않았어요.`
+                  : '프로필 수정에서 체중을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
+              }
+            />
+          </div>
         ) : noGender ? (
-          <Empty
-            message='성별 정보가 없어요.'
-            subMessage={
-              isReadOnly
-                ? `${displayName}님이 아직 성별을 등록하지 않았어요.`
-                : '프로필 수정에서 성별을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
-            }
-          />
+          <div className={styles.stateWrapper}>
+            <Empty
+              message='성별 정보가 없어요.'
+              subMessage={
+                isReadOnly
+                  ? `${displayName}님이 아직 성별을 등록하지 않았어요.`
+                  : '프로필 수정에서 성별을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
+              }
+            />
+          </div>
         ) : noBirthDate ? (
-          <Empty
-            message='생년월일 정보가 없어요.'
-            subMessage={
-              isReadOnly
-                ? `${displayName}님이 아직 생년월일을 등록하지 않았어요.`
-                : '프로필 수정에서 생년월일을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
-            }
-          />
+          <div className={styles.stateWrapper}>
+            <Empty
+              message='생년월일 정보가 없어요.'
+              subMessage={
+                isReadOnly
+                  ? `${displayName}님이 아직 생년월일을 등록하지 않았어요.`
+                  : '프로필 수정에서 생년월일을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
+              }
+            />
+          </div>
         ) : !hasEnoughData ? (
-          <Empty
-            message='밸런스 분석을 위한 데이터가 부족합니다.'
-            subMessage='스쿼트, 데드리프트, 벤치프레스 기록이 필요해요.'
-          />
+          <div className={styles.stateWrapper}>
+            <Empty
+              message='밸런스 분석을 위한 데이터가 부족합니다.'
+              subMessage='스쿼트, 데드리프트, 벤치프레스 기록이 필요해요.'
+            />
+          </div>
         ) : (
           <>
             <div className={styles.bodyweightBadge}>

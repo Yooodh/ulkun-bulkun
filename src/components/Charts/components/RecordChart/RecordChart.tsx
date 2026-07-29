@@ -33,6 +33,7 @@ import styles from './RecordChart.module.scss';
 type RecordChartProps = {
   userId?: string;
   tabButtons?: React.ReactNode;
+  onHasDataChange?: (hasData: boolean) => void;
 };
 
 type ChartPart = {
@@ -109,7 +110,11 @@ const calc1RM = (weight: number, reps: number): number => {
   return Math.round(weight * (1 + reps / 30));
 };
 
-export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
+export default function RecordChart({
+  userId,
+  tabButtons,
+  onHasDataChange,
+}: RecordChartProps) {
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
@@ -256,6 +261,12 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
     setBrushRange(next);
   };
 
+  useEffect(() => {
+    if (!isPageLoading) {
+      onHasDataChange?.(chartData.length >= 2);
+    }
+  }, [isPageLoading, chartData.length, onHasDataChange]);
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -336,20 +347,24 @@ export default function RecordChart({ userId, tabButtons }: RecordChartProps) {
 
       <div className={styles.contentWrapper}>
         {isPageLoading ? (
-          <Loading message='차트 데이터를 분석하고 있어요!' />
+          <div className={styles.stateWrapper}>
+            <Loading message='차트 데이터를 분석하고 있어요!' />
+          </div>
         ) : chartData.length < 2 ? (
-          <Empty
-            message={
-              isReadOnly
-                ? `${displayName}님의 차트 데이터가 부족합니다.`
-                : '최소 2개 이상의 기록이 필요합니다.'
-            }
-            subMessage={
-              !isReadOnly
-                ? '오늘의 운동을 기록하고 성장 곡선을 확인해보세요!'
-                : '아직 등록된 기록이 충분하지 않아요.'
-            }
-          />
+          <div className={styles.stateWrapper}>
+            <Empty
+              message={
+                isReadOnly
+                  ? `${displayName}님의 차트 데이터가 부족합니다.`
+                  : '최소 2개 이상의 기록이 필요합니다.'
+              }
+              subMessage={
+                !isReadOnly
+                  ? '오늘의 운동을 기록하고 성장 곡선을 확인해보세요!'
+                  : '아직 등록된 기록이 충분하지 않아요.'
+              }
+            />
+          </div>
         ) : (
           <>
             {/* 차트 */}
