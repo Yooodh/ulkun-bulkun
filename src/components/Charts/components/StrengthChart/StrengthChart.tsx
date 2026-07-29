@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import {
   RadarChart,
   Radar,
@@ -25,6 +25,7 @@ import styles from './StrengthChart.module.scss';
 type StrengthChartProps = {
   userId?: string;
   tabButtons?: React.ReactNode;
+  onHasDataChange?: (hasData: boolean) => void;
 };
 
 const STANDARD_RATIOS: Record<string, number> = {
@@ -104,6 +105,7 @@ const CustomTooltip = ({
 export default function StrengthChart({
   userId,
   tabButtons,
+  onHasDataChange,
 }: StrengthChartProps) {
   const { user } = useAuth();
   const targetId = userId || user?.id;
@@ -159,6 +161,12 @@ export default function StrengthChart({
     bestRecords.squat1rm > 0 &&
     bestRecords.deadlift1rm > 0 &&
     bestRecords.bench1rm > 0;
+
+  useEffect(() => {
+    if (!isPageLoading) {
+      onHasDataChange?.(hasEnoughData);
+    }
+  }, [isPageLoading, hasEnoughData, onHasDataChange]);
 
   const strongest = chartData.length
     ? chartData.reduce((a, b) => (a.score > b.score ? a : b))
@@ -220,12 +228,16 @@ export default function StrengthChart({
 
       <div className={styles.contentWrapper}>
         {isPageLoading ? (
-          <Loading message='밸런스를 분석하고 있어요' />
+          <div className={styles.stateWrapper}>
+            <Loading message='밸런스를 분석하고 있어요' />
+          </div>
         ) : !hasEnoughData ? (
-          <Empty
-            message='밸런스 분석을 위한 데이터가 부족합니다.'
-            subMessage='스쿼트, 데드리프트, 벤치프레스 기록이 필요해요.'
-          />
+          <div className={styles.stateWrapper}>
+            <Empty
+              message='밸런스 분석을 위한 데이터가 부족합니다.'
+              subMessage='스쿼트, 데드리프트, 벤치프레스 기록이 필요해요.'
+            />
+          </div>
         ) : (
           <>
             <div className={styles.chartArea}>
