@@ -9,10 +9,7 @@ import BodyweightChart from './components/BodyweightChart/BodyweightChart';
 
 import styles from './Charts.module.scss';
 
-type ChartsProps = {
-  userId?: string;
-};
-
+type ChartsProps = { userId?: string };
 type ChartView = 'record' | 'strength' | 'bodyweight';
 
 const TABS: { key: ChartView; label: string; icon: React.ReactNode }[] = [
@@ -23,6 +20,17 @@ const TABS: { key: ChartView; label: string; icon: React.ReactNode }[] = [
 
 export default function Charts({ userId }: ChartsProps) {
   const [activeView, setActiveView] = useState<ChartView>('record');
+  const [hasData, setHasData] = useState<Record<ChartView, boolean>>({
+    record: true,
+    strength: true,
+    bodyweight: true,
+  });
+
+  const handleHasDataChange = (view: ChartView) => (value: boolean) => {
+    setHasData((prev) =>
+      prev[view] === value ? prev : { ...prev, [view]: value },
+    );
+  };
 
   const tabButtons = (
     <div className={styles.tabGroup}>
@@ -42,22 +50,34 @@ export default function Charts({ userId }: ChartsProps) {
   return (
     <div className={styles.chartsWrapper}>
       <div
-        className={styles.chartPane}
+        className={`${styles.chartPane} ${!hasData.record ? styles.auto : ''}`}
         style={{ display: activeView === 'record' ? 'block' : 'none' }}
       >
-        <RecordChart userId={userId} tabButtons={tabButtons} />
+        <RecordChart
+          userId={userId}
+          tabButtons={tabButtons}
+          onHasDataChange={handleHasDataChange('record')}
+        />
       </div>
       <div
-        className={styles.chartPane}
+        className={`${styles.chartPane} ${!hasData.strength ? styles.auto : ''}`}
         style={{ display: activeView === 'strength' ? 'block' : 'none' }}
       >
-        <StrengthChart userId={userId} tabButtons={tabButtons} />
+        <StrengthChart
+          userId={userId}
+          tabButtons={tabButtons}
+          onHasDataChange={handleHasDataChange('strength')}
+        />
       </div>
       <div
-        className={styles.chartPane}
+        className={`${styles.chartPane} ${!hasData.bodyweight ? styles.auto : ''}`}
         style={{ display: activeView === 'bodyweight' ? 'block' : 'none' }}
       >
-        <BodyweightChart userId={userId} tabButtons={tabButtons} />
+        <BodyweightChart
+          userId={userId}
+          tabButtons={tabButtons}
+          onHasDataChange={handleHasDataChange('bodyweight')}
+        />
       </div>
     </div>
   );
