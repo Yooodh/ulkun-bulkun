@@ -56,6 +56,8 @@ export function useProfileUpdate(user: User) {
     avatarUrl: string,
     isPublic: boolean,
     weight?: number | null,
+    gender?: 'male' | 'female' | null,
+    birthDate?: string | null,
   ) => {
     try {
       const { error } = await supabase.from('profiles').upsert({
@@ -65,6 +67,8 @@ export function useProfileUpdate(user: User) {
         avatar_url: avatarUrl,
         is_public: isPublic,
         weight: weight ?? null,
+        gender: gender ?? null,
+        birth_date: birthDate ?? null,
         updated_at: new Date().toISOString(),
       });
 
@@ -90,6 +94,8 @@ export function useProfileUpdate(user: User) {
         avatar_url: originalAvatar,
         is_public: true,
         weight: null,
+        gender: null,
+        birth_date: null,
         updated_at: new Date().toISOString(),
       });
 

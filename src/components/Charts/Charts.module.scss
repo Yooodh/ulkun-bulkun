@@ -1,7 +1,22 @@
 @use '../../styles' as *;
 
+$chart-height: 610px;
+$chart-height-mobile: 650px;
+
 .chartsWrapper {
   width: 100%;
+}
+
+.chartPane {
+  height: $chart-height;
+
+  @media (max-width: 768px) {
+    height: $chart-height-mobile;
+  }
+
+  &.auto {
+    height: auto;
+  }
 }
 
 .tabGroup {

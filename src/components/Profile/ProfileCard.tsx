@@ -4,16 +4,14 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import styles from './Profile.module.scss';
-
 import CharacterView from './components/CharacterView/CharacterView';
 import ProfileEdit from './components/ProfileEdit/ProfileEdit';
 import ProfileInfo from './components/ProfileInfo/ProfileInfo';
 import StatsSection from './components/StatsSection/StatsSection';
 import ActionsSection from './components/ActionsSection/ActionsSection';
 
-import Loading from '../shared/Loading/Loading';
-import Empty from '../shared/Empty/Empty';
+import Loading from '@/components/shared/Loading/Loading';
+import Empty from '@/components/shared/Empty/Empty';
 import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -24,6 +22,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useNotificationToggle } from '@/hooks/useNotificationToggle';
 
 import { calculateTotalPR } from '@/utils/recordUtils';
+
+import styles from './Profile.module.scss';
 
 type ProfileCardProps = {
   userId?: string;
@@ -68,6 +68,8 @@ export default function ProfileCard({
     avatar_url: string,
     status_message: string,
     weight: number | null,
+    gender: 'male' | 'female' | null,
+    birthDate: string | null,
   ) => {
     if (!profile) return;
     const success = await saveFullProfile(
@@ -76,6 +78,8 @@ export default function ProfileCard({
       avatar_url,
       profile.is_public,
       weight,
+      gender,
+      birthDate,
     );
 
     if (success) {
@@ -101,6 +105,8 @@ export default function ProfileCard({
         profile.avatar_url,
         nextPublicStatus,
         profile.weight,
+        profile.gender,
+        profile.birth_date,
       );
 
       if (success) {
@@ -191,6 +197,8 @@ export default function ProfileCard({
                 initialStatus={profile.status_message}
                 initialIsPublic={profile.is_public}
                 initialWeight={profile.weight}
+                initialGender={profile.gender}
+                initialBirthDate={profile.birth_date}
                 onUpdate={handleUpdate}
                 onEditingChange={setIsEditing}
               />

@@ -6,13 +6,13 @@ import { User } from '@supabase/supabase-js';
 import { Camera } from 'lucide-react';
 import { toast } from 'sonner';
 
-import styles from './ProfileEdit.module.scss';
-
 import Button from '@/components/shared/Button/Button';
 import Loading from '@/components/shared/Loading/Loading';
 import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useProfileUpdate } from '@/hooks/useProfileUpdate';
+
+import styles from './ProfileEdit.module.scss';
 
 type ProfileEditProps = {
   user: User;
@@ -21,11 +21,15 @@ type ProfileEditProps = {
   initialStatus: string;
   initialIsPublic: boolean;
   initialWeight: number | null;
+  initialGender: 'male' | 'female' | null;
+  initialBirthDate: string | null;
   onUpdate: (
     nickname: string,
     avatar: string,
     status: string,
     weight: number | null,
+    gender: 'male' | 'female' | null,
+    birthDate: string | null,
   ) => void;
   onEditingChange: (v: boolean) => void;
 };
@@ -37,6 +41,8 @@ export default function ProfileEdit({
   initialStatus,
   initialIsPublic,
   initialWeight,
+  initialGender,
+  initialBirthDate,
   onUpdate,
   onEditingChange,
 }: ProfileEditProps) {
@@ -45,6 +51,12 @@ export default function ProfileEdit({
   const [tempAvatar, setTempAvatar] = useState<string>(initialAvatar);
   const [tempWeight, setTempWeight] = useState<string>(
     initialWeight != null ? String(initialWeight) : '',
+  );
+  const [tempGender, setTempGender] = useState<'male' | 'female' | null>(
+    initialGender,
+  );
+  const [tempBirthDate, setTempBirthDate] = useState<string>(
+    initialBirthDate ?? '',
   );
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -94,6 +106,21 @@ export default function ProfileEdit({
       }
     }
 
+    const trimmedBirthDate = tempBirthDate.trim();
+    if (trimmedBirthDate) {
+      const birth = new Date(trimmedBirthDate);
+      const today = new Date();
+      if (isNaN(birth.getTime()) || birth > today) {
+        toast.info('생년월일을 올바르게 입력해 주세요.');
+        return;
+      }
+      const age = today.getFullYear() - birth.getFullYear();
+      if (age > 120 || age < 10) {
+        toast.info('생년월일을 다시 확인해 주세요.');
+        return;
+      }
+    }
+
     ConfirmToast('정말 변경하시겠습니까?', async () => {
       const success = await saveFullProfile(
         trimmedNickname,
@@ -101,9 +128,18 @@ export default function ProfileEdit({
         tempAvatar,
         initialIsPublic,
         parsedWeight,
+        tempGender,
+        trimmedBirthDate || null,
       );
       if (success) {
-        onUpdate(trimmedNickname, tempAvatar, trimmedStatus, parsedWeight);
+        onUpdate(
+          trimmedNickname,
+          tempAvatar,
+          trimmedStatus,
+          parsedWeight,
+          tempGender,
+          trimmedBirthDate || null,
+        );
         onEditingChange(false);
         toast.success('프로필이 변경되었습니다!');
       }
@@ -115,7 +151,9 @@ export default function ProfileEdit({
       tempNickname !== initialNickname ||
       tempStatus !== initialStatus ||
       tempAvatar !== initialAvatar ||
-      tempWeight !== (initialWeight != null ? String(initialWeight) : '');
+      tempWeight !== (initialWeight != null ? String(initialWeight) : '') ||
+      tempGender !== initialGender ||
+      tempBirthDate !== (initialBirthDate ?? '');
 
     if (isChanged) {
       ConfirmToast(
@@ -142,7 +180,16 @@ export default function ProfileEdit({
         setTempAvatar(defaultAvatar);
         setTempStatus(defaultStatus);
         setTempWeight('');
-        onUpdate(defaultNickname, defaultAvatar, defaultStatus, null);
+        setTempGender(null);
+        setTempBirthDate('');
+        onUpdate(
+          defaultNickname,
+          defaultAvatar,
+          defaultStatus,
+          null,
+          null,
+          null,
+        );
         onEditingChange(false);
         toast.success('프로필이 초기화되었습니다!');
       }
@@ -251,6 +298,38 @@ export default function ProfileEdit({
                 max={300}
               />
               <span>kg</span>
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label>성별</label>
+            <div className={styles.genderToggle}>
+              <button
+                type='button'
+                className={`${styles.genderBtn} ${tempGender === 'male' ? styles.active : ''}`}
+                onClick={() => setTempGender('male')}
+              >
+                남성
+              </button>
+              <button
+                type='button'
+                className={`${styles.genderBtn} ${tempGender === 'female' ? styles.active : ''}`}
+                onClick={() => setTempGender('female')}
+              >
+                여성
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label>생년월일</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type='date'
+                value={tempBirthDate}
+                onChange={(e) => setTempBirthDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+              />
             </div>
           </div>
         </div>

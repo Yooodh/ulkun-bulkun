@@ -122,6 +122,33 @@
           }
         }
       }
+
+      .genderToggle {
+        display: flex;
+        gap: 8px;
+
+        .genderBtn {
+          @include font-body;
+          flex: 1;
+          padding: 10px 0;
+          border: 1.5px solid $border-soft;
+          border-radius: $radius-main;
+          background: $off-white;
+          color: $text-muted;
+          cursor: pointer;
+          transition:
+            border-color 0.2s,
+            background 0.2s,
+            color 0.2s;
+
+          &.active {
+            border-color: $blue;
+            background: rgba($blue, 0.07);
+            color: $blue;
+            font-weight: 600;
+          }
+        }
+      }
     }
   }
 
