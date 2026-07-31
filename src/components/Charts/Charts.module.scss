@@ -4,19 +4,38 @@ $chart-height: 610px;
 $chart-height-mobile: 650px;
 
 .chartsWrapper {
+  position: relative;
   width: 100%;
-}
-
-.chartPane {
   height: $chart-height;
 
   @media (max-width: 768px) {
     height: $chart-height-mobile;
   }
+}
+
+.chartPane {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  transition: opacity 0.15s ease;
 
   &.auto {
     height: auto;
   }
+}
+
+.active {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.inactive {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .tabGroup {
