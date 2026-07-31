@@ -80,7 +80,6 @@ const PARTS: ChartPart[] = [
 ];
 
 const VISIBLE_COUNT = 10;
-const MOBILE_VISIBLE_COUNT = 6;
 
 let savedBrushRange: BrushRange | undefined = undefined;
 
@@ -136,7 +135,6 @@ export default function RecordChart({
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const visibleCount = isMobile ? MOBILE_VISIBLE_COUNT : VISIBLE_COUNT;
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
   const chartData = useMemo(() => {
@@ -190,7 +188,6 @@ export default function RecordChart({
     { startIndex: number; endIndex: number } | undefined
   >(savedBrushRange);
 
-  const prevVisibleCountRef = useRef(visibleCount);
   const prevActivePartRef = useRef(activePart.key);
 
   // 브러쉬 리셋
@@ -202,14 +199,10 @@ export default function RecordChart({
   // 브러쉬 범위 계산 및 세팅
   useEffect(() => {
     if (chartData.length < 2) return;
-
-    const visibleCountChanged = prevVisibleCountRef.current !== visibleCount;
     const activePartChanged = prevActivePartRef.current !== activePart.key;
-
-    prevVisibleCountRef.current = visibleCount;
     prevActivePartRef.current = activePart.key;
 
-    if (savedBrushRange && !visibleCountChanged && !activePartChanged) {
+    if (savedBrushRange && !activePartChanged) {
       const startIndex = Math.round(
         savedBrushRange.startRatio * (chartData.length - 1),
       );
@@ -219,10 +212,10 @@ export default function RecordChart({
 
       if (startIndex >= endIndex) {
         const fallback: BrushRange = {
-          startIndex: Math.max(0, chartData.length - visibleCount),
+          startIndex: Math.max(0, chartData.length - VISIBLE_COUNT),
           endIndex: chartData.length - 1,
           startRatio:
-            Math.max(0, chartData.length - visibleCount) /
+            Math.max(0, chartData.length - VISIBLE_COUNT) /
             (chartData.length - 1),
           endRatio: 1,
         };
@@ -234,8 +227,8 @@ export default function RecordChart({
       return;
     }
 
-    if (chartData.length > visibleCount) {
-      const startIndex = chartData.length - visibleCount;
+    if (chartData.length > VISIBLE_COUNT) {
+      const startIndex = chartData.length - VISIBLE_COUNT;
       const endIndex = chartData.length - 1;
       const initial: BrushRange = {
         startIndex,
@@ -249,7 +242,7 @@ export default function RecordChart({
       savedBrushRange = undefined;
       setBrushRange(undefined);
     }
-  }, [chartData.length, activePart.key, visibleCount]);
+  }, [chartData.length, activePart.key]);
 
   // 브러쉬 범위 업데이트
   const updateBrushRange = (next: { startIndex: number; endIndex: number }) => {
@@ -369,7 +362,11 @@ export default function RecordChart({
           <>
             {/* 차트 */}
             <div className={styles.chartArea}>
-              <ResponsiveContainer width='100%' height='100%'>
+              <ResponsiveContainer
+                width='100%'
+                height='100%'
+                initialDimension={{ width: 320, height: 200 }}
+              >
                 <LineChart
                   data={chartData}
                   className={styles.chartWrapper}
@@ -391,7 +388,7 @@ export default function RecordChart({
                         brushRange?.endIndex ?? chartData.length - 1;
                       const visibleCount = endIndex - startIndex + 1;
 
-                      if (visibleCount <= 10) {
+                      if (visibleCount <= 9) {
                         const d = new Date(val.split('_')[0]);
                         return `${d.getMonth() + 1}/${d.getDate()}`;
                       }
@@ -451,7 +448,7 @@ export default function RecordChart({
                     strokeWidth={3}
                     dot={{ r: 4, fill: activePart.color, strokeWidth: 0 }}
                     activeDot={{ r: 6, strokeWidth: 0 }}
-                    isAnimationActive={true}
+                    isAnimationActive={false}
                   />
 
                   {/* 브러쉬 슬라이더 */}
