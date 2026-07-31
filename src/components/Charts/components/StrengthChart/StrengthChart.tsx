@@ -241,7 +241,11 @@ export default function StrengthChart({
         ) : (
           <>
             <div className={styles.chartArea}>
-              <ResponsiveContainer width='100%' height='100%'>
+              <ResponsiveContainer
+                width='100%'
+                height='100%'
+                initialDimension={{ width: 320, height: 200 }}
+              >
                 <RadarChart
                   accessibilityLayer={false}
                   data={chartData}

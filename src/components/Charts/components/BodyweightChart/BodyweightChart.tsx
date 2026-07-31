@@ -23,6 +23,9 @@ import { useRecords } from '@/hooks/useRecords';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 
+import { getBest1RM } from '@/utils/recordUtils';
+import { calculateAge } from '@/utils/dateUtils';
+
 import {
   LIFT_SUBJECTS,
   COLORS,
@@ -33,9 +36,6 @@ import {
   type Gender,
   type AgeBracket,
 } from '../../constants/strengthStandards';
-
-import { getBest1RM } from '@/utils/recordUtils';
-import { calculateAge } from '@/utils/dateUtils';
 
 import styles from './BodyweightChart.module.scss';
 
@@ -330,7 +330,11 @@ export default function BodyweightChart({
             </div>
 
             <div className={styles.chartArea}>
-              <ResponsiveContainer width='100%' height='100%'>
+              <ResponsiveContainer
+                width='100%'
+                height='100%'
+                initialDimension={{ width: 320, height: 200 }}
+              >
                 <BarChart
                   data={chartData}
                   margin={{ top: 20, right: 30, bottom: 10, left: 30 }}
