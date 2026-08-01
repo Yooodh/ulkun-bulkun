@@ -4,12 +4,6 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import CharacterView from './components/CharacterView/CharacterView';
-import ProfileEdit from './components/ProfileEdit/ProfileEdit';
-import ProfileInfo from './components/ProfileInfo/ProfileInfo';
-import StatsSection from './components/StatsSection/StatsSection';
-import ActionsSection from './components/ActionsSection/ActionsSection';
-
 import Loading from '@/components/shared/Loading/Loading';
 import Empty from '@/components/shared/Empty/Empty';
 import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
@@ -22,6 +16,12 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useNotificationToggle } from '@/hooks/useNotificationToggle';
 
 import { calculateTotalPR } from '@/utils/recordUtils';
+
+import CharacterView from './components/CharacterView/CharacterView';
+import ProfileEdit from './components/ProfileEdit/ProfileEdit';
+import ProfileInfo from './components/ProfileInfo/ProfileInfo';
+import StatsSection from './components/StatsSection/StatsSection';
+import ActionsSection from './components/ActionsSection/ActionsSection';
 
 import styles from './Profile.module.scss';
 
@@ -84,6 +84,7 @@ export default function ProfileCard({
 
     if (success) {
       queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       setIsEditing(false);
     }
   };
@@ -182,6 +183,7 @@ export default function ProfileCard({
                 nickname={profile.nickname}
                 avatarUrl={profile.avatar_url}
                 status={profile.status_message}
+                gender={profile.gender}
               />
             ) : null}
           </div>
