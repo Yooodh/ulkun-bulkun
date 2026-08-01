@@ -71,6 +71,16 @@
       gap: 14px;
       width: 100%;
 
+      .fieldRow {
+        display: flex;
+        gap: 10px;
+
+        .field {
+          flex: 1;
+          min-width: 0;
+        }
+      }
+
       .field {
         display: flex;
         flex-direction: column;
@@ -92,7 +102,7 @@
             width: 100%;
             border: 1.5px solid $border-soft;
             border-radius: $radius-main;
-            padding: 10px 44px 10px 12px;
+            padding: 10px 25px 10px 12px;
             outline: none;
             background: $off-white;
             color: $text-dark;
@@ -109,6 +119,10 @@
               color: $gray;
               font-weight: $font-light;
             }
+          }
+
+          .dateInput {
+            padding-right: 12px;
           }
 
           span {
@@ -141,10 +155,17 @@
             background 0.2s,
             color 0.2s;
 
-          &.active {
+          &.male.active {
             border-color: $blue;
             background: rgba($blue, 0.07);
             color: $blue;
+            font-weight: 600;
+          }
+
+          &.female.active {
+            border-color: $pink;
+            background: rgba($pink, 0.08);
+            color: $pink;
             font-weight: 600;
           }
         }
@@ -166,11 +187,44 @@
     display: flex;
     gap: 8px;
     width: 100%;
-    padding-top: 10px;
+    padding-top: 14px;
     border-top: 1px solid $border-soft;
 
     button {
       flex: 1;
+    }
+  }
+
+  .dangerZone {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    padding-top: 14px;
+    padding-bottom: 4px;
+
+    .dangerLink {
+      @include font-sm;
+      background: none;
+      border: none;
+      padding: 4px 2px;
+      color: $text-muted;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $text-dark;
+      }
+    }
+
+    .deleteLink {
+      color: rgba($red, 0.6);
+
+      &:hover {
+        color: $red;
+      }
     }
   }
 }
