@@ -287,33 +287,22 @@ export default function ProfileEdit({
           </div>
 
           <div className={styles.field}>
-            <label>체중 (kg)</label>
-            <div className={styles.inputWrapper}>
-              <input
-                type='number'
-                value={tempWeight}
-                onChange={(e) => setTempWeight(e.target.value)}
-                placeholder='체중을 입력해주세요. (선택)'
-                min={30}
-                max={300}
-              />
-              <span>kg</span>
-            </div>
-          </div>
-
-          <div className={styles.field}>
             <label>성별</label>
             <div className={styles.genderToggle}>
               <button
                 type='button'
-                className={`${styles.genderBtn} ${tempGender === 'male' ? styles.active : ''}`}
+                className={`${styles.genderBtn} ${styles.male} ${
+                  tempGender === 'male' ? styles.active : ''
+                }`}
                 onClick={() => setTempGender('male')}
               >
                 남성
               </button>
               <button
                 type='button'
-                className={`${styles.genderBtn} ${tempGender === 'female' ? styles.active : ''}`}
+                className={`${styles.genderBtn} ${styles.female} ${
+                  tempGender === 'female' ? styles.active : ''
+                }`}
                 onClick={() => setTempGender('female')}
               >
                 여성
@@ -321,27 +310,36 @@ export default function ProfileEdit({
             </div>
           </div>
 
-          <div className={styles.field}>
-            <label>생년월일</label>
-            <div className={styles.inputWrapper}>
-              <input
-                type='date'
-                value={tempBirthDate}
-                onChange={(e) => setTempBirthDate(e.target.value)}
-                max={new Date().toISOString().split('T')[0]}
-              />
+          <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label>체중 (kg)</label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type='number'
+                  value={tempWeight}
+                  onChange={(e) => setTempWeight(e.target.value)}
+                  placeholder='체중 (선택)'
+                  min={30}
+                  max={300}
+                />
+                <span>kg</span>
+              </div>
+            </div>
+
+            <div className={styles.field}>
+              <label>생년월일</label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type='date'
+                  className={styles.dateInput}
+                  value={tempBirthDate}
+                  onChange={(e) => setTempBirthDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className={styles.dangerBtns}>
-        <Button variant='gray' size='sm' onClick={handleReset}>
-          프로필 초기화
-        </Button>
-        <Button variant='red' size='sm' onClick={handleDeleteAccount}>
-          회원 탈퇴
-        </Button>
       </div>
 
       <div className={styles.editBtns}>
@@ -351,6 +349,23 @@ export default function ProfileEdit({
         <Button variant='blue' size='md' onClick={handleConfirmSave}>
           저장
         </Button>
+      </div>
+
+      <div className={styles.dangerZone}>
+        <button
+          type='button'
+          className={styles.dangerLink}
+          onClick={handleReset}
+        >
+          프로필 초기화
+        </button>
+        <button
+          type='button'
+          className={`${styles.dangerLink} ${styles.deleteLink}`}
+          onClick={handleDeleteAccount}
+        >
+          회원 탈퇴
+        </button>
       </div>
     </div>
   );
