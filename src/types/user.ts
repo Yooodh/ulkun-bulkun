@@ -9,6 +9,7 @@ export type UserSummary = {
   max_bench: number;
   max_deadlift: number;
   max_total: number;
+  gender: 'male' | 'female' | null;
 };
 
 export type ProfileWithRecords = {
@@ -17,6 +18,7 @@ export type ProfileWithRecords = {
   avatar_url: string | null;
   status_message: string | null;
   is_public: boolean | null;
+  gender: 'male' | 'female' | null;
   records: {
     squat: number | null;
     bench_press: number | null;
