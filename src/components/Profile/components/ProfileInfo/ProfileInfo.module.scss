@@ -53,6 +53,34 @@
         @include font-lg-title;
         font-weight: $font-bold;
         color: $text-dark;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .genderBadge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          border-radius: 4px;
+          flex-shrink: 0;
+
+          &.male {
+            background: rgba($blue, 0.12);
+            color: $blue;
+          }
+
+          &.female {
+            background: rgba($pink, 0.12);
+            color: $pink;
+          }
+
+          &.unknown {
+            background: rgba($gray, 0.15);
+            color: $text-muted;
+          }
+        }
       }
     }
   }
