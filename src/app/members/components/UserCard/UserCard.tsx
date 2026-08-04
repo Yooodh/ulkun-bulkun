@@ -2,23 +2,48 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { UserRoundCheck } from 'lucide-react';
+import { UserRoundCheck, Mars, Venus, Minus } from 'lucide-react';
 
-import styles from './UserCard.module.scss';
+import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
-import { UserSummary } from '@/types/user';
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 
 import { formatDate } from '@/utils/dateUtils';
 import { getDisplayDate, getCombinedTotalFromUser } from '@/utils/recordUtils';
 
-import { useAuth } from '@/hooks/useAuth';
-import { useSubscription } from '@/hooks/useSubscription';
-import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
+import { UserSummary } from '@/types/user';
+
+import styles from './UserCard.module.scss';
 
 type UserCardProps = {
   user: UserSummary;
   isSubscribed?: boolean;
 };
+
+function GenderBadge({ gender }: { gender: 'male' | 'female' | null }) {
+  if (gender === 'male') {
+    return (
+      <span className={`${styles.genderBadge} ${styles.male}`}>
+        <Mars size={12} strokeWidth={2.5} />
+      </span>
+    );
+  }
+
+  if (gender === 'female') {
+    return (
+      <span className={`${styles.genderBadge} ${styles.female}`}>
+        <Venus size={12} strokeWidth={2.5} />
+      </span>
+    );
+  }
+
+  return (
+    <span className={`${styles.genderBadge} ${styles.unknown}`}>
+      <Minus size={12} strokeWidth={2.5} />
+    </span>
+  );
+}
 
 export default function UserCard({ user, isSubscribed }: UserCardProps) {
   const isPrivate = user.is_public === false;
@@ -55,7 +80,6 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
       <div className={styles.userInfo}>
         <p className={styles.statusMessage}>{user.status_message}</p>
         <h3 className={styles.userName}>
-          {user.nickname}
           {isSubscribed && (
             <button
               type='button'
@@ -66,6 +90,8 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
               <UserRoundCheck size={18} className={styles.subscribedBadge} />
             </button>
           )}
+          {user.nickname}
+          <GenderBadge gender={user.gender} />
         </h3>
         <p className={styles.userStats}>
           PR:<span>{getCombinedTotalFromUser(user)}</span>
