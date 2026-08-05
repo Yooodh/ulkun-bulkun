@@ -10,17 +10,6 @@
     color: $text-dark;
     text-align: center;
   }
-
-  .userGrid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin: 20px;
-
-    @media (min-width: 768px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
 }
 
 .filterTabs {
@@ -30,5 +19,37 @@
 
   button {
     color: $text-muted;
+  }
+}
+
+.genderSections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.genderSection {
+  .genderSectionTitle {
+    @include font-lg-title;
+    color: $text-dark;
+    margin: 0 20px 12px;
+
+    span {
+      @include font-sm;
+      color: $text-muted;
+      font-weight: 400;
+      margin-left: 4px;
+    }
+  }
+}
+
+.userRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 0 20px 12px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
