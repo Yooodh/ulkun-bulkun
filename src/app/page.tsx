@@ -1,7 +1,11 @@
 'use client';
 
+import { useState } from 'react';
+import { ClipboardList, UserRound } from 'lucide-react';
+
 import Empty from '@/components/shared/Empty/Empty';
 import NavBar from '@/components/shared/NavBar/NavBar';
+import Button from '@/components/shared/Button/Button';
 
 import RecordForm from '@/components/RecordForm/RecordForm';
 import RecordList from '@/components/RecordList/RecordList';
@@ -12,8 +16,12 @@ import { useAuth } from '@/hooks/useAuth';
 
 import styles from './page.module.scss';
 
+type MobilePanel = 'record' | 'profile';
+
 export default function Home() {
   const { user, loading } = useAuth();
+  const [activeMobilePanel, setActiveMobilePanel] =
+    useState<MobilePanel>('record');
 
   if (loading) return null;
 
@@ -23,8 +31,50 @@ export default function Home() {
 
       {user ? (
         <div className={styles.dashboardGrid}>
-          <RecordForm />
-          <ProfileCard />
+          <div
+            className={styles.mobileSwitcher}
+            role='tablist'
+            aria-label='모바일 대시보드 전환'
+          >
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              active={activeMobilePanel === 'record'}
+              onClick={() => setActiveMobilePanel('record')}
+              role='tab'
+              aria-selected={activeMobilePanel === 'record'}
+            >
+              <ClipboardList size={16} />
+              기록
+            </Button>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              active={activeMobilePanel === 'profile'}
+              onClick={() => setActiveMobilePanel('profile')}
+              role='tab'
+              aria-selected={activeMobilePanel === 'profile'}
+            >
+              <UserRound size={16} />
+              프로필
+            </Button>
+          </div>
+          <div
+            className={`${styles.mobilePanel} ${
+              activeMobilePanel === 'record' ? styles.activeMobilePanel : ''
+            }`}
+          >
+            <RecordForm />
+          </div>
+          <div
+            className={`${styles.mobilePanel} ${
+              activeMobilePanel === 'profile' ? styles.activeMobilePanel : ''
+            }`}
+          >
+            <ProfileCard />
+          </div>
           <Charts />
           <RecordList />
         </div>

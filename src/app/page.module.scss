@@ -19,6 +19,43 @@
   }
 }
 
+.mobileSwitcher {
+  display: none;
+}
+
+.mobilePanel {
+  display: flex;
+  min-width: 0;
+
+  & > * {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (max-width: 1299px) {
+  .mobileSwitcher {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+
+    button {
+      @include font-body;
+      width: 100%;
+      gap: 6px;
+    }
+  }
+
+  .mobilePanel {
+    display: none;
+  }
+
+  .activeMobilePanel {
+    display: flex;
+  }
+}
+
 .guestGrid {
   display: flex;
   flex-direction: column;
