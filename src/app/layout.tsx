@@ -2,15 +2,16 @@ import { Toaster } from 'sonner';
 
 import AuthForm from '@/components/AuthForm/AuthForm';
 import InstallBanner from '@/components/InstallBanner/InstallBanner';
+import ScrollToTopButton from '@/components/shared/ScrollToTopButton/ScrollToTopButton';
 
 import QueryProvider from '@/providers/QueryProvider';
 
 import '@/styles/globals.scss';
 import { Font } from '@/styles/fonts';
 
-import styles from './layout.module.scss';
-
 export { metadata, viewport } from './metadata';
+
+import styles from './layout.module.scss';
 
 export default function RootLayout({
   children,
@@ -27,6 +28,7 @@ export default function RootLayout({
               <AuthForm />
               {children}
             </main>
+            <ScrollToTopButton />
           </div>
         </QueryProvider>
         <Toaster
