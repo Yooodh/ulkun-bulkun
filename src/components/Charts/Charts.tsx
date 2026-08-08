@@ -44,6 +44,8 @@ export default function Charts({ userId }: ChartsProps) {
     );
   };
 
+  const shouldUseAutoHeight = !hasData[activeView];
+
   const tabButtons = (
     <div className={styles.tabGroup}>
       {TABS.map((tab) => (
@@ -60,12 +62,16 @@ export default function Charts({ userId }: ChartsProps) {
   );
 
   return (
-    <div className={styles.chartsWrapper}>
+    <div
+      className={`${styles.chartsWrapper} ${
+        shouldUseAutoHeight ? styles.auto : ''
+      }`}
+    >
       {mountedViews.record && (
         <div
           className={`${styles.chartPane} ${
             activeView === 'record' ? styles.active : styles.inactive
-          } ${!hasData.record ? styles.auto : ''}`}
+          } ${activeView === 'record' && !hasData.record ? styles.auto : ''}`}
         >
           <RecordChart
             userId={userId}
@@ -79,7 +85,9 @@ export default function Charts({ userId }: ChartsProps) {
         <div
           className={`${styles.chartPane} ${
             activeView === 'strength' ? styles.active : styles.inactive
-          } ${!hasData.strength ? styles.auto : ''}`}
+          } ${
+            activeView === 'strength' && !hasData.strength ? styles.auto : ''
+          }`}
         >
           <StrengthChart
             userId={userId}
@@ -93,7 +101,11 @@ export default function Charts({ userId }: ChartsProps) {
         <div
           className={`${styles.chartPane} ${
             activeView === 'bodyweight' ? styles.active : styles.inactive
-          } ${!hasData.bodyweight ? styles.auto : ''}`}
+          } ${
+            activeView === 'bodyweight' && !hasData.bodyweight
+              ? styles.auto
+              : ''
+          }`}
         >
           <BodyweightChart
             userId={userId}
