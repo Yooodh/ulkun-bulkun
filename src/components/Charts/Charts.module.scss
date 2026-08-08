@@ -11,6 +11,10 @@ $chart-height-mobile: 650px;
   @media (max-width: 768px) {
     height: $chart-height-mobile;
   }
+
+  &.auto {
+    height: auto;
+  }
 }
 
 .chartPane {
@@ -20,6 +24,8 @@ $chart-height-mobile: 650px;
   transition: opacity 0.15s ease;
 
   &.auto {
+    position: relative;
+    inset: auto;
     height: auto;
   }
 }
@@ -28,14 +34,12 @@ $chart-height-mobile: 650px;
   visibility: visible;
   opacity: 1;
   pointer-events: auto;
-  z-index: 1;
 }
 
 .inactive {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  z-index: 0;
 }
 
 .tabGroup {
