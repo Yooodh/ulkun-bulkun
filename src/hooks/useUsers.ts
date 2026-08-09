@@ -16,6 +16,7 @@ async function fetchUsers(): Promise<UserSummary[]> {
     avatar_url, 
     status_message,
     is_public,
+    gender,
     records (
       squat, 
       bench_press, 
@@ -62,6 +63,7 @@ async function fetchUsers(): Promise<UserSummary[]> {
       max_total: stats.maxS + stats.maxB + stats.maxD,
       last_activity: stats.lastDate,
       is_public: user.is_public ?? true,
+      gender: user.gender ?? null,
     };
   });
 }

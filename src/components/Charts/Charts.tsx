@@ -20,17 +20,31 @@ const TABS: { key: ChartView; label: string; icon: React.ReactNode }[] = [
 
 export default function Charts({ userId }: ChartsProps) {
   const [activeView, setActiveView] = useState<ChartView>('record');
+  const [mountedViews, setMountedViews] = useState<Record<ChartView, boolean>>({
+    record: true,
+    strength: false,
+    bodyweight: false,
+  });
   const [hasData, setHasData] = useState<Record<ChartView, boolean>>({
     record: true,
     strength: true,
     bodyweight: true,
   });
 
+  const handleTabClick = (view: ChartView) => {
+    setActiveView(view);
+    setMountedViews((prev) =>
+      prev[view] ? prev : { ...prev, [view]: true },
+    );
+  };
+
   const handleHasDataChange = (view: ChartView) => (value: boolean) => {
     setHasData((prev) =>
       prev[view] === value ? prev : { ...prev, [view]: value },
     );
   };
+
+  const shouldUseAutoHeight = !hasData[activeView];
 
   const tabButtons = (
     <div className={styles.tabGroup}>
@@ -39,7 +53,7 @@ export default function Charts({ userId }: ChartsProps) {
           key={tab.key}
           type='button'
           className={`${styles.tabBtn} ${activeView === tab.key ? styles.active : ''}`}
-          onClick={() => setActiveView(tab.key)}
+          onClick={() => handleTabClick(tab.key)}
         >
           {tab.icon}
         </button>
@@ -48,37 +62,58 @@ export default function Charts({ userId }: ChartsProps) {
   );
 
   return (
-    <div className={styles.chartsWrapper}>
-      <div
-        className={`${styles.chartPane} ${!hasData.record ? styles.auto : ''}`}
-        style={{ display: activeView === 'record' ? 'block' : 'none' }}
-      >
-        <RecordChart
-          userId={userId}
-          tabButtons={tabButtons}
-          onHasDataChange={handleHasDataChange('record')}
-        />
-      </div>
-      <div
-        className={`${styles.chartPane} ${!hasData.strength ? styles.auto : ''}`}
-        style={{ display: activeView === 'strength' ? 'block' : 'none' }}
-      >
-        <StrengthChart
-          userId={userId}
-          tabButtons={tabButtons}
-          onHasDataChange={handleHasDataChange('strength')}
-        />
-      </div>
-      <div
-        className={`${styles.chartPane} ${!hasData.bodyweight ? styles.auto : ''}`}
-        style={{ display: activeView === 'bodyweight' ? 'block' : 'none' }}
-      >
-        <BodyweightChart
-          userId={userId}
-          tabButtons={tabButtons}
-          onHasDataChange={handleHasDataChange('bodyweight')}
-        />
-      </div>
+    <div
+      className={`${styles.chartsWrapper} ${
+        shouldUseAutoHeight ? styles.auto : ''
+      }`}
+    >
+      {mountedViews.record && (
+        <div
+          className={`${styles.chartPane} ${
+            activeView === 'record' ? styles.active : styles.inactive
+          } ${activeView === 'record' && !hasData.record ? styles.auto : ''}`}
+        >
+          <RecordChart
+            userId={userId}
+            tabButtons={tabButtons}
+            onHasDataChange={handleHasDataChange('record')}
+          />
+        </div>
+      )}
+
+      {mountedViews.strength && (
+        <div
+          className={`${styles.chartPane} ${
+            activeView === 'strength' ? styles.active : styles.inactive
+          } ${
+            activeView === 'strength' && !hasData.strength ? styles.auto : ''
+          }`}
+        >
+          <StrengthChart
+            userId={userId}
+            tabButtons={tabButtons}
+            onHasDataChange={handleHasDataChange('strength')}
+          />
+        </div>
+      )}
+
+      {mountedViews.bodyweight && (
+        <div
+          className={`${styles.chartPane} ${
+            activeView === 'bodyweight' ? styles.active : styles.inactive
+          } ${
+            activeView === 'bodyweight' && !hasData.bodyweight
+              ? styles.auto
+              : ''
+          }`}
+        >
+          <BodyweightChart
+            userId={userId}
+            tabButtons={tabButtons}
+            onHasDataChange={handleHasDataChange('bodyweight')}
+          />
+        </div>
+      )}
     </div>
   );
 }

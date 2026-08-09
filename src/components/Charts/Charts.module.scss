@@ -4,7 +4,42 @@ $chart-height: 610px;
 $chart-height-mobile: 650px;
 
 .chartsWrapper {
+  position: relative;
   width: 100%;
+  height: $chart-height;
+
+  @media (max-width: 768px) {
+    height: $chart-height-mobile;
+  }
+
+  &.auto {
+    height: auto;
+  }
+}
+
+.chartPane {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  transition: opacity 0.15s ease;
+
+  &.auto {
+    position: relative;
+    inset: auto;
+    height: auto;
+  }
+}
+
+.active {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.inactive {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .chartPane {

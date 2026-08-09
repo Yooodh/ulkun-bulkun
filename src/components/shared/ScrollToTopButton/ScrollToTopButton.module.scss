@@ -1,0 +1,43 @@
+@use '../../../styles' as *;
+
+.scrollToTopButton {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid $border-soft;
+  border-radius: 50%;
+  background: $white;
+  color: $text-dark;
+  box-shadow: $shadow-lg;
+  cursor: pointer;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s ease;
+
+  opacity: 0;
+  transform: translateX(-50%) translateY(16px);
+  visibility: hidden;
+  pointer-events: none;
+
+  &[data-visible='true'] {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  &:hover {
+    transform: translateX(-50%) translateY(-2px);
+  }
+
+  &[data-visible='true']:active {
+    transform: translateX(-50%) translateY(0);
+  }
+}

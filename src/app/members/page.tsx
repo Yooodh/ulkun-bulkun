@@ -2,23 +2,39 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import styles from './Members.module.scss';
+import Button from '@/components/shared/Button/Button';
+import Empty from '@/components/shared/Empty/Empty';
+import Loading from '@/components/shared/Loading/Loading';
+import NavBar from '@/components/shared/NavBar/NavBar';
+import Pagination from '@/components/shared/Pagination/Pagination';
+
+import { useAuth } from '@/hooks/useAuth';
+import { useMySubscribers } from '@/hooks/useMySubscribers';
+import { useMySubscriptions } from '@/hooks/useMySubscriptions';
+import { useUsers } from '@/hooks/useUsers';
+
+import { UserSummary } from '@/types/user';
 
 import UserCard from './components/UserCard/UserCard';
 
-import Pagination from '@/components/shared/Pagination/Pagination';
-import Loading from '@/components/shared/Loading/Loading';
-import NavBar from '@/components/shared/NavBar/NavBar';
-import Button from '@/components/shared/Button/Button';
+import styles from './Members.module.scss';
 
-import { useUsers } from '@/hooks/useUsers';
-import { useAuth } from '@/hooks/useAuth';
-import { useMySubscriptions } from '@/hooks/useMySubscriptions';
-import { useMySubscribers } from '@/hooks/useMySubscribers';
-
-const PAGE_SIZE = 8;
+const GENDER_GROUP_PAGE_SIZE = 4;
 
 type FilterType = 'all' | 'subscribed' | 'subscribers';
+type GenderGroupKey = 'male' | 'female' | 'unknown';
+
+const GENDER_GROUPS: { key: GenderGroupKey; label: string }[] = [
+  { key: 'male', label: '남성' },
+  { key: 'female', label: '여성' },
+  { key: 'unknown', label: '미설정' },
+];
+
+function getGenderGroup(user: UserSummary): GenderGroupKey {
+  if (user.gender === 'male') return 'male';
+  if (user.gender === 'female') return 'female';
+  return 'unknown';
+}
 
 export default function MembersPage() {
   const { user } = useAuth();
@@ -29,8 +45,14 @@ export default function MembersPage() {
     user?.id,
   );
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [filter, setFilter] = useState<FilterType>('all');
+
+  // 그룹별 독립 페이지 상태
+  const [groupPages, setGroupPages] = useState<Record<GenderGroupKey, number>>({
+    male: 1,
+    female: 1,
+    unknown: 1,
+  });
 
   // 로그아웃 시 필터 초기화
   useEffect(() => {
@@ -63,16 +85,27 @@ export default function MembersPage() {
     return sortedUsers;
   }, [sortedUsers, filter, subscribedIds, subscriberIds]);
 
-  const paginatedUsers = useMemo(() => {
-    return filteredUsers.slice(
-      (currentPage - 1) * PAGE_SIZE,
-      currentPage * PAGE_SIZE,
-    );
-  }, [filteredUsers, currentPage]);
+  // 성별 분류
+  const groupedUsers = useMemo(() => {
+    const groups: Record<GenderGroupKey, UserSummary[]> = {
+      male: [],
+      female: [],
+      unknown: [],
+    };
+    filteredUsers.forEach((u) => {
+      groups[getGenderGroup(u)].push(u);
+    });
+    return groups;
+  }, [filteredUsers]);
 
+  // 필터 변경 시 그룹 페이지 초기화
   const handleFilterChange = (next: FilterType) => {
     setFilter(next);
-    setCurrentPage(1);
+    setGroupPages({ male: 1, female: 1, unknown: 1 });
+  };
+
+  const handleGroupPageChange = (key: GenderGroupKey, page: number) => {
+    setGroupPages((prev) => ({ ...prev, [key]: page }));
   };
 
   if (loading || subsLoading || subscribersLoading)
@@ -113,22 +146,49 @@ export default function MembersPage() {
         </div>
       )}
 
-      <div className={styles.userGrid}>
-        {paginatedUsers.map((u) => (
-          <UserCard
-            key={u.id}
-            user={u}
-            isSubscribed={subscribedIds.has(u.id)}
-          />
-        ))}
-      </div>
+      {filteredUsers.length === 0 ? (
+        <Empty message='표시할 멤버가 없어요.' />
+      ) : (
+        <div className={styles.genderSections}>
+          {GENDER_GROUPS.map(({ key, label }) => {
+            const groupList = groupedUsers[key];
+            if (groupList.length === 0) return null;
 
-      <Pagination
-        totalCount={filteredUsers.length}
-        pageSize={PAGE_SIZE}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
+            const currentPage = groupPages[key];
+            const paginated = groupList.slice(
+              (currentPage - 1) * GENDER_GROUP_PAGE_SIZE,
+              currentPage * GENDER_GROUP_PAGE_SIZE,
+            );
+
+            return (
+              <section key={key} className={styles.genderSection}>
+                <h2 className={styles.genderSectionTitle}>
+                  {label} <span>{groupList.length}</span>
+                </h2>
+
+                <div className={styles.userRow}>
+                  {paginated.map((u) => (
+                    <UserCard
+                      key={u.id}
+                      user={u}
+                      isSubscribed={subscribedIds.has(u.id)}
+                    />
+                  ))}
+                </div>
+
+                {groupList.length > GENDER_GROUP_PAGE_SIZE && (
+                  <Pagination
+                    totalCount={groupList.length}
+                    pageSize={GENDER_GROUP_PAGE_SIZE}
+                    currentPage={currentPage}
+                    onPageChange={(page) => handleGroupPageChange(key, page)}
+                  />
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

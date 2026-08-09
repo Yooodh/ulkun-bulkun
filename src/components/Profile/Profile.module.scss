@@ -2,7 +2,7 @@
 
 .profileContainer {
   width: 100%;
-  border-radius: 16px;
+  border-radius: $radius-main;
   overflow: hidden;
   border: 1px solid $border-soft;
   box-shadow: $shadow-md;
@@ -21,12 +21,13 @@
   right: 0;
   bottom: 0;
   background: $white;
-  border-radius: 24px 24px 0 0;
+  border-radius: 16px 16px 0 0;
   box-shadow: $shadow-lg;
   display: grid;
   grid-template-rows: auto 0fr;
   transition: grid-template-rows 0.4s cubic-bezier(0.32, 0.72, 0, 1);
   overflow: hidden;
+  max-height: 100%;
 
   &.stage2,
   &.isEditing {
@@ -86,8 +87,15 @@
   .infoContent {
     grid-row: 2;
     min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
     transition: visibility 0.4s;
     visibility: hidden;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     .contentBox {
       padding: 0 24px 15px;
