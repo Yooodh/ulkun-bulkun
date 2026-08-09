@@ -339,6 +339,38 @@ export default function ProfileEdit({
               </div>
             </div>
           </div>
+
+          <div className={styles.field}>
+            <label>성별</label>
+            <div className={styles.genderToggle}>
+              <button
+                type='button'
+                className={`${styles.genderBtn} ${tempGender === 'male' ? styles.active : ''}`}
+                onClick={() => setTempGender('male')}
+              >
+                남성
+              </button>
+              <button
+                type='button'
+                className={`${styles.genderBtn} ${tempGender === 'female' ? styles.active : ''}`}
+                onClick={() => setTempGender('female')}
+              >
+                여성
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label>생년월일</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type='date'
+                value={tempBirthDate}
+                onChange={(e) => setTempBirthDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
