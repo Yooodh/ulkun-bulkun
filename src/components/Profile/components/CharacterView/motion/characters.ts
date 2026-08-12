@@ -395,7 +395,13 @@ export const CHARACTERS: Character[] = [
   {
     name: '닭',
     anims: ['ohp', 'deadlift', 'squat'],
-    render: (svg) => renderChick(svg, true, true, '#FFDD66'),
+    render: (svg) => {
+      renderChick(svg, true, true, '#FDF5E6');
+      const wingL = svg.getElementById('wingL');
+      const wingR = svg.getElementById('wingR');
+      if (wingL) wingL.setAttribute('stroke', '#E0C090');
+      if (wingR) wingR.setAttribute('stroke', '#E0C090');
+    },
   },
   {
     name: '오골계',

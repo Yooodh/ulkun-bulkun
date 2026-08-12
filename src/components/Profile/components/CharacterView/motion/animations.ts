@@ -62,9 +62,22 @@ const applyFlameFlicker = (flame: SVGGElement | null, t: number) => {
 // ─── 개별 애니메이션 ───────────────────────────────────────────────
 
 const idle: AnimFn = (ctx) => {
-  const { barbellBack, barbellFront, flame, t } = ctx;
+  const { root, barbellBack, barbellFront, flame, t } = ctx;
   barbellBack.setAttribute('opacity', '0');
   barbellFront.setAttribute('opacity', '0');
+
+  // 통통 튀는 바운스
+  const speed = 2.5;
+  const phase = Math.abs(Math.sin(t * speed));
+  const bounceHeight = phase * 12;
+
+  const scaleY = 0.94 + phase * 0.1;
+  const scaleX = 1.06 - phase * 0.12;
+
+  root.setAttribute(
+    'transform',
+    `translate(0, ${-bounceHeight}) scale(${scaleX}, ${scaleY})`,
+  );
 
   applyFlameFlicker(flame, t);
 };
@@ -169,7 +182,7 @@ export function applyAnim(svg: SVGSVGElement, anim: AnimName, t: number) {
 
   // 초기화
   const elementsToReset = [root, barbellBack, barbellFront];
-  const optionalIds = ['wingL', 'wingR', 'legs', 'toes', 'flame']; // flame 추가
+  const optionalIds = ['wingL', 'wingR', 'legs', 'toes', 'flame'];
 
   optionalIds.forEach((id) => {
     const el = svg.getElementById(id);
