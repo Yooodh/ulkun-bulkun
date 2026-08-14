@@ -24,7 +24,6 @@ import styles from './StrengthChart.module.scss';
 
 type StrengthChartProps = {
   userId?: string;
-  tabButtons?: React.ReactNode;
   onHasDataChange?: (hasData: boolean) => void;
 };
 
@@ -104,7 +103,6 @@ const CustomTooltip = ({
 
 export default function StrengthChart({
   userId,
-  tabButtons,
   onHasDataChange,
 }: StrengthChartProps) {
   const { user } = useAuth();
@@ -112,10 +110,9 @@ export default function StrengthChart({
 
   const { data: records = [], isLoading: recordsLoading } =
     useRecords(targetId);
-  const { data: profile, isLoading: profileLoading } = useProfile(targetId);
+  const { isLoading: profileLoading } = useProfile(targetId);
 
   const isReadOnly = !!userId;
-  const displayName = profile?.nickname || '';
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
   const bestRecords = useMemo(() => {
@@ -178,19 +175,6 @@ export default function StrengthChart({
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          {displayName && (
-            <>
-              <strong>{displayName}</strong> 님의{' '}
-            </>
-          )}
-          종목 밸런스
-        </h1>
-
-        {tabButtons}
-      </div>
-
       <div className={styles.subtitleRow}>
         <p className={styles.subtitle}>
           스쿼트 최고 추정 1RM 기준 파워리프팅 권장 비율 대비 수치
