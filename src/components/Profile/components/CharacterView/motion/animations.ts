@@ -9,6 +9,7 @@ export type AnimContext = {
   legs: SVGGElement | null;
   toes: SVGGElement | null;
   flame: SVGGElement | null;
+  feathers: SVGGElement | null;
   t: number;
 };
 
@@ -59,6 +60,46 @@ const applyFlameFlicker = (flame: SVGGElement | null, t: number) => {
   flame.setAttribute('transform', 'translate(0, 40)');
 };
 
+// 오골계 깃털
+const applyFeatherFlutter = (feathers: SVGGElement | null, t: number) => {
+  if (!feathers) return;
+
+  Array.from(feathers.children).forEach((child) => {
+    const feather = child as SVGGElement;
+    const x = Number(feather.getAttribute('data-x')) || 0;
+    const y = Number(feather.getAttribute('data-y')) || 0;
+    const baseRot = Number(feather.getAttribute('data-rot')) || 0;
+    const amp = Number(feather.getAttribute('data-amp')) || 1;
+    const speed = Number(feather.getAttribute('data-speed')) || 1;
+    const seed = Number(feather.getAttribute('data-seed')) || 0;
+
+    const time = t * speed + seed;
+    const cycle = 6;
+    const progress = (((time % cycle) + cycle) % cycle) / cycle;
+
+    // 몸통 중심 기준 바깥 방향
+    const outwardAngle = ((baseRot - 90) * Math.PI) / 180;
+    const outwardX = Math.cos(outwardAngle);
+
+    // 좌우 확산
+    const spreadRange = 25;
+    const driftX =
+      outwardX * progress * spreadRange * amp + Math.sin(time * 1.5) * 3 * amp;
+
+    const riseRange = 35;
+    const driftY = -progress * riseRange * amp;
+
+    const opacity = 0.85 * (1 - progress * 0.7);
+    const rotate = baseRot + Math.sin(time * 0.8) * 18 * amp;
+
+    feather.setAttribute(
+      'transform',
+      `translate(${x + driftX}, ${y + driftY}) rotate(${rotate})`,
+    );
+    feather.setAttribute('opacity', String(opacity));
+  });
+};
+
 // ─── 개별 애니메이션 ───────────────────────────────────────────────
 
 const idle: AnimFn = (ctx) => {
@@ -93,6 +134,7 @@ const squat: AnimFn = (ctx) => {
     legs,
     toes,
     flame,
+    feathers,
     t,
   } = ctx;
   barbellBack.setAttribute('opacity', '1');
@@ -110,6 +152,7 @@ const squat: AnimFn = (ctx) => {
   wingR?.setAttribute('transform', `rotate(40, 60, 20)`);
 
   applyFlameFlicker(flame, t);
+  applyFeatherFlutter(feathers, t);
 };
 
 // 데드리프트
@@ -123,6 +166,7 @@ const deadlift: AnimFn = (ctx) => {
     legs,
     toes,
     flame,
+    feathers,
     t,
   } = ctx;
   barbellBack.setAttribute('opacity', '0');
@@ -143,11 +187,12 @@ const deadlift: AnimFn = (ctx) => {
   wingR?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
 
   applyFlameFlicker(flame, t);
+  applyFeatherFlutter(feathers, t);
 };
 
 // OHP
 const ohp: AnimFn = (ctx) => {
-  const { barbellBack, barbellFront, wingL, wingR, flame, t } = ctx;
+  const { barbellBack, barbellFront, wingL, wingR, flame, feathers, t } = ctx;
   barbellBack.setAttribute('opacity', '0');
   barbellFront.setAttribute('opacity', '1');
 
@@ -161,6 +206,7 @@ const ohp: AnimFn = (ctx) => {
   wingR?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
 
   applyFlameFlicker(flame, t);
+  applyFeatherFlutter(feathers, t);
 };
 
 // ─── 레지스트리 ────────────────────────────────────────────────────
@@ -180,9 +226,8 @@ export function applyAnim(svg: SVGSVGElement, anim: AnimName, t: number) {
   const barbellFront = svg.getElementById('barbellFront') as SVGGElement | null;
   if (!root || !barbellBack || !barbellFront) return;
 
-  // 초기화
   const elementsToReset = [root, barbellBack, barbellFront];
-  const optionalIds = ['wingL', 'wingR', 'legs', 'toes', 'flame'];
+  const optionalIds = ['wingL', 'wingR', 'legs', 'toes', 'flame', 'feathers'];
 
   optionalIds.forEach((id) => {
     const el = svg.getElementById(id);
@@ -200,6 +245,7 @@ export function applyAnim(svg: SVGSVGElement, anim: AnimName, t: number) {
     legs: svg.getElementById('legs') as SVGGElement | null,
     toes: svg.getElementById('toes') as SVGGElement | null,
     flame: svg.getElementById('flame') as SVGGElement | null,
+    feathers: svg.getElementById('feathers') as SVGGElement | null,
     t,
   };
 
