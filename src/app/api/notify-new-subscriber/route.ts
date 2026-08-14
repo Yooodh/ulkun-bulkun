@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { PushSubscription } from 'web-push';
 import webpush from 'web-push';
 
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // 알림 발송
     await webpush.sendNotification(
-      pushSub.subscription as any,
+      pushSub.subscription as PushSubscription,
       JSON.stringify({
         title: '새로운 팔로워!',
         body: `${subscriberProfile?.nickname ?? '울끈불끈이'}님이 나를 팔로우했어요 🔔`,
