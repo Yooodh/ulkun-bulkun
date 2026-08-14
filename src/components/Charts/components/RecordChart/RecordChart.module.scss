@@ -1,47 +1,11 @@
 @use '../../../../styles' as *;
 
 .container {
-  background: $white;
-  box-shadow: $shadow-md;
-  border: 1px solid $border-soft;
-  border-radius: $radius-main;
-  padding: 20px;
   width: 100%;
   min-width: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  @media (max-width: 768px) {
-    padding: 20px 10px;
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-
-    @media (max-width: 768px) {
-      flex-direction: column-reverse;
-      align-items: flex-start;
-      gap: 8px;
-    }
-  }
-
-  h1 {
-    @include font-lg-title;
-    color: $text-dark;
-    margin-bottom: 0;
-
-    @media (max-width: 768px) {
-      margin-left: 6px;
-    }
-
-    strong {
-      color: $blue;
-    }
-  }
 
   .btnGroup {
     display: flex;

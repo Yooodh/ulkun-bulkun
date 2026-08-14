@@ -41,7 +41,6 @@ import styles from './BodyweightChart.module.scss';
 
 type BodyweightChartProps = {
   userId?: string;
-  tabButtons?: React.ReactNode;
   onHasDataChange?: (hasData: boolean) => void;
 };
 
@@ -93,7 +92,6 @@ const CustomTooltip = ({
 
 export default function BodyweightChart({
   userId,
-  tabButtons,
   onHasDataChange,
 }: BodyweightChartProps) {
   const { user } = useAuth();
@@ -200,18 +198,6 @@ export default function BodyweightChart({
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          {displayName && (
-            <>
-              <strong>{displayName}</strong> 님의{' '}
-            </>
-          )}
-          체중 대비 밸런스
-        </h1>
-        {tabButtons}
-      </div>
-
       <div className={styles.subtitleRow}>
         <p className={styles.subtitle}>
           체중 대비 1RM 배수 기준 중급자 목표치 달성률
