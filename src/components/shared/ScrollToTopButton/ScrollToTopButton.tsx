@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUp, ArrowUpToLine, ChevronUp } from 'lucide-react';
+import { ChevronUp } from 'lucide-react';
 
 import styles from './ScrollToTopButton.module.scss';
 

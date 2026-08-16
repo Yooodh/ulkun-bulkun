@@ -92,7 +92,7 @@ export default function InstallBanner() {
                 <SquareArrowUp size={16} className={styles.sharedBtn} />
               </span>
               <ArrowRight size={16} className={styles.arrow} />
-              <strong>"홈 화면에 추가"</strong>를 누르세요
+              <strong>&quot;홈 화면에 추가&quot;</strong>를 누르세요
             </p>
           ) : (
             <p>홈 화면에 추가하고 앱처럼 사용하세요!</p>
