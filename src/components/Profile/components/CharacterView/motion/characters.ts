@@ -410,6 +410,63 @@ function renderFeathers(root: SVGGElement) {
   root.appendChild(feathers);
 }
 
+// ── 땀 ─────────────────────────────
+
+function renderSweatDrop(
+  x: number,
+  y: number,
+  size: number,
+  headX: number,
+  headY: number,
+  seed: number,
+) {
+  const dx = headX - x;
+  const dy = headY - y;
+  const rot = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+
+  const group = el('g', {
+    class: 'sweat-drop',
+    'data-x': x,
+    'data-y': y,
+    'data-rot': rot,
+    'data-size': size,
+    'data-seed': seed.toFixed(2),
+    transform: `translate(${x},${y}) rotate(${rot}) scale(${size})`,
+    opacity: 0,
+  });
+
+  group.appendChild(
+    el('path', {
+      d: 'M0,-7 C3,-5.5 3.5,-2 1.5,1.5 C0.5,3.5 -1.5,3 -1.5,1 C-1.5,-2 -1,-5 0,-7 Z',
+      fill: '#8FD3F4',
+    }),
+  );
+
+  return group;
+}
+
+function renderSweat(root: SVGGElement) {
+  const sweat = el('g', { id: 'sweat' });
+
+  const headX = 0;
+  const headY = -20;
+
+  const xOffset = 5;
+  const yOffset = 15;
+
+  const drops = [
+    { x: 34 + xOffset, y: -58 + yOffset, size: 1, seed: 0 },
+    { x: 46 + xOffset, y: -66 + yOffset, size: 0.75, seed: 0.8 },
+    { x: 26 + xOffset, y: -70 + yOffset, size: 0.6, seed: 1.6 },
+  ];
+
+  drops.forEach((d) => {
+    sweat.appendChild(renderSweatDrop(d.x, d.y, d.size, headX, headY, d.seed));
+  });
+
+  root.insertBefore(sweat, root.firstChild);
+}
+
 // ── 불사조 ────────────────────────────────────────────────────
 function renderPhoenix(svg: SVGSVGElement) {
   let defs = svg.querySelector('defs');
@@ -507,13 +564,20 @@ export const CHARACTERS: Character[] = [
   {
     name: '병아리',
     anims: ['ohp', 'deadlift', 'squat'],
-
-    render: (svg) => renderChick(svg, false, false, '#f4bd0e'),
+    render: (svg) => {
+      renderChick(svg, false, false, '#f4bd0e');
+      const root = svg.getElementById('root') as SVGGElement | null;
+      if (root) renderSweat(root);
+    },
   },
   {
     name: '병아리+벼슬',
     anims: ['ohp', 'deadlift', 'squat'],
-    render: (svg) => renderChick(svg, true, false, '#f4bd0e'),
+    render: (svg) => {
+      renderChick(svg, true, false, '#f4bd0e');
+      const root = svg.getElementById('root') as SVGGElement | null;
+      if (root) renderSweat(root);
+    },
   },
   {
     name: '닭',
@@ -524,6 +588,8 @@ export const CHARACTERS: Character[] = [
       const wingR = svg.getElementById('wingR');
       if (wingL) wingL.setAttribute('stroke', '#E0C090');
       if (wingR) wingR.setAttribute('stroke', '#E0C090');
+      const root = svg.getElementById('root') as SVGGElement | null;
+      if (root) renderSweat(root);
     },
   },
   {
