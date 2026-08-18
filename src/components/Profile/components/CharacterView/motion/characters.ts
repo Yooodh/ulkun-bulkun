@@ -549,7 +549,6 @@ function renderPhoenix(svg: SVGSVGElement) {
   const front = svg.getElementById('barbellFront');
   if (front) {
     root.appendChild(front);
-    front.setAttribute('opacity', '1');
   }
 }
 
