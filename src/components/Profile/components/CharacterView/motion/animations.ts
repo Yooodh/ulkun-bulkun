@@ -192,9 +192,11 @@ const squat: AnimFn = (ctx) => {
   legs?.setAttribute('transform', `translate(0, ${sqDepth})`);
   toes?.setAttribute('transform', `translate(0, ${sqDepth})`);
 
-  barbellBack.setAttribute('transform', '');
   wingL?.setAttribute('transform', `rotate(-40, -60, 20)`);
   wingR?.setAttribute('transform', `rotate(40, 60, 20)`);
+
+  if (wingL) root.insertBefore(wingL, barbellBack);
+  if (wingR) root.insertBefore(wingR, barbellBack);
 
   applyFlameFlicker(flame, t);
   applyFeatherFlutter(feathers, t);
@@ -224,7 +226,7 @@ const deadlift: AnimFn = (ctx) => {
   const dlDepth = phase * 8;
 
   root.setAttribute('transform', `translate(0, ${-dlDepth * 0.4})`);
-  barbellFront.setAttribute('transform', `translate(0, ${barbY})`);
+  barbellFront.setAttribute('transform', `translate(0, ${barbY - 4})`);
 
   legs?.setAttribute('transform', `translate(0, ${dlDepth})`);
   toes?.setAttribute('transform', `translate(0, ${dlDepth})`);
@@ -233,6 +235,9 @@ const deadlift: AnimFn = (ctx) => {
   wingL?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
   wingR?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
 
+  if (wingL) root.appendChild(wingL);
+  if (wingR) root.appendChild(wingR);
+
   applyFlameFlicker(flame, t);
   applyFeatherFlutter(feathers, t);
   applySweat(sweat, t);
@@ -240,10 +245,23 @@ const deadlift: AnimFn = (ctx) => {
 
 // OHP
 const ohp: AnimFn = (ctx) => {
-  const { barbellBack, barbellFront, wingL, wingR, flame, feathers, sweat, t } =
-    ctx;
+  const {
+    root,
+    barbellBack,
+    barbellFront,
+    wingL,
+    wingR,
+    legs,
+    toes,
+    flame,
+    feathers,
+    sweat,
+    t,
+  } = ctx;
   barbellBack.setAttribute('opacity', '0');
   barbellFront.setAttribute('opacity', '1');
+
+  root.appendChild(barbellFront);
 
   const phase = (Math.sin(t * 2) + 1) / 2;
   const barbY = (1 - phase) * 30 + -50;
@@ -253,6 +271,9 @@ const ohp: AnimFn = (ctx) => {
   const wingOffsetY = barbY - 10;
   wingL?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
   wingR?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
+
+  legs?.setAttribute('transform', `translate(0, 5)`);
+  toes?.setAttribute('transform', `translate(0, 5)`);
 
   applyFlameFlicker(flame, t);
   applyFeatherFlutter(feathers, t);
