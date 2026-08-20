@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Button from '@/components/shared/Button/Button';
 import Empty from '@/components/shared/Empty/Empty';
@@ -54,10 +54,7 @@ export default function MembersPage() {
     unknown: 1,
   });
 
-  // 로그아웃 시 필터 초기화
-  useEffect(() => {
-    if (!user) setFilter('all');
-  }, [user]);
+  const activeFilter = user ? filter : 'all';
 
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) => {
@@ -76,14 +73,14 @@ export default function MembersPage() {
   }, [users]);
 
   const filteredUsers = useMemo(() => {
-    if (filter === 'subscribed') {
+    if (activeFilter === 'subscribed') {
       return sortedUsers.filter((user) => subscribedIds.has(user.id));
     }
-    if (filter === 'subscribers') {
+    if (activeFilter === 'subscribers') {
       return sortedUsers.filter((u) => subscriberIds.has(u.id));
     }
     return sortedUsers;
-  }, [sortedUsers, filter, subscribedIds, subscriberIds]);
+  }, [sortedUsers, activeFilter, subscribedIds, subscriberIds]);
 
   // 성별 분류
   const groupedUsers = useMemo(() => {
@@ -114,15 +111,13 @@ export default function MembersPage() {
   return (
     <div className={styles.membersContainer}>
       <NavBar href='/' label='대시보드로 돌아가기' />
-      <h1 className={styles.title}>🔥 울끈불끈이들 🔥</h1>
-
       {user && (
         <div className={styles.filterTabs}>
           <Button
             variant='outline'
             shape='round'
             color='muted'
-            active={filter === 'all'}
+            active={activeFilter === 'all'}
             onClick={() => handleFilterChange('all')}
           >
             전체보기
@@ -130,7 +125,7 @@ export default function MembersPage() {
           <Button
             variant='outline'
             shape='round'
-            active={filter === 'subscribers'}
+            active={activeFilter === 'subscribers'}
             onClick={() => handleFilterChange('subscribers')}
           >
             팔로워 {subscriberIds.size}
@@ -138,7 +133,7 @@ export default function MembersPage() {
           <Button
             variant='outline'
             shape='round'
-            active={filter === 'subscribed'}
+            active={activeFilter === 'subscribed'}
             onClick={() => handleFilterChange('subscribed')}
           >
             팔로잉 {subscribedIds.size}
