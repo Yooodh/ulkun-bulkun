@@ -287,6 +287,186 @@ function renderChick(
   svg.appendChild(g);
 }
 
+// ── 오골계 깃털 ────────────────────────────────────────────────────
+function randRange(min: number, max: number) {
+  return min + Math.random() * (max - min);
+}
+
+function featherVanePath(length: number, widthL: number, widthR: number) {
+  return `M0,0
+    C${widthR * 0.55},${length * 0.1} ${widthR},${length * 0.55} ${widthR * 0.35},${length * 0.9}
+    L0,${length}
+    L${-widthL * 0.35},${length * 0.9}
+    C${-widthL},${length * 0.55} ${-widthL * 0.55},${length * 0.1} 0,0 Z`;
+}
+
+function renderFeather(
+  x: number,
+  y: number,
+  length: number,
+  baseRot: number,
+  mainColor: string,
+  shaftColor: string,
+) {
+  const widthL = length * 0.22;
+  const widthR = length * 0.3;
+
+  const group = el('g', {
+    class: 'feather',
+    'data-x': x,
+    'data-y': y,
+    'data-rot': baseRot,
+    'data-amp': randRange(0.7, 1.3).toFixed(2),
+    'data-speed': randRange(0.7, 1.4).toFixed(2),
+    'data-seed': randRange(0, Math.PI * 2).toFixed(2),
+    transform: `translate(${x},${y}) rotate(${baseRot})`,
+  });
+
+  // 깃털 벌
+  group.appendChild(
+    el('path', {
+      d: featherVanePath(length, widthL, widthR),
+      fill: mainColor,
+      opacity: 0.85,
+    }),
+  );
+
+  // 깃축
+  group.appendChild(
+    el('line', {
+      x1: 0,
+      y1: length * 0.06,
+      x2: 0,
+      y2: length * 0.96,
+      stroke: shaftColor,
+      'stroke-width': Math.max(0.6, length * 0.04),
+      'stroke-linecap': 'round',
+      opacity: 0.6,
+    }),
+  );
+
+  // 잔깃
+  const barbGroup = el('g', {
+    stroke: shaftColor,
+    'stroke-width': Math.max(0.5, length * 0.025),
+    'stroke-linecap': 'round',
+    opacity: 0.35,
+  });
+  const barbCount = 4;
+  for (let i = 1; i <= barbCount; i++) {
+    const by = length * (0.15 + (i / (barbCount + 1)) * 0.7);
+    barbGroup.appendChild(
+      el('path', { d: `M0,${by} L${widthR * 0.8},${by - length * 0.06}` }),
+    );
+    barbGroup.appendChild(
+      el('path', { d: `M0,${by} L${-widthL * 0.8},${by - length * 0.06}` }),
+    );
+  }
+  group.appendChild(barbGroup);
+
+  return group;
+}
+
+function renderFeathers(root: SVGGElement) {
+  const feathers = el('g', { id: 'feathers' });
+
+  const featherColors: [string, string][] = [
+    ['#3d3d3d', '#5a5a5a'],
+    ['#4a4a4a', '#666666'],
+    ['#565656', '#767676'],
+    ['#2f2f2f', '#4a4a4a'],
+  ];
+
+  // 몸통 주위로 넓게 흩뿌려진 위치들
+  const positions = [
+    { x: -50, y: -10 },
+    { x: 50, y: 2 },
+    { x: -42, y: 30 },
+    { x: 44, y: 38 },
+    { x: -30, y: -35 },
+    { x: 32, y: -30 },
+    { x: -55, y: 15 },
+    { x: 58, y: 20 },
+    { x: 0, y: -55 },
+    { x: -18, y: 48 },
+  ];
+
+  // 몸통 중심 기준 바깥으로 밀어내는 배율
+  const outwardScale = 1.35;
+
+  positions.forEach((pos, i) => {
+    const [mainColor, shaftColor] = featherColors[i % featherColors.length];
+    const length = randRange(14, 22);
+    const baseRot = randRange(-35, 35);
+
+    const x = pos.x * outwardScale;
+    const y = pos.y * outwardScale;
+
+    feathers.appendChild(
+      renderFeather(x, y, length, baseRot, mainColor, shaftColor),
+    );
+  });
+
+  root.appendChild(feathers);
+}
+
+// ── 땀 ─────────────────────────────
+
+function renderSweatDrop(
+  x: number,
+  y: number,
+  size: number,
+  headX: number,
+  headY: number,
+  seed: number,
+) {
+  const dx = headX - x;
+  const dy = headY - y;
+  const rot = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+
+  const group = el('g', {
+    class: 'sweat-drop',
+    'data-x': x,
+    'data-y': y,
+    'data-rot': rot,
+    'data-size': size,
+    'data-seed': seed.toFixed(2),
+    transform: `translate(${x},${y}) rotate(${rot}) scale(${size})`,
+    opacity: 0,
+  });
+
+  group.appendChild(
+    el('path', {
+      d: 'M0,-7 C3,-5.5 3.5,-2 1.5,1.5 C0.5,3.5 -1.5,3 -1.5,1 C-1.5,-2 -1,-5 0,-7 Z',
+      fill: '#8FD3F4',
+    }),
+  );
+
+  return group;
+}
+
+function renderSweat(root: SVGGElement) {
+  const sweat = el('g', { id: 'sweat' });
+
+  const headX = 0;
+  const headY = -20;
+
+  const xOffset = 5;
+  const yOffset = 15;
+
+  const drops = [
+    { x: 34 + xOffset, y: -58 + yOffset, size: 1, seed: 0 },
+    { x: 46 + xOffset, y: -66 + yOffset, size: 0.75, seed: 0.8 },
+    { x: 26 + xOffset, y: -70 + yOffset, size: 0.6, seed: 1.6 },
+  ];
+
+  drops.forEach((d) => {
+    sweat.appendChild(renderSweatDrop(d.x, d.y, d.size, headX, headY, d.seed));
+  });
+
+  root.insertBefore(sweat, root.firstChild);
+}
+
 // ── 불사조 ────────────────────────────────────────────────────
 function renderPhoenix(svg: SVGSVGElement) {
   let defs = svg.querySelector('defs');
@@ -369,7 +549,6 @@ function renderPhoenix(svg: SVGSVGElement) {
   const front = svg.getElementById('barbellFront');
   if (front) {
     root.appendChild(front);
-    front.setAttribute('opacity', '1');
   }
 }
 
@@ -384,23 +563,42 @@ export const CHARACTERS: Character[] = [
   {
     name: '병아리',
     anims: ['ohp', 'deadlift', 'squat'],
-
-    render: (svg) => renderChick(svg, false, false, '#f4bd0e'),
+    render: (svg) => {
+      renderChick(svg, false, false, '#f4bd0e');
+      const root = svg.getElementById('root') as SVGGElement | null;
+      if (root) renderSweat(root);
+    },
   },
   {
     name: '병아리+벼슬',
     anims: ['ohp', 'deadlift', 'squat'],
-    render: (svg) => renderChick(svg, true, false, '#f4bd0e'),
+    render: (svg) => {
+      renderChick(svg, true, false, '#f4bd0e');
+      const root = svg.getElementById('root') as SVGGElement | null;
+      if (root) renderSweat(root);
+    },
   },
   {
     name: '닭',
     anims: ['ohp', 'deadlift', 'squat'],
-    render: (svg) => renderChick(svg, true, true, '#FFDD66'),
+    render: (svg) => {
+      renderChick(svg, true, true, '#FDF5E6');
+      const wingL = svg.getElementById('wingL');
+      const wingR = svg.getElementById('wingR');
+      if (wingL) wingL.setAttribute('stroke', '#E0C090');
+      if (wingR) wingR.setAttribute('stroke', '#E0C090');
+      const root = svg.getElementById('root') as SVGGElement | null;
+      if (root) renderSweat(root);
+    },
   },
   {
     name: '오골계',
     anims: ['ohp', 'deadlift', 'squat'],
-    render: (svg) => renderChick(svg, true, true, '#555555', true),
+    render: (svg) => {
+      renderChick(svg, true, true, '#555555', true);
+      const root = svg.getElementById('root') as SVGGElement | null;
+      if (root) renderFeathers(root);
+    },
   },
   {
     name: '불사조',

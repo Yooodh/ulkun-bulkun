@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -32,7 +32,6 @@ import styles from './RecordChart.module.scss';
 
 type RecordChartProps = {
   userId?: string;
-  tabButtons?: React.ReactNode;
   onHasDataChange?: (hasData: boolean) => void;
 };
 
@@ -66,6 +65,11 @@ type BrushRange = {
   endRatio: number;
 };
 
+type BrushRangeState = BrushRange & {
+  targetId?: string;
+  partKey: keyof StrengthRecord;
+};
+
 const PARTS: ChartPart[] = [
   { key: 'total_weight', rmKey: 'total_1rm', label: 'Total', color: '#007bff' },
   { key: 'squat', rmKey: 'squat_1rm', label: '스쿼트', color: '#EF4444' },
@@ -81,7 +85,41 @@ const PARTS: ChartPart[] = [
 
 const VISIBLE_COUNT = 10;
 
-let savedBrushRange: BrushRange | undefined = undefined;
+const createInitialBrushRange = (length: number): BrushRange | undefined => {
+  if (length <= VISIBLE_COUNT) return undefined;
+
+  const startIndex = length - VISIBLE_COUNT;
+  const endIndex = length - 1;
+
+  return {
+    startIndex,
+    endIndex,
+    startRatio: startIndex / (length - 1),
+    endRatio: 1,
+  };
+};
+
+const rebaseBrushRange = (
+  savedRange: BrushRange | undefined,
+  length: number,
+): BrushRange | undefined => {
+  if (length <= VISIBLE_COUNT) return undefined;
+  if (!savedRange) return createInitialBrushRange(length);
+
+  const startIndex = Math.round(savedRange.startRatio * (length - 1));
+  const endIndex = Math.round(savedRange.endRatio * (length - 1));
+
+  if (startIndex >= endIndex) {
+    return createInitialBrushRange(length);
+  }
+
+  return {
+    startIndex,
+    endIndex,
+    startRatio: savedRange.startRatio,
+    endRatio: savedRange.endRatio,
+  };
+};
 
 const CustomTooltip = ({
   active,
@@ -111,7 +149,6 @@ const calc1RM = (weight: number, reps: number): number => {
 
 export default function RecordChart({
   userId,
-  tabButtons,
   onHasDataChange,
 }: RecordChartProps) {
   const { user } = useAuth();
@@ -184,74 +221,32 @@ export default function RecordChart({
       });
   }, [records, activePart]);
 
-  const [brushRange, setBrushRange] = useState<
-    { startIndex: number; endIndex: number } | undefined
-  >(savedBrushRange);
+  const [savedBrushRange, setSavedBrushRange] = useState<
+    BrushRangeState | undefined
+  >();
 
-  const prevActivePartRef = useRef(activePart.key);
+  const brushRange = useMemo(() => {
+    if (chartData.length < 2) return undefined;
 
-  // 브러쉬 리셋
-  useEffect(() => {
-    savedBrushRange = undefined;
-    setBrushRange(undefined);
-  }, [targetId]);
+    const reusableRange =
+      savedBrushRange &&
+      savedBrushRange.targetId === targetId &&
+      savedBrushRange.partKey === activePart.key
+        ? savedBrushRange
+        : undefined;
 
-  // 브러쉬 범위 계산 및 세팅
-  useEffect(() => {
-    if (chartData.length < 2) return;
-    const activePartChanged = prevActivePartRef.current !== activePart.key;
-    prevActivePartRef.current = activePart.key;
-
-    if (savedBrushRange && !activePartChanged) {
-      const startIndex = Math.round(
-        savedBrushRange.startRatio * (chartData.length - 1),
-      );
-      const endIndex = Math.round(
-        savedBrushRange.endRatio * (chartData.length - 1),
-      );
-
-      if (startIndex >= endIndex) {
-        const fallback: BrushRange = {
-          startIndex: Math.max(0, chartData.length - VISIBLE_COUNT),
-          endIndex: chartData.length - 1,
-          startRatio:
-            Math.max(0, chartData.length - VISIBLE_COUNT) /
-            (chartData.length - 1),
-          endRatio: 1,
-        };
-        savedBrushRange = fallback;
-        setBrushRange(fallback);
-        return;
-      }
-      setBrushRange({ startIndex, endIndex });
-      return;
-    }
-
-    if (chartData.length > VISIBLE_COUNT) {
-      const startIndex = chartData.length - VISIBLE_COUNT;
-      const endIndex = chartData.length - 1;
-      const initial: BrushRange = {
-        startIndex,
-        endIndex,
-        startRatio: startIndex / (chartData.length - 1),
-        endRatio: 1,
-      };
-      savedBrushRange = initial;
-      setBrushRange(initial);
-    } else {
-      savedBrushRange = undefined;
-      setBrushRange(undefined);
-    }
-  }, [chartData.length, activePart.key]);
+    return rebaseBrushRange(reusableRange, chartData.length);
+  }, [activePart.key, chartData.length, savedBrushRange, targetId]);
 
   // 브러쉬 범위 업데이트
   const updateBrushRange = (next: { startIndex: number; endIndex: number }) => {
-    savedBrushRange = {
+    setSavedBrushRange({
       ...next,
+      targetId,
+      partKey: activePart.key,
       startRatio: next.startIndex / (chartData.length - 1),
       endRatio: next.endIndex / (chartData.length - 1),
-    };
-    setBrushRange(next);
+    });
   };
 
   useEffect(() => {
@@ -262,18 +257,6 @@ export default function RecordChart({
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          {displayName && (
-            <>
-              <strong>{displayName}</strong> 님의{' '}
-            </>
-          )}
-          성장 곡선
-        </h1>
-        {tabButtons}
-      </div>
-
       {!isPageLoading && records.length >= 2 && (
         <>
           <div className={styles.btnGroup}>

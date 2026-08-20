@@ -3,17 +3,65 @@
 $chart-height: 610px;
 $chart-height-mobile: 650px;
 
-.chartsWrapper {
-  position: relative;
+.container {
+  background: $white;
+  box-shadow: $shadow-md;
+  border: 1px solid $border-soft;
+  border-radius: $radius-main;
+  padding: 20px;
   width: 100%;
+  min-width: 0;
   height: $chart-height;
+  display: flex;
+  flex-direction: column;
 
   @media (max-width: 768px) {
+    padding: 20px 10px;
     height: $chart-height-mobile;
   }
 
-  &.auto {
+  &.autoContainer {
     height: auto;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  h1 {
+    @include font-lg-title;
+    color: $text-dark;
+    margin-bottom: 0;
+
+    @media (max-width: 768px) {
+      margin-left: 6px;
+    }
+
+    strong {
+      color: $blue;
+    }
+  }
+}
+
+.contentWrapper {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+
+  &.auto {
+    flex: none;
+    min-height: 0;
   }
 }
 
@@ -40,18 +88,6 @@ $chart-height-mobile: 650px;
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-}
-
-.chartPane {
-  height: $chart-height;
-
-  @media (max-width: 768px) {
-    height: $chart-height-mobile;
-  }
-
-  &.auto {
-    height: auto;
-  }
 }
 
 .tabGroup {

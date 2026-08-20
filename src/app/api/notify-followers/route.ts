@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { PushSubscription } from 'web-push';
 import webpush from 'web-push';
 
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
     const results = await Promise.allSettled(
       (pushSubs ?? []).map((row) =>
         webpush.sendNotification(
-          row.subscription as any,
+          row.subscription as PushSubscription,
           JSON.stringify({
             title: '새로운 운동 기록!',
             body: `${authorProfile?.nickname ?? '울끈불끈이'}님이 새 기록을 올렸어요 💪`,

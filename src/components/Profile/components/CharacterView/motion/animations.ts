@@ -9,6 +9,8 @@ export type AnimContext = {
   legs: SVGGElement | null;
   toes: SVGGElement | null;
   flame: SVGGElement | null;
+  feathers: SVGGElement | null;
+  sweat: SVGGElement | null;
   t: number;
 };
 
@@ -59,12 +61,108 @@ const applyFlameFlicker = (flame: SVGGElement | null, t: number) => {
   flame.setAttribute('transform', 'translate(0, 40)');
 };
 
+// 오골계 깃털
+const applyFeatherFlutter = (feathers: SVGGElement | null, t: number) => {
+  if (!feathers) return;
+
+  Array.from(feathers.children).forEach((child) => {
+    const feather = child as SVGGElement;
+    const x = Number(feather.getAttribute('data-x')) || 0;
+    const y = Number(feather.getAttribute('data-y')) || 0;
+    const baseRot = Number(feather.getAttribute('data-rot')) || 0;
+    const amp = Number(feather.getAttribute('data-amp')) || 1;
+    const speed = Number(feather.getAttribute('data-speed')) || 1;
+    const seed = Number(feather.getAttribute('data-seed')) || 0;
+
+    const time = t * speed + seed;
+    const cycle = 6;
+    const progress = (((time % cycle) + cycle) % cycle) / cycle;
+
+    // 몸통 중심 기준 바깥 방향
+    const outwardAngle = ((baseRot - 90) * Math.PI) / 180;
+    const outwardX = Math.cos(outwardAngle);
+
+    // 좌우 확산
+    const spreadRange = 25;
+    const driftX =
+      outwardX * progress * spreadRange * amp + Math.sin(time * 1.5) * 3 * amp;
+
+    const riseRange = 35;
+    const driftY = -progress * riseRange * amp;
+
+    const opacity = 0.85 * (1 - progress * 0.7);
+    const rotate = baseRot + Math.sin(time * 0.8) * 18 * amp;
+
+    feather.setAttribute(
+      'transform',
+      `translate(${x + driftX}, ${y + driftY}) rotate(${rotate})`,
+    );
+    feather.setAttribute('opacity', String(opacity));
+  });
+};
+
+// 땀
+const applySweat = (sweat: SVGGElement | null, t: number) => {
+  if (!sweat) return;
+
+  Array.from(sweat.children).forEach((child) => {
+    const drop = child as SVGGElement;
+    const x = Number(drop.getAttribute('data-x')) || 0;
+    const y = Number(drop.getAttribute('data-y')) || 0;
+    const rot = Number(drop.getAttribute('data-rot')) || 0;
+    const size = Number(drop.getAttribute('data-size')) || 1;
+    const seed = Number(drop.getAttribute('data-seed')) || 0;
+
+    const time = t * 2.5 + seed;
+    const cycle = 2.2;
+    const progress = (((time % cycle) + cycle) % cycle) / cycle;
+
+    let opacity = 0;
+    let scale = size;
+    let riseY = 0;
+
+    if (progress < 0.12) {
+      const p = progress / 0.12;
+      opacity = p;
+      scale = size * (0.5 + p * 0.5);
+    } else if (progress < 0.55) {
+      opacity = 1;
+      scale = size;
+      riseY = Math.sin((progress - 0.12) * 20) * 0.6;
+    } else {
+      const p = (progress - 0.55) / 0.45;
+      opacity = 1 - p;
+      scale = size * (1 + p * 0.2);
+      riseY = -p * 10;
+    }
+
+    drop.setAttribute(
+      'transform',
+      `translate(${x}, ${y + riseY}) rotate(${rot}) scale(${scale})`,
+    );
+    drop.setAttribute('opacity', String(Math.max(0, opacity)));
+  });
+};
+
 // ─── 개별 애니메이션 ───────────────────────────────────────────────
 
 const idle: AnimFn = (ctx) => {
-  const { barbellBack, barbellFront, flame, t } = ctx;
+  const { root, barbellBack, barbellFront, flame, t } = ctx;
   barbellBack.setAttribute('opacity', '0');
   barbellFront.setAttribute('opacity', '0');
+
+  // 통통 튀는 바운스
+  const speed = 2.5;
+  const phase = Math.abs(Math.sin(t * speed));
+  const bounceHeight = phase * 12;
+
+  const scaleY = 0.94 + phase * 0.1;
+  const scaleX = 1.06 - phase * 0.12;
+
+  root.setAttribute(
+    'transform',
+    `translate(0, ${-bounceHeight}) scale(${scaleX}, ${scaleY})`,
+  );
 
   applyFlameFlicker(flame, t);
 };
@@ -80,6 +178,8 @@ const squat: AnimFn = (ctx) => {
     legs,
     toes,
     flame,
+    feathers,
+    sweat,
     t,
   } = ctx;
   barbellBack.setAttribute('opacity', '1');
@@ -92,11 +192,15 @@ const squat: AnimFn = (ctx) => {
   legs?.setAttribute('transform', `translate(0, ${sqDepth})`);
   toes?.setAttribute('transform', `translate(0, ${sqDepth})`);
 
-  barbellBack.setAttribute('transform', '');
   wingL?.setAttribute('transform', `rotate(-40, -60, 20)`);
   wingR?.setAttribute('transform', `rotate(40, 60, 20)`);
 
+  if (wingL) root.insertBefore(wingL, barbellBack);
+  if (wingR) root.insertBefore(wingR, barbellBack);
+
   applyFlameFlicker(flame, t);
+  applyFeatherFlutter(feathers, t);
+  applySweat(sweat, t);
 };
 
 // 데드리프트
@@ -110,6 +214,8 @@ const deadlift: AnimFn = (ctx) => {
     legs,
     toes,
     flame,
+    feathers,
+    sweat,
     t,
   } = ctx;
   barbellBack.setAttribute('opacity', '0');
@@ -120,7 +226,7 @@ const deadlift: AnimFn = (ctx) => {
   const dlDepth = phase * 8;
 
   root.setAttribute('transform', `translate(0, ${-dlDepth * 0.4})`);
-  barbellFront.setAttribute('transform', `translate(0, ${barbY})`);
+  barbellFront.setAttribute('transform', `translate(0, ${barbY - 4})`);
 
   legs?.setAttribute('transform', `translate(0, ${dlDepth})`);
   toes?.setAttribute('transform', `translate(0, ${dlDepth})`);
@@ -129,14 +235,33 @@ const deadlift: AnimFn = (ctx) => {
   wingL?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
   wingR?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
 
+  if (wingL) root.appendChild(wingL);
+  if (wingR) root.appendChild(wingR);
+
   applyFlameFlicker(flame, t);
+  applyFeatherFlutter(feathers, t);
+  applySweat(sweat, t);
 };
 
 // OHP
 const ohp: AnimFn = (ctx) => {
-  const { barbellBack, barbellFront, wingL, wingR, flame, t } = ctx;
+  const {
+    root,
+    barbellBack,
+    barbellFront,
+    wingL,
+    wingR,
+    legs,
+    toes,
+    flame,
+    feathers,
+    sweat,
+    t,
+  } = ctx;
   barbellBack.setAttribute('opacity', '0');
   barbellFront.setAttribute('opacity', '1');
+
+  root.appendChild(barbellFront);
 
   const phase = (Math.sin(t * 2) + 1) / 2;
   const barbY = (1 - phase) * 30 + -50;
@@ -147,7 +272,12 @@ const ohp: AnimFn = (ctx) => {
   wingL?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
   wingR?.setAttribute('transform', `translate(0, ${wingOffsetY})`);
 
+  legs?.setAttribute('transform', `translate(0, 5)`);
+  toes?.setAttribute('transform', `translate(0, 5)`);
+
   applyFlameFlicker(flame, t);
+  applyFeatherFlutter(feathers, t);
+  applySweat(sweat, t);
 };
 
 // ─── 레지스트리 ────────────────────────────────────────────────────
@@ -167,9 +297,16 @@ export function applyAnim(svg: SVGSVGElement, anim: AnimName, t: number) {
   const barbellFront = svg.getElementById('barbellFront') as SVGGElement | null;
   if (!root || !barbellBack || !barbellFront) return;
 
-  // 초기화
   const elementsToReset = [root, barbellBack, barbellFront];
-  const optionalIds = ['wingL', 'wingR', 'legs', 'toes', 'flame']; // flame 추가
+  const optionalIds = [
+    'wingL',
+    'wingR',
+    'legs',
+    'toes',
+    'flame',
+    'feathers',
+    'sweat',
+  ];
 
   optionalIds.forEach((id) => {
     const el = svg.getElementById(id);
@@ -187,6 +324,8 @@ export function applyAnim(svg: SVGSVGElement, anim: AnimName, t: number) {
     legs: svg.getElementById('legs') as SVGGElement | null,
     toes: svg.getElementById('toes') as SVGGElement | null,
     flame: svg.getElementById('flame') as SVGGElement | null,
+    feathers: svg.getElementById('feathers') as SVGGElement | null,
+    sweat: svg.getElementById('sweat') as SVGGElement | null,
     t,
   };
 
