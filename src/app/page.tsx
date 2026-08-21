@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, TouchEvent } from 'react';
 import { ClipboardList, UserRound } from 'lucide-react';
 
 import Empty from '@/components/shared/Empty/Empty';
@@ -18,12 +18,74 @@ import styles from './page.module.scss';
 
 type MobilePanel = 'record' | 'profile';
 
+const SWIPE_THRESHOLD_RATIO = 0.25;
+const DRAG_START_THRESHOLD_PX = 8;
+
 export default function Home() {
   const { user, loading } = useAuth();
   const [activeMobilePanel, setActiveMobilePanel] =
     useState<MobilePanel>('record');
 
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const viewportWidth = useRef(0);
+
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const switchPanel = (panel: MobilePanel) => {
+    setActiveMobilePanel(panel);
+    setDragOffset(0);
+  };
+
+  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    if (!viewportRef.current) return;
+    touchStartX.current = e.touches[0].clientX;
+    viewportWidth.current = viewportRef.current.offsetWidth;
+  };
+
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return;
+
+    const rawDelta = e.touches[0].clientX - touchStartX.current;
+
+    if (!isDragging && Math.abs(rawDelta) > DRAG_START_THRESHOLD_PX) {
+      setIsDragging(true);
+    }
+
+    let delta = rawDelta;
+
+    if (activeMobilePanel === 'record') {
+      delta = Math.min(0, Math.max(delta, -viewportWidth.current));
+    } else {
+      delta = Math.max(0, Math.min(delta, viewportWidth.current));
+    }
+
+    setDragOffset(delta);
+  };
+
+  const handleTouchEnd = () => {
+    const width = viewportWidth.current || 1;
+    const threshold = width * SWIPE_THRESHOLD_RATIO;
+
+    if (activeMobilePanel === 'record' && dragOffset < -threshold) {
+      switchPanel('profile');
+    } else if (activeMobilePanel === 'profile' && dragOffset > threshold) {
+      switchPanel('record');
+    } else {
+      setDragOffset(0);
+    }
+
+    touchStartX.current = null;
+    setIsDragging(false);
+  };
+
   if (loading) return null;
+
+  const basePercent = activeMobilePanel === 'record' ? 0 : -50;
+  const offsetPercent = viewportWidth.current
+    ? (dragOffset / viewportWidth.current) * 50
+    : 0;
 
   return (
     <div className={styles.pageContainer}>
@@ -41,7 +103,7 @@ export default function Home() {
               variant='outline'
               size='sm'
               active={activeMobilePanel === 'record'}
-              onClick={() => setActiveMobilePanel('record')}
+              onClick={() => switchPanel('record')}
               role='tab'
               aria-selected={activeMobilePanel === 'record'}
             >
@@ -53,7 +115,7 @@ export default function Home() {
               variant='outline'
               size='sm'
               active={activeMobilePanel === 'profile'}
-              onClick={() => setActiveMobilePanel('profile')}
+              onClick={() => switchPanel('profile')}
               role='tab'
               aria-selected={activeMobilePanel === 'profile'}
             >
@@ -61,20 +123,31 @@ export default function Home() {
               프로필
             </Button>
           </div>
+
           <div
-            className={`${styles.mobilePanel} ${
-              activeMobilePanel === 'record' ? styles.activeMobilePanel : ''
-            }`}
+            className={styles.mobileSliderViewport}
+            ref={viewportRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            <RecordForm />
+            <div
+              className={`${styles.mobileSliderTrack} ${
+                isDragging ? styles.dragging : ''
+              }`}
+              style={{
+                transform: `translateX(calc(${basePercent}% + ${offsetPercent}%))`,
+              }}
+            >
+              <div className={styles.mobileSlide}>
+                <RecordForm />
+              </div>
+              <div className={styles.mobileSlide}>
+                <ProfileCard />
+              </div>
+            </div>
           </div>
-          <div
-            className={`${styles.mobilePanel} ${
-              activeMobilePanel === 'profile' ? styles.activeMobilePanel : ''
-            }`}
-          >
-            <ProfileCard />
-          </div>
+
           <Charts />
           <RecordList />
         </div>
