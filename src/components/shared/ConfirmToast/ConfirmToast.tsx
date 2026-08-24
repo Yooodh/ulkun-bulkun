@@ -4,7 +4,11 @@ import styles from './ConfirmToast.module.scss';
 
 import Button from '../Button/Button';
 
-export function ConfirmToast(message: string, onConfirm: () => void) {
+export function ConfirmToast(
+  message: string,
+  onConfirm: () => void,
+  onCancel?: () => void,
+) {
   toast.custom(
     (id) => (
       <div className={styles.container}>
@@ -13,7 +17,10 @@ export function ConfirmToast(message: string, onConfirm: () => void) {
           <Button
             variant='ligray'
             className={styles.cancel}
-            onClick={() => toast.dismiss(id)}
+            onClick={() => {
+              toast.dismiss(id);
+              onCancel?.();
+            }}
           >
             취소
           </Button>
