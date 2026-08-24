@@ -10,6 +10,7 @@ export type ProfileData = {
   weight: number | null;
   gender: 'male' | 'female' | null;
   birth_date: string | null;
+  background_color: string;
 };
 
 export function useProfile(userId: string | undefined) {
@@ -21,7 +22,7 @@ export function useProfile(userId: string | undefined) {
       const { data, error } = await supabase
         .from('profiles')
         .select(
-          'nickname, avatar_url, status_message, is_public, weight, gender, birth_date',
+          'nickname, avatar_url, status_message, is_public, weight, gender, birth_date, background_color',
         )
         .eq('id', userId)
         .single();
@@ -39,6 +40,7 @@ export function useProfile(userId: string | undefined) {
         weight: data.weight ?? null,
         gender: data.gender ?? null,
         birth_date: data.birth_date ?? null,
+        background_color: data.background_color || '#e3f2fd',
       };
     },
     enabled: !!userId,
