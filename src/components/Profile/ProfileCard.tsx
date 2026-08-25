@@ -158,6 +158,9 @@ export default function ProfileCard({
         <CharacterView
           isLoading={!isCharacterReady}
           totalPR={calculateTotalPR(records)}
+          userId={targetId}
+          backgroundColor={profile?.background_color}
+          canEdit={!!canEdit}
         />
       </div>
 
