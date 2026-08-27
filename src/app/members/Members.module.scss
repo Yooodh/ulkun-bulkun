@@ -33,7 +33,7 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
-    margin: 0 20px;
+    margin: 0 1.25rem 1rem;
 
     @media (min-width: 768px) {
       grid-template-columns: repeat(2, 1fr);
