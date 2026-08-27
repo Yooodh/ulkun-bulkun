@@ -86,7 +86,6 @@ export default function RecordForm() {
 
   return (
     <div className={styles.formContainer}>
-      <h1 className={styles.title}>💪 울끈불끈 기록</h1>
       <form onSubmit={handleSubmit}>
         {FIELDS.map(({ name, repsKey, label, required }) => {
           const committedValue = lastCommits[name];
