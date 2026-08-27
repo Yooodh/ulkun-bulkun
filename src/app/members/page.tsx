@@ -172,12 +172,14 @@ export default function MembersPage() {
                 </div>
 
                 {groupList.length > GENDER_GROUP_PAGE_SIZE && (
-                  <Pagination
-                    totalCount={groupList.length}
-                    pageSize={GENDER_GROUP_PAGE_SIZE}
-                    currentPage={currentPage}
-                    onPageChange={(page) => handleGroupPageChange(key, page)}
-                  />
+                  <div className={styles.paginationSection}>
+                    <Pagination
+                      totalCount={groupList.length}
+                      pageSize={GENDER_GROUP_PAGE_SIZE}
+                      currentPage={currentPage}
+                      onPageChange={(page) => handleGroupPageChange(key, page)}
+                    />
+                  </div>
                 )}
               </section>
             );
