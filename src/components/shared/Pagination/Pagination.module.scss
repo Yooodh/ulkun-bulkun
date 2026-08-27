@@ -19,7 +19,6 @@
 
 .pagination {
   @include flex-center;
-  padding-top: 1rem;
   gap: 4px;
 
   .arrow {
