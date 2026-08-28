@@ -5,7 +5,6 @@ $chart-height-mobile: 650px;
 
 .container {
   background: $white;
-  box-shadow: $shadow-md;
   border: 1px solid $border-soft;
   border-radius: $radius-main;
   padding: 20px;
@@ -66,8 +65,8 @@ $chart-height-mobile: 650px;
 }
 
 .chartPane {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  width: 100%;
   height: 100%;
   transition: opacity 0.15s ease;
 
@@ -85,9 +84,15 @@ $chart-height-mobile: 650px;
 }
 
 .inactive {
+  position: absolute;
+  inset: 0;
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
+}
+
+.hidden {
+  display: none;
 }
 
 .tabGroup {
