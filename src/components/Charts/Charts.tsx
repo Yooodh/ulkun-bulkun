@@ -118,11 +118,16 @@ export default function Charts({ userId }: ChartsProps) {
         {mountedViews.record && (
           <div
             className={`${styles.chartPane} ${
-              activeView === 'record' ? styles.active : styles.inactive
+              activeView === 'record'
+                ? styles.active
+                : shouldUseAutoHeight
+                  ? styles.hidden
+                  : styles.inactive
             } ${activeView === 'record' && !hasData.record ? styles.auto : ''}`}
           >
             <RecordChart
               userId={userId}
+              isActive={activeView === 'record'}
               onHasDataChange={handleHasDataChange('record')}
             />
           </div>
@@ -131,13 +136,18 @@ export default function Charts({ userId }: ChartsProps) {
         {mountedViews.strength && (
           <div
             className={`${styles.chartPane} ${
-              activeView === 'strength' ? styles.active : styles.inactive
+              activeView === 'strength'
+                ? styles.active
+                : shouldUseAutoHeight
+                  ? styles.hidden
+                  : styles.inactive
             } ${
               activeView === 'strength' && !hasData.strength ? styles.auto : ''
             }`}
           >
             <StrengthChart
               userId={userId}
+              isActive={activeView === 'strength'}
               onHasDataChange={handleHasDataChange('strength')}
             />
           </div>
@@ -146,7 +156,11 @@ export default function Charts({ userId }: ChartsProps) {
         {mountedViews.bodyweight && (
           <div
             className={`${styles.chartPane} ${
-              activeView === 'bodyweight' ? styles.active : styles.inactive
+              activeView === 'bodyweight'
+                ? styles.active
+                : shouldUseAutoHeight
+                  ? styles.hidden
+                  : styles.inactive
             } ${
               activeView === 'bodyweight' && !hasData.bodyweight
                 ? styles.auto
@@ -155,6 +169,7 @@ export default function Charts({ userId }: ChartsProps) {
           >
             <BodyweightChart
               userId={userId}
+              isActive={activeView === 'bodyweight'}
               onHasDataChange={handleHasDataChange('bodyweight')}
             />
           </div>
