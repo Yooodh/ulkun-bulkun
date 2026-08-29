@@ -6,28 +6,34 @@ import { ChevronUp } from 'lucide-react';
 import styles from './ScrollToTopButton.module.scss';
 
 const SHOW_SCROLL_Y = 300;
-const SCROLL_DELTA_THRESHOLD = 10;
+const HIDE_DELAY_MS = 1000;
 
 export default function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
-  const lastScrollY = useRef(0);
   const ticking = useRef(false);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    lastScrollY.current = window.scrollY;
+    const clearHideTimer = () => {
+      if (hideTimer.current) {
+        clearTimeout(hideTimer.current);
+        hideTimer.current = null;
+      }
+    };
 
     const updateVisibility = () => {
       const currentY = window.scrollY;
-      const delta = currentY - lastScrollY.current;
 
       if (currentY <= SHOW_SCROLL_Y) {
         setIsVisible(false);
-      } else if (delta > SCROLL_DELTA_THRESHOLD) {
-        setIsVisible(false);
-        lastScrollY.current = currentY;
-      } else if (delta < -SCROLL_DELTA_THRESHOLD) {
+        clearHideTimer();
+      } else {
         setIsVisible(true);
-        lastScrollY.current = currentY;
+
+        clearHideTimer();
+        hideTimer.current = setTimeout(() => {
+          setIsVisible(false);
+        }, HIDE_DELAY_MS);
       }
 
       ticking.current = false;
@@ -41,7 +47,10 @@ export default function ScrollToTopButton() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearHideTimer();
+    };
   }, []);
 
   const scrollToTop = () => {
