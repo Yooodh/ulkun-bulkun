@@ -65,6 +65,10 @@
 
   .paginationSection {
     padding-top: 1rem;
+
+    &:empty {
+      padding-top: 0;
+    }
   }
 }
 
