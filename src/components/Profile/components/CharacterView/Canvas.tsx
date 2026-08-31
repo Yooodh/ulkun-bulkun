@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
-import { CHARACTERS } from './motion/characters';
 import { AnimName, applyAnim } from './motion/animations';
+import { CHARACTERS } from './motion/characters';
 
 function getCharacterIndex(totalPR: number): number {
   if (totalPR < 100) return 0;

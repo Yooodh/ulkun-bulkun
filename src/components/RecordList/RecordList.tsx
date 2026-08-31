@@ -256,12 +256,14 @@ export default function RecordList({ userId }: RecordListProps) {
       </div>
 
       {records.length > 0 && (
-        <Pagination
-          totalCount={records.length}
-          pageSize={PAGE_SIZE}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
+        <div className={styles.paginationSection}>
+          <Pagination
+            totalCount={records.length}
+            pageSize={PAGE_SIZE}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       )}
     </div>
   );

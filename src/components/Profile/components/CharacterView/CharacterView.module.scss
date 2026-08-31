@@ -3,6 +3,10 @@
 .characterContainer {
   @include flex-center;
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: $radius-main;
   background: linear-gradient(to bottom, #e3f2fd, #ffffff);
+  transition: background 0.3s ease;
 }

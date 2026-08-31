@@ -2,7 +2,6 @@
 
 .listContainer {
   background: $white;
-  box-shadow: $shadow-md;
   border: 1px solid $border-soft;
   border-radius: $radius-main;
   padding: 20px;
@@ -61,6 +60,14 @@
         color: $blue;
         font-weight: 700;
       }
+    }
+  }
+
+  .paginationSection {
+    padding-top: 1rem;
+
+    &:empty {
+      padding-top: 0;
     }
   }
 }
@@ -132,7 +139,6 @@
       border: 1px solid $border-soft;
       border-radius: $radius-main;
       margin-bottom: 12px;
-      box-shadow: $shadow-md;
       overflow: hidden;
     }
 
