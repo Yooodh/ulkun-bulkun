@@ -18,7 +18,9 @@ import { useRecords } from '@/hooks/useRecords';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 
-import { StrengthRecord } from '@/types/record';
+import { getBest1RM } from '@/utils/recordUtils';
+
+import { COLORS, type LiftSubject } from '../../constants/strengthStandards';
 
 import styles from './StrengthChart.module.scss';
 
@@ -33,32 +35,6 @@ const STANDARD_RATIOS: Record<string, number> = {
   데드: 1.2,
   벤치: 0.75,
   OHP: 0.5,
-};
-
-const COLORS: Record<string, string> = {
-  스쿼트: '#EF4444',
-  데드: '#F97316',
-  벤치: '#22C55E',
-  OHP: '#A855F7',
-};
-
-const calc1RM = (weight: number, reps: number): number => {
-  if (reps <= 1) return weight;
-  return Math.round(weight * (1 + reps / 30));
-};
-
-const getBest1RM = (
-  records: StrengthRecord[],
-  weightKey: keyof StrengthRecord,
-  repsKey: keyof StrengthRecord,
-): number => {
-  return records.reduce((best, record) => {
-    const weight = Number(record[weightKey] ?? 0);
-    const reps = Number(record[repsKey] ?? 1);
-    const oneRm = weight > 0 ? calc1RM(weight, reps) : 0;
-
-    return oneRm > best ? oneRm : best;
-  }, 0);
 };
 
 const CustomTooltip = ({
@@ -243,8 +219,7 @@ export default function StrengthChart({
                       dataKey='subject'
                       tick={({ x, y, payload }) => {
                         const color =
-                          COLORS[payload.value as keyof typeof COLORS] ??
-                          '#6b7280';
+                          COLORS[payload.value as LiftSubject] ?? '#6b7280';
 
                         return (
                           <text
@@ -298,9 +273,7 @@ export default function StrengthChart({
                   <div key={item.subject} className={styles.scoreItem}>
                     <span
                       className={styles.scoreLabel}
-                      style={{
-                        color: COLORS[item.subject as keyof typeof COLORS],
-                      }}
+                      style={{ color: COLORS[item.subject as LiftSubject] }}
                     >
                       {item.subject}
                     </span>
