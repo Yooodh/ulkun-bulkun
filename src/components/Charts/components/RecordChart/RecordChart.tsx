@@ -28,6 +28,8 @@ import { useAuth } from '@/hooks/useAuth';
 
 import { StrengthRecord } from '@/types/record';
 
+import { calc1RM } from '@/utils/recordUtils';
+
 import styles from './RecordChart.module.scss';
 
 type RecordChartProps = {
@@ -140,12 +142,6 @@ const CustomTooltip = ({
     );
   }
   return null;
-};
-
-// 1RM 계산
-const calc1RM = (weight: number, reps: number): number => {
-  if (reps <= 1) return weight;
-  return Math.round(weight * (1 + reps / 30));
 };
 
 export default function RecordChart({
