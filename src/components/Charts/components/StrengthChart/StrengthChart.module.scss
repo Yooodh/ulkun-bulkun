@@ -237,32 +237,3 @@
     }
   }
 }
-
-.tooltip {
-  background: $white;
-  border: 1px solid $border-soft;
-  border-radius: $radius-main;
-  box-shadow: $shadow-md;
-  padding: 12px 14px;
-  min-width: 160px;
-
-  .tooltipTitle {
-    @include font-body;
-    font-weight: 600;
-    color: $text-dark;
-    margin: 0 0 8px 0;
-  }
-
-  .tooltipRow {
-    @include font-sm;
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    margin: 4px 0 0 0;
-    color: $text-muted;
-
-    strong {
-      font-weight: 600;
-    }
-  }
-}
