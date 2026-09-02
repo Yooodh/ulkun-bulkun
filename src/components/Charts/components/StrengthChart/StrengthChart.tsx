@@ -20,6 +20,8 @@ import { useProfile } from '@/hooks/useProfile';
 
 import { getBest1RM } from '@/utils/recordUtils';
 
+import ChartTooltip from '../ChartTooltip/ChartTooltip';
+
 import { COLORS, type LiftSubject } from '../../constants/strengthStandards';
 
 import styles from './StrengthChart.module.scss';
@@ -55,23 +57,18 @@ const CustomTooltip = ({
     const d = payload[0].payload;
 
     return (
-      <div className={styles.tooltip}>
-        <p className={styles.tooltipTitle}>{d.subject}</p>
-        <p className={styles.tooltipRow}>
-          <span>기준 대비</span>
-          <strong style={{ color: d.score >= 100 ? '#007bff' : '#EF4444' }}>
-            {d.score.toFixed(1)}%
-          </strong>
-        </p>
-        <p className={styles.tooltipRow}>
-          <span>최고 추정 1RM</span>
-          <strong>{d.my1RM}kg</strong>
-        </p>
-        <p className={styles.tooltipRow}>
-          <span>기준값</span>
-          <strong>{d.standard}kg</strong>
-        </p>
-      </div>
+      <ChartTooltip
+        title={d.subject}
+        rows={[
+          {
+            label: '기준 대비',
+            value: `${d.score.toFixed(1)}%`,
+            valueColor: d.score >= 100 ? '#007bff' : '#EF4444',
+          },
+          { label: '최고 추정 1RM', value: `${d.my1RM}kg` },
+          { label: '기준값', value: `${d.standard}kg` },
+        ]}
+      />
     );
   }
 
