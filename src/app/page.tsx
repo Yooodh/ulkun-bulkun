@@ -1,6 +1,13 @@
 'use client';
 
-import { useState, useRef, TouchEvent } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+  TouchEvent,
+} from 'react';
 import { ClipboardList, UserRound } from 'lucide-react';
 
 import Empty from '@/components/shared/Empty/Empty';
@@ -26,22 +33,47 @@ export default function Home() {
   const [activeMobilePanel, setActiveMobilePanel] =
     useState<MobilePanel>('record');
 
-  const viewportRef = useRef<HTMLDivElement>(null);
+  const [viewportEl, setViewportEl] = useState<HTMLDivElement | null>(null);
+  const viewportRef = useCallback((node: HTMLDivElement | null) => {
+    setViewportEl(node);
+  }, []);
+
   const touchStartX = useRef<number | null>(null);
-  const viewportWidth = useRef(0);
+  const [viewportWidth, setViewportWidth] = useState(0);
 
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (!viewportEl) return;
+
+    setViewportWidth(viewportEl.offsetWidth);
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setViewportWidth(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(viewportEl);
+    return () => observer.disconnect();
+  }, [viewportEl]);
 
   const switchPanel = (panel: MobilePanel) => {
     setActiveMobilePanel(panel);
     setDragOffset(0);
   };
 
+  const resetTouchState = useCallback(() => {
+    touchStartX.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+  }, []);
+
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
-    if (!viewportRef.current) return;
+    if (!viewportEl) return;
     touchStartX.current = e.touches[0].clientX;
-    viewportWidth.current = viewportRef.current.offsetWidth;
   };
 
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
@@ -56,16 +88,16 @@ export default function Home() {
     let delta = rawDelta;
 
     if (activeMobilePanel === 'record') {
-      delta = Math.min(0, Math.max(delta, -viewportWidth.current));
+      delta = Math.min(0, Math.max(delta, -viewportWidth));
     } else {
-      delta = Math.max(0, Math.min(delta, viewportWidth.current));
+      delta = Math.max(0, Math.min(delta, viewportWidth));
     }
 
     setDragOffset(delta);
   };
 
   const handleTouchEnd = () => {
-    const width = viewportWidth.current || 1;
+    const width = viewportWidth || 1;
     const threshold = width * SWIPE_THRESHOLD_RATIO;
 
     if (activeMobilePanel === 'record' && dragOffset < -threshold) {
@@ -80,12 +112,17 @@ export default function Home() {
     setIsDragging(false);
   };
 
-  if (loading) return null;
+  const handleTouchCancel = () => {
+    resetTouchState();
+  };
 
-  const basePercent = activeMobilePanel === 'record' ? 0 : -50;
-  const offsetPercent = viewportWidth.current
-    ? (dragOffset / viewportWidth.current) * 50
-    : 0;
+  const { basePercent, offsetPercent } = useMemo(() => {
+    const base = activeMobilePanel === 'record' ? 0 : -50;
+    const offset = viewportWidth ? (dragOffset / viewportWidth) * 50 : 0;
+    return { basePercent: base, offsetPercent: offset };
+  }, [activeMobilePanel, dragOffset, viewportWidth]);
+
+  if (loading) return null;
 
   return (
     <div className={styles.pageContainer}>
@@ -105,7 +142,9 @@ export default function Home() {
               active={activeMobilePanel === 'record'}
               onClick={() => switchPanel('record')}
               role='tab'
+              id='tab-record'
               aria-selected={activeMobilePanel === 'record'}
+              aria-controls='panel-record'
             >
               <ClipboardList size={16} />
               기록
@@ -117,7 +156,9 @@ export default function Home() {
               active={activeMobilePanel === 'profile'}
               onClick={() => switchPanel('profile')}
               role='tab'
+              id='tab-profile'
               aria-selected={activeMobilePanel === 'profile'}
+              aria-controls='panel-profile'
             >
               <UserRound size={16} />
               프로필
@@ -130,6 +171,7 @@ export default function Home() {
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchCancel}
           >
             <div
               className={`${styles.mobileSliderTrack} ${
@@ -139,10 +181,22 @@ export default function Home() {
                 transform: `translateX(calc(${basePercent}% + ${offsetPercent}%))`,
               }}
             >
-              <div className={styles.mobileSlide}>
+              <div
+                className={styles.mobileSlide}
+                role='tabpanel'
+                id='panel-record'
+                aria-labelledby='tab-record'
+                aria-hidden={activeMobilePanel !== 'record'}
+              >
                 <RecordForm />
               </div>
-              <div className={styles.mobileSlide}>
+              <div
+                className={styles.mobileSlide}
+                role='tabpanel'
+                id='panel-profile'
+                aria-labelledby='tab-profile'
+                aria-hidden={activeMobilePanel !== 'profile'}
+              >
                 <ProfileCard />
               </div>
             </div>
