@@ -25,6 +25,8 @@ import Empty from '@/components/shared/Empty/Empty';
 import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
+import { useBrushRange } from '@/hooks/useBrushRange';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 import { StrengthRecord } from '@/types/record';
 
@@ -61,18 +63,6 @@ type ChartDataPoint = StrengthRecord & {
   total_1rm: number;
 };
 
-type BrushRange = {
-  startIndex: number;
-  endIndex: number;
-  startRatio: number;
-  endRatio: number;
-};
-
-type BrushRangeState = BrushRange & {
-  targetId?: string;
-  partKey: keyof StrengthRecord;
-};
-
 const PARTS: ChartPart[] = [
   { key: 'total_weight', rmKey: 'total_1rm', label: 'Total', color: '#007bff' },
   { key: 'squat', rmKey: 'squat_1rm', label: '스쿼트', color: '#EF4444' },
@@ -87,42 +77,6 @@ const PARTS: ChartPart[] = [
 ];
 
 const VISIBLE_COUNT = 10;
-
-const createInitialBrushRange = (length: number): BrushRange | undefined => {
-  if (length <= VISIBLE_COUNT) return undefined;
-
-  const startIndex = length - VISIBLE_COUNT;
-  const endIndex = length - 1;
-
-  return {
-    startIndex,
-    endIndex,
-    startRatio: startIndex / (length - 1),
-    endRatio: 1,
-  };
-};
-
-const rebaseBrushRange = (
-  savedRange: BrushRange | undefined,
-  length: number,
-): BrushRange | undefined => {
-  if (length <= VISIBLE_COUNT) return undefined;
-  if (!savedRange) return createInitialBrushRange(length);
-
-  const startIndex = Math.round(savedRange.startRatio * (length - 1));
-  const endIndex = Math.round(savedRange.endRatio * (length - 1));
-
-  if (startIndex >= endIndex) {
-    return createInitialBrushRange(length);
-  }
-
-  return {
-    startIndex,
-    endIndex,
-    startRatio: savedRange.startRatio,
-    endRatio: savedRange.endRatio,
-  };
-};
 
 const CustomTooltip = ({
   active,
@@ -161,14 +115,8 @@ export default function RecordChart({
   const displayName = profile?.nickname || '';
 
   const [show1RM, setShow1RM] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  const isMobile = useIsMobile();
 
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
@@ -219,33 +167,12 @@ export default function RecordChart({
       });
   }, [records, activePart]);
 
-  const [savedBrushRange, setSavedBrushRange] = useState<
-    BrushRangeState | undefined
-  >();
-
-  const brushRange = useMemo(() => {
-    if (chartData.length < 2) return undefined;
-
-    const reusableRange =
-      savedBrushRange &&
-      savedBrushRange.targetId === targetId &&
-      savedBrushRange.partKey === activePart.key
-        ? savedBrushRange
-        : undefined;
-
-    return rebaseBrushRange(reusableRange, chartData.length);
-  }, [activePart.key, chartData.length, savedBrushRange, targetId]);
-
-  // 브러쉬 범위 업데이트
-  const updateBrushRange = (next: { startIndex: number; endIndex: number }) => {
-    setSavedBrushRange({
-      ...next,
-      targetId,
-      partKey: activePart.key,
-      startRatio: next.startIndex / (chartData.length - 1),
-      endRatio: next.endIndex / (chartData.length - 1),
-    });
-  };
+  const { brushRange, updateBrushRange } = useBrushRange({
+    length: chartData.length,
+    targetId,
+    partKey: activePart.key,
+    visibleCount: VISIBLE_COUNT,
+  });
 
   useEffect(() => {
     if (!isPageLoading) {
