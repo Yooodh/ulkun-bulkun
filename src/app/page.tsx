@@ -137,6 +137,7 @@ export default function Home() {
           >
             <Button
               type='button'
+              shape='round'
               variant='outline'
               size='sm'
               active={activeMobilePanel === 'record'}
@@ -151,6 +152,7 @@ export default function Home() {
             </Button>
             <Button
               type='button'
+              shape='round'
               variant='outline'
               size='sm'
               active={activeMobilePanel === 'profile'}
