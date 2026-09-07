@@ -7,13 +7,28 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: $transition-base;
   border: none;
   white-space: nowrap;
+
+  transition:
+    $transition-base,
+    transform 0.15s ease-out;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96) translateZ(0);
   }
 }
 
@@ -21,8 +36,10 @@
   background-color: $gray;
   color: $white;
 
-  &:hover:not(:disabled) {
-    background-color: $gray-hover;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: $gray-hover;
+    }
   }
 }
 
@@ -30,8 +47,10 @@
   background-color: $red;
   color: $white;
 
-  &:hover:not(:disabled) {
-    background-color: $red-hover;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: $red-hover;
+    }
   }
 }
 
@@ -39,8 +58,10 @@
   background-color: $blue;
   color: $white;
 
-  &:hover:not(:disabled) {
-    background-color: $blue-hover;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: $blue-hover;
+    }
   }
 }
 
@@ -48,8 +69,10 @@
   background-color: $white;
   color: $text-dark;
 
-  &:hover:not(:disabled) {
-    background-color: $ligray-hover;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: $ligray-hover;
+    }
   }
 }
 
@@ -57,8 +80,10 @@
   background-color: $ligray;
   color: $ligray-text;
 
-  &:hover:not(:disabled) {
-    background-color: $ligray-hover;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: $ligray-hover;
+    }
   }
 }
 
@@ -69,9 +94,11 @@
   background: $white;
   color: $text-dark;
 
-  &:hover:not(:disabled) {
-    border-color: $blue;
-    color: $blue;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: $blue;
+      color: $blue;
+    }
   }
 
   &.active {
@@ -79,8 +106,10 @@
     border-color: $blue;
     color: $white;
 
-    &:hover:not(:disabled) {
-      color: $white;
+    @media (hover: hover) {
+      &:hover:not(:disabled) {
+        color: $white;
+      }
     }
   }
 }
@@ -96,6 +125,10 @@
 .lg {
   padding: 0.8rem 1.6rem;
   @include font-md-title;
+}
+
+.square {
+  border-radius: 8px;
 }
 
 .round {
