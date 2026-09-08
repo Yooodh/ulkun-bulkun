@@ -9,17 +9,17 @@
 
   .btnGroup {
     display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 5px;
+    gap: 10px;
+    padding: 4px;
+    background: transparent;
+    border-radius: 50px;
+    margin-bottom: 16px;
     flex-wrap: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
     @media (max-width: 768px) {
-      gap: 6px;
-    }
-
-    &::-webkit-scrollbar {
-      display: none;
+      gap: 3px;
+      padding: 3px;
     }
   }
 
@@ -40,7 +40,7 @@
 
     .rmToggleBtn {
       padding: 6px 16px;
-      @include font-sm;
+      @include font-body;
       color: $text-muted;
       background: $white;
       border: none;
@@ -122,14 +122,12 @@
   }
 
   .partBtn {
-    border: 1px solid $border-soft;
-    margin-bottom: 20px;
-    white-space: nowrap;
-    flex-shrink: 0;
+    flex: 1;
+    border: none;
+    background: transparent;
 
     &:hover:not(:disabled) {
       color: var(--part-color);
-      border-color: var(--part-color);
       background: transparent;
     }
 
