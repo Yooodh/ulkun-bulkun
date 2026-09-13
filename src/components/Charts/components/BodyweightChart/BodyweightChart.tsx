@@ -26,6 +26,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { getBest1RM } from '@/utils/recordUtils';
 import { calculateAge } from '@/utils/dateUtils';
 
+import ChartTooltip from '../ChartTooltip/ChartTooltip';
+
 import {
   LIFT_SUBJECTS,
   COLORS,
@@ -67,28 +69,45 @@ const CustomTooltip = ({
   if (active && payload && payload.length) {
     const d = payload[0].payload;
     return (
-      <div className={styles.tooltip}>
-        <p className={styles.tooltipTitle}>{d.subject}</p>
-        <p className={styles.tooltipRow}>
-          <span>체중 대비</span>
-          <strong style={{ color: d.score >= 100 ? '#007bff' : '#93c5fd' }}>
-            {d.ratio.toFixed(2)}배
-          </strong>
-        </p>
-        <p className={styles.tooltipRow}>
-          <span>추정 1RM</span>
-          <strong>{d.my1RM}kg</strong>
-        </p>
-        <p className={styles.tooltipRow}>
-          <span>목표 기준</span>
-          <strong>
-            {d.standardKg.toFixed(1)}kg ({d.standard.toFixed(2)}배)
-          </strong>
-        </p>
-      </div>
+      <ChartTooltip
+        title={d.subject}
+        rows={[
+          {
+            label: '체중 대비',
+            value: `${d.ratio.toFixed(2)}배`,
+            valueColor: d.score >= 100 ? '#007bff' : '#93c5fd',
+          },
+          { label: '추정 1RM', value: `${d.my1RM}kg` },
+          {
+            label: '목표 기준',
+            value: `${d.standardKg.toFixed(1)}kg (${d.standard.toFixed(2)}배)`,
+          },
+        ]}
+      />
     );
   }
   return null;
+};
+
+const renderScoreBar = (
+  props: RectangleProps & { payload?: ChartDataItem },
+) => {
+  const { x, y, width, height, payload } = props;
+  if (!payload) return <Rectangle {...props} />;
+
+  const color = COLORS[payload.subject] ?? '#6b7280';
+  const fill = payload.score >= 100 ? color : `${color}66`;
+
+  return (
+    <Rectangle
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      radius={[6, 6, 0, 0]}
+      fill={fill}
+    />
+  );
 };
 
 export default function BodyweightChart({
@@ -380,27 +399,7 @@ export default function BodyweightChart({
                       dataKey='score'
                       radius={[6, 6, 0, 0]}
                       maxBarSize={48}
-                      shape={(
-                        props: RectangleProps & { payload?: ChartDataItem },
-                      ) => {
-                        const { x, y, width, height, payload } = props;
-                        if (!payload) return <Rectangle {...props} />;
-
-                        const color = COLORS[payload.subject] ?? '#6b7280';
-                        const fill =
-                          payload.score >= 100 ? color : `${color}66`;
-
-                        return (
-                          <Rectangle
-                            x={x}
-                            y={y}
-                            width={width}
-                            height={height}
-                            radius={[6, 6, 0, 0]}
-                            fill={fill}
-                          />
-                        );
-                      }}
+                      shape={renderScoreBar}
                     >
                       <LabelList
                         dataKey='ratio'

@@ -1,6 +1,13 @@
 'use client';
 
-import { useState, useRef, TouchEvent } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+  PointerEvent,
+} from 'react';
 import { ClipboardList, UserRound } from 'lucide-react';
 
 import Empty from '@/components/shared/Empty/Empty';
@@ -16,108 +23,154 @@ import { useAuth } from '@/hooks/useAuth';
 
 import styles from './page.module.scss';
 
-type MobilePanel = 'record' | 'profile';
+type Panel = 'record' | 'profile';
 
 const SWIPE_THRESHOLD_RATIO = 0.25;
 const DRAG_START_THRESHOLD_PX = 8;
 
 export default function Home() {
   const { user, loading } = useAuth();
-  const [activeMobilePanel, setActiveMobilePanel] =
-    useState<MobilePanel>('record');
+  const [activePanel, setActivePanel] = useState<Panel>('record');
 
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef<number | null>(null);
-  const viewportWidth = useRef(0);
+  const [viewportEl, setViewportEl] = useState<HTMLDivElement | null>(null);
+  const viewportRef = useCallback((node: HTMLDivElement | null) => {
+    setViewportEl(node);
+  }, []);
+
+  const dragStartX = useRef<number | null>(null);
+  const activePointerId = useRef<number | null>(null);
+  const [viewportWidth, setViewportWidth] = useState(0);
 
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  const switchPanel = (panel: MobilePanel) => {
-    setActiveMobilePanel(panel);
+  useEffect(() => {
+    if (!viewportEl) return;
+
+    setViewportWidth(viewportEl.offsetWidth);
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setViewportWidth(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(viewportEl);
+    return () => observer.disconnect();
+  }, [viewportEl]);
+
+  const switchPanel = (panel: Panel) => {
+    setActivePanel(panel);
     setDragOffset(0);
   };
 
-  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
-    if (!viewportRef.current) return;
-    touchStartX.current = e.touches[0].clientX;
-    viewportWidth.current = viewportRef.current.offsetWidth;
+  const resetDragState = useCallback(() => {
+    dragStartX.current = null;
+    activePointerId.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+  }, []);
+
+  const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (!viewportEl) return;
+    dragStartX.current = e.clientX;
+    activePointerId.current = e.pointerId;
   };
 
-  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
-    if (touchStartX.current === null) return;
+  const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (dragStartX.current === null || activePointerId.current !== e.pointerId)
+      return;
 
-    const rawDelta = e.touches[0].clientX - touchStartX.current;
+    const rawDelta = e.clientX - dragStartX.current;
 
     if (!isDragging && Math.abs(rawDelta) > DRAG_START_THRESHOLD_PX) {
       setIsDragging(true);
+      e.currentTarget.setPointerCapture(e.pointerId);
     }
 
     let delta = rawDelta;
 
-    if (activeMobilePanel === 'record') {
-      delta = Math.min(0, Math.max(delta, -viewportWidth.current));
+    if (activePanel === 'record') {
+      delta = Math.min(0, Math.max(delta, -viewportWidth));
     } else {
-      delta = Math.max(0, Math.min(delta, viewportWidth.current));
+      delta = Math.max(0, Math.min(delta, viewportWidth));
     }
 
     setDragOffset(delta);
   };
 
-  const handleTouchEnd = () => {
-    const width = viewportWidth.current || 1;
+  const handlePointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    if (activePointerId.current !== e.pointerId) return;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+
+    const width = viewportWidth || 1;
     const threshold = width * SWIPE_THRESHOLD_RATIO;
 
-    if (activeMobilePanel === 'record' && dragOffset < -threshold) {
+    if (activePanel === 'record' && dragOffset < -threshold) {
       switchPanel('profile');
-    } else if (activeMobilePanel === 'profile' && dragOffset > threshold) {
+    } else if (activePanel === 'profile' && dragOffset > threshold) {
       switchPanel('record');
     } else {
       setDragOffset(0);
     }
 
-    touchStartX.current = null;
+    dragStartX.current = null;
+    activePointerId.current = null;
     setIsDragging(false);
   };
 
-  if (loading) return null;
+  const handlePointerCancel = () => {
+    resetDragState();
+  };
 
-  const basePercent = activeMobilePanel === 'record' ? 0 : -50;
-  const offsetPercent = viewportWidth.current
-    ? (dragOffset / viewportWidth.current) * 50
-    : 0;
+  const { basePercent, offsetPercent } = useMemo(() => {
+    const base = activePanel === 'record' ? 0 : -50;
+    const offset = viewportWidth ? (dragOffset / viewportWidth) * 50 : 0;
+    return { basePercent: base, offsetPercent: offset };
+  }, [activePanel, dragOffset, viewportWidth]);
+
+  if (loading) return null;
 
   return (
     <div className={styles.pageContainer}>
       <NavBar href='/members' label='🔥 울끈불끈이들 기록 보러가기 🔥' />
 
       {user ? (
-        <div className={styles.dashboardGrid}>
+        <div className={styles.dashboardContainer}>
           <div
-            className={styles.mobileSwitcher}
+            className={styles.panelSwitcher}
             role='tablist'
-            aria-label='모바일 대시보드 전환'
+            aria-label='대시보드 전환'
           >
             <Button
               type='button'
+              shape='round'
               variant='outline'
               size='sm'
-              active={activeMobilePanel === 'record'}
+              active={activePanel === 'record'}
               onClick={() => switchPanel('record')}
               role='tab'
-              aria-selected={activeMobilePanel === 'record'}
+              id='tab-record'
+              aria-selected={activePanel === 'record'}
+              aria-controls='panel-record'
             >
               <ClipboardList size={16} />
               기록
             </Button>
             <Button
               type='button'
+              shape='round'
               variant='outline'
               size='sm'
-              active={activeMobilePanel === 'profile'}
+              active={activePanel === 'profile'}
               onClick={() => switchPanel('profile')}
               role='tab'
-              aria-selected={activeMobilePanel === 'profile'}
+              id='tab-profile'
+              aria-selected={activePanel === 'profile'}
+              aria-controls='panel-profile'
             >
               <UserRound size={16} />
               프로필
@@ -125,24 +178,37 @@ export default function Home() {
           </div>
 
           <div
-            className={styles.mobileSliderViewport}
+            className={styles.sliderViewport}
             ref={viewportRef}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
           >
             <div
-              className={`${styles.mobileSliderTrack} ${
+              className={`${styles.sliderTrack} ${
                 isDragging ? styles.dragging : ''
               }`}
               style={{
                 transform: `translateX(calc(${basePercent}% + ${offsetPercent}%))`,
               }}
             >
-              <div className={styles.mobileSlide}>
+              <div
+                className={styles.slide}
+                role='tabpanel'
+                id='panel-record'
+                aria-labelledby='tab-record'
+                aria-hidden={activePanel !== 'record'}
+              >
                 <RecordForm />
               </div>
-              <div className={styles.mobileSlide}>
+              <div
+                className={styles.slide}
+                role='tabpanel'
+                id='panel-profile'
+                aria-labelledby='tab-profile'
+                aria-hidden={activePanel !== 'profile'}
+              >
                 <ProfileCard />
               </div>
             </div>

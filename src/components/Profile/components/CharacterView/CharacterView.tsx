@@ -54,7 +54,7 @@ export default function CharacterView({
         />
       )}
 
-      <div>
+      <div className={styles.canvasWrapper}>
         {isLoading ? (
           <Loading message='캐릭터를 불러오고 있어요!' />
         ) : (

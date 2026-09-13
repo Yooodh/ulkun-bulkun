@@ -24,6 +24,11 @@ const GENDER_GROUP_PAGE_SIZE = 4;
 type FilterType = 'all' | 'subscribed' | 'subscribers';
 type GenderGroupKey = 'male' | 'female' | 'unknown';
 
+type EmptyContent = {
+  message: string;
+  subMessage?: string;
+};
+
 const GENDER_GROUPS: { key: GenderGroupKey; label: string }[] = [
   { key: 'male', label: '남성' },
   { key: 'female', label: '여성' },
@@ -35,6 +40,25 @@ function getGenderGroup(user: UserSummary): GenderGroupKey {
   if (user.gender === 'female') return 'female';
   return 'unknown';
 }
+
+const getEmptyContent = (filter: FilterType): EmptyContent => {
+  switch (filter) {
+    case 'subscribed':
+      return {
+        message: '아직 팔로우한 멤버가 없어요.',
+        subMessage: '팔로우한 멤버의 운동 기록을 알림으로 받아보세요!',
+      };
+    case 'subscribers':
+      return {
+        message: '아직 팔로워가 없어요.',
+        subMessage: '꾸준히 운동 기록을 남기고 팔로워를 늘려보세요!',
+      };
+    default:
+      return {
+        message: '표시할 멤버가 없어요.',
+      };
+  }
+};
 
 export default function MembersPage() {
   const { user } = useAuth();
@@ -95,6 +119,11 @@ export default function MembersPage() {
     return groups;
   }, [filteredUsers]);
 
+  const emptyContent = useMemo(
+    () => getEmptyContent(activeFilter),
+    [activeFilter],
+  );
+
   // 필터 변경 시 그룹 페이지 초기화
   const handleFilterChange = (next: FilterType) => {
     setFilter(next);
@@ -142,7 +171,11 @@ export default function MembersPage() {
       )}
 
       {filteredUsers.length === 0 ? (
-        <Empty message='표시할 멤버가 없어요.' />
+        <Empty
+          message={emptyContent.message}
+          subMessage={emptyContent.subMessage}
+          fullHeight={true}
+        />
       ) : (
         <div className={styles.genderSections}>
           {GENDER_GROUPS.map(({ key, label }) => {

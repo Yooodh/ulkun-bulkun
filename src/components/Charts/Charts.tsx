@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { LineChart, Radar, Weight } from 'lucide-react';
 
+import Button from '@/components/shared/Button/Button';
+
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -78,16 +80,17 @@ export default function Charts({ userId }: ChartsProps) {
   const tabButtons = (
     <div className={styles.tabGroup}>
       {TABS.map((tab) => (
-        <button
+        <Button
           key={tab.key}
           type='button'
+          variant='outline'
           className={`${styles.tabBtn} ${activeView === tab.key ? styles.active : ''}`}
           onClick={() => handleTabClick(tab.key)}
           aria-label={tab.label}
           title={tab.label}
         >
           {tab.icon}
-        </button>
+        </Button>
       ))}
     </div>
   );

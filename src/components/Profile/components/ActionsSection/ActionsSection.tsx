@@ -45,19 +45,24 @@ export default function ActionsSection({
   return (
     <section className={styles.actionContainer}>
       {!readOnly && (
-        <Button variant='outline' onClick={onEditProfile}>
+        <Button variant='outline' shape='round' onClick={onEditProfile}>
           <Edit size={16} strokeWidth={2} />
           수정
         </Button>
       )}
 
-      <Button variant='outline' onClick={onShare}>
+      <Button variant='outline' shape='round' onClick={onShare}>
         <Share2 size={16} strokeWidth={2} />
         공유
       </Button>
 
       {readOnly && !isMyProfile && isLoggedIn && (
-        <Button variant='outline' active={isSubscribed} onClick={onSubscribe}>
+        <Button
+          variant='outline'
+          shape='round'
+          active={isSubscribed}
+          onClick={onSubscribe}
+        >
           {isSubscribed ? (
             <UserRoundCheck size={16} strokeWidth={2} />
           ) : (
@@ -69,13 +74,19 @@ export default function ActionsSection({
 
       {!readOnly && (
         <>
-          <Button variant='outline' active={isPublic} onClick={onTogglePublic}>
+          <Button
+            variant='outline'
+            shape='round'
+            active={isPublic}
+            onClick={onTogglePublic}
+          >
             {isPublic ? <Eye size={16} /> : <EyeOff size={16} />}
             {isPublic ? '공개' : '비공개'}
           </Button>
 
           <Button
             variant='outline'
+            shape='round'
             active={isNotificationOn}
             onClick={onToggleNotification}
           >

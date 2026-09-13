@@ -107,28 +107,20 @@ $chart-height-mobile: 650px;
 }
 
 .tabBtn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
+  padding: 8px;
   border-radius: $radius-main;
-  border: 1px solid $border-soft;
-  background: $white;
+  border: 2px solid $border-soft;
   color: $text-muted;
   cursor: pointer;
   transition: $transition-base;
-  @include font-sm;
-  font-weight: 500;
-  white-space: nowrap;
-
-  &:hover {
-    border-color: $blue;
-    color: $blue;
-  }
 
   &.active {
     background: $blue;
     border-color: $blue;
     color: $white;
+
+    &:hover {
+      color: $white;
+    }
   }
 }

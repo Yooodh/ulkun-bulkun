@@ -10,6 +10,10 @@
   word-break: keep-all;
   overflow-wrap: break-word;
 
+  &.full {
+    min-height: 50vh;
+  }
+
   p {
     @include font-md-title;
     color: $text-dark;
