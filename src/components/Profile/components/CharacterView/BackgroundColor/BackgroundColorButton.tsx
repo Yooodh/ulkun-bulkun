@@ -48,6 +48,7 @@ export default function BackgroundColorButton({
   }, [onSave, onPreview, color]);
 
   const handleClick = () => {
+    inputRef.current?.focus();
     inputRef.current?.click();
   };
 
