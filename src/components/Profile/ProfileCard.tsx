@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -59,6 +60,13 @@ export default function ProfileCard({
 
   const { isNotificationOn, toggle: handleNotificationToggle } =
     useNotificationToggle(isMyProfile ? user?.id : null);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDarkMode = mounted && resolvedTheme === 'dark';
+  const handleToggleDarkMode = () => setTheme(isDarkMode ? 'light' : 'dark');
 
   const queryClient = useQueryClient();
 
@@ -219,9 +227,11 @@ export default function ProfileCard({
                   onTogglePublic={handleTogglePublic}
                   onSubscribe={handleSubscribe}
                   onToggleNotification={handleNotificationToggle}
+                  onToggleDarkMode={handleToggleDarkMode}
                   isPublic={profile?.is_public}
                   isSubscribed={isSubscribed}
                   isNotificationOn={isNotificationOn}
+                  isDarkMode={isDarkMode}
                   readOnly={!canEdit}
                   isLoggedIn={isLoggedIn}
                   isMyProfile={isMyProfile}
