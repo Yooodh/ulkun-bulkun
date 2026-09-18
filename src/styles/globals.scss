@@ -1,3 +1,40 @@
+@use '@/styles/constants/colors' as colors;
+
+:root {
+  --color-primary: #{colors.$primary};
+
+  --color-danger: #{colors.$danger};
+
+  --color-gray: #{colors.$gray};
+  --color-ligray: #{colors.$ligray};
+
+  --color-bg-primary: #{colors.$bg-primary};
+  --color-bg-secondary: #{colors.$bg-secondary};
+  --color-bg-tint: #{colors.$bg-tint};
+
+  --color-border-primary: #{colors.$border-primary};
+  --color-border-secondary: #{colors.$border-secondary};
+  --color-border-tent: #{colors.$border-tint};
+
+  --color-text-primary: #{colors.$dark};
+  --color-text-muted: #{colors.$text-muted};
+}
+
+.dark {
+  --color-danger: #{colors.$dark-danger};
+
+  --color-bg-primary: #{colors.$dark-bg-primary};
+  --color-bg-secondary: #{colors.$dark-bg-secondary};
+  --color-bg-tint: #{colors.$dark-bg-tint};
+
+  --color-border-primary: #{colors.$dark-border-primary};
+  --color-border-secondary: #{colors.$dark-border-secondary};
+  --color-border-tint: #{colors.$dark-border-tint};
+
+  --color-text-primary: #{colors.$white};
+  --color-text-muted: #{colors.$dark-text-muted};
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
