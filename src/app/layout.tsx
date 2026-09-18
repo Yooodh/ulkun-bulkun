@@ -1,3 +1,4 @@
+import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
 
 import AuthForm from '@/components/AuthForm/AuthForm';
@@ -19,29 +20,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='ko'>
+    <html lang='ko' suppressHydrationWarning>
       <body className={Font.variable}>
-        <InstallBanner />
-        <QueryProvider>
-          <div className={styles.wrapper}>
-            <main className={styles.container}>
-              <AuthForm />
-              {children}
-            </main>
-            <ScrollToTopButton />
-          </div>
-        </QueryProvider>
-        <Toaster
-          containerAriaLabel='알림'
-          position='top-center'
-          richColors
-          toastOptions={{
-            style: {
-              fontFamily: 'var(--font-title)',
-              fontSize: '18px',
-            },
-          }}
-        />
+        <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
+          <InstallBanner />
+          <QueryProvider>
+            <div className={styles.wrapper}>
+              <main className={styles.container}>
+                <AuthForm />
+                {children}
+              </main>
+              <ScrollToTopButton />
+            </div>
+          </QueryProvider>
+          <Toaster
+            containerAriaLabel='알림'
+            position='top-center'
+            richColors
+            toastOptions={{
+              style: {
+                fontFamily: 'var(--font-title)',
+                fontSize: '18px',
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );
