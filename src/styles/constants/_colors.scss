@@ -1,12 +1,7 @@
-$dark: #121212;
-$white: #ffffff;
-
 $off-white: #f7f7f7;
 
-$gray: #6c757d;
 $gray-hover: #5a6268;
 
-$ligray: #f5f5f5;
 $ligray-hover: #e0e0e0;
 $ligray-text: #666;
 
@@ -19,6 +14,7 @@ $blue-hover: #0069d9;
 $pink: #ec4899;
 
 $liblue: #f0f7ff;
+$liblue-dark: #16233a;
 
 $squat-red: #ef4444;
 $deadlift-orange: #f97316;
@@ -32,3 +28,36 @@ $border-soft: #eee;
 $text-dark: #333;
 $text-gray: #2c3e50;
 $text-muted: #888;
+
+// light
+$primary: #007bff;
+
+$danger: #dc3545;
+
+$dark: #3c3c3c;
+$gray: #6c757d;
+$ligray: #f5f5f5;
+$white: #ffffff;
+
+$bg-primary: #ffffff;
+$bg-secondary: #f7f7f7;
+$bg-tint: #f0f7ff;
+
+$border-primary: #eee;
+$border-secondary: #ddd;
+$border-tint: #e0eefb;
+
+$text-muted: #888;
+
+// dark
+$dark-danger: #a72838;
+
+$dark-bg-primary: #161f24;
+$dark-bg-secondary: #39474f;
+$dark-bg-tint: #222f37;
+
+$dark-border-primary: #2d383f;
+$dark-border-secondary: #46565f;
+$dark-border-tint: #304250;
+
+$dark-text-muted: #778287;
