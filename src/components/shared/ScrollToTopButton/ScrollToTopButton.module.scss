@@ -10,16 +10,22 @@
   justify-content: center;
   width: 46px;
   height: 46px;
-  border: 1px solid $border-soft;
-  border-radius: 50%;
-  background: $white;
-  color: $text-dark;
-  box-shadow: $shadow-lg;
+  border: 2px solid color-mix(in srgb, var(--color-border-primary) 95%, black);
+  border-radius: $radius-main;
+  background-color: var(--color-bg-primary);
+  color: var(--color-primary);
+  box-shadow: 0 3px 0 0
+    color-mix(in srgb, var(--color-border-primary) 95%, black);
   cursor: pointer;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, box-shadow;
+
   transition:
     opacity 0.25s ease,
-    transform 0.25s ease,
-    visibility 0.25s ease;
+    visibility 0.25s ease,
+    transform 0.1s ease-out,
+    box-shadow 0.1s ease-out;
 
   opacity: 0;
   transform: translateX(-50%) translateY(16px);
@@ -33,11 +39,14 @@
     pointer-events: auto;
   }
 
-  &:hover {
-    transform: translateX(-50%) translateY(-2px);
-  }
-
   &[data-visible='true']:active {
-    transform: translateX(-50%) translateY(0);
+    transition:
+      opacity 0.25s ease,
+      visibility 0.25s ease,
+      transform 0.1s ease-out,
+      box-shadow 0.1s ease-out;
+    transform: translateX(-50%) translateY(4px);
+    box-shadow: 0 0 0 0
+      color-mix(in srgb, var(--color-border-primary) 95%, black);
   }
 }
