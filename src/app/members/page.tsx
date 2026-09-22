@@ -143,7 +143,7 @@ export default function MembersPage() {
       {user && (
         <div className={styles.filterTabs}>
           <Button
-            variant='outline'
+            variant='toggle'
             shape='round'
             color='muted'
             active={activeFilter === 'all'}
@@ -152,7 +152,7 @@ export default function MembersPage() {
             전체보기
           </Button>
           <Button
-            variant='outline'
+            variant='toggle'
             shape='round'
             active={activeFilter === 'subscribers'}
             onClick={() => handleFilterChange('subscribers')}
@@ -160,7 +160,7 @@ export default function MembersPage() {
             팔로워 {subscriberIds.size}
           </Button>
           <Button
-            variant='outline'
+            variant='toggle'
             shape='round'
             active={activeFilter === 'subscribed'}
             onClick={() => handleFilterChange('subscribed')}

@@ -83,7 +83,7 @@ export default function Charts({ userId }: ChartsProps) {
         <Button
           key={tab.key}
           type='button'
-          variant='outline'
+          variant='toggle'
           className={`${styles.tabBtn} ${activeView === tab.key ? styles.active : ''}`}
           onClick={() => handleTabClick(tab.key)}
           aria-label={tab.label}
