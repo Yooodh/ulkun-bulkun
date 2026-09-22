@@ -4,18 +4,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-weight: 600;
+  font-weight: $font-bold;
   cursor: pointer;
   border: none;
   white-space: nowrap;
 
-  transition:
-    $transition-base,
-    transform 0.15s ease-out;
+  transition: $transition-base;
   transform: translateZ(0);
   backface-visibility: hidden;
-  will-change: transform;
+  will-change: transform, box-shadow;
 
   -webkit-user-select: none;
   user-select: none;
@@ -26,90 +23,130 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
-
-  &:active:not(:disabled) {
-    transform: scale(0.96) translateZ(0);
-  }
-}
-
-.gray {
-  background-color: $gray;
-  color: $white;
-
-  @media (hover: hover) {
-    &:hover:not(:disabled) {
-      background-color: $gray-hover;
-    }
-  }
 }
 
 .red {
-  background-color: $red;
+  background: var(--color-danger);
   color: $white;
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-danger) 75%, black);
+  transition:
+    $transition-base,
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
 
-  @media (hover: hover) {
-    &:hover:not(:disabled) {
-      background-color: $red-hover;
-    }
+  &:active:not(:disabled) {
+    transition:
+      transform 0.08s ease-out,
+      box-shadow 0.08s ease-out;
+    transform: translateY(4px) translateZ(0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-danger) 75%, black);
   }
 }
 
 .blue {
-  background-color: $blue;
+  background: var(--color-primary);
   color: $white;
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-primary) 75%, black);
+  transition:
+    $transition-base,
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
 
-  @media (hover: hover) {
-    &:hover:not(:disabled) {
-      background-color: $blue-hover;
-    }
+  &:active:not(:disabled) {
+    transition:
+      transform 0.08s ease-out,
+      box-shadow 0.08s ease-out;
+    transform: translateY(4px) translateZ(0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 75%, black);
   }
 }
 
-.white {
-  background-color: $white;
-  color: $text-dark;
+.gray {
+  background: var(--color-gray);
+  color: $white;
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-gray) 75%, black);
+  transition:
+    $transition-base,
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
 
-  @media (hover: hover) {
-    &:hover:not(:disabled) {
-      background-color: $ligray-hover;
-    }
+  &:active:not(:disabled) {
+    transition:
+      transform 0.08s ease-out,
+      box-shadow 0.08s ease-out;
+    transform: translateY(4px) translateZ(0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-gray) 75%, black);
   }
 }
 
 .ligray {
-  background-color: $ligray;
-  color: $ligray-text;
+  background: var(--color-ligray);
+  color: var(--color-text-secondary);
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-ligray) 75%, black);
+  transition:
+    $transition-base,
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
 
-  @media (hover: hover) {
-    &:hover:not(:disabled) {
-      background-color: $ligray-hover;
-    }
+  &:active:not(:disabled) {
+    transition:
+      transform 0.08s ease-out,
+      box-shadow 0.08s ease-out;
+    transform: translateY(4px) translateZ(0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-ligray) 75%, black);
   }
 }
 
-.outline {
-  gap: 6px;
-  border-radius: $radius-main;
-  border: 1px solid $border-soft;
-  background: $white;
-  color: $text-dark;
+.white {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border-primary);
+  box-shadow: 0 3px 0 0 var(--color-border-primary);
+  transition:
+    $transition-base,
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
 
-  @media (hover: hover) {
-    &:hover:not(:disabled) {
-      border-color: $blue;
-      color: $blue;
-    }
+  &:active:not(:disabled) {
+    transition:
+      transform 0.08s ease-out,
+      box-shadow 0.08s ease-out;
+    transform: translateY(4px) translateZ(0);
+    box-shadow: 0 0 0 0 var(--color-border-primary);
+  }
+}
+
+.toggle {
+  gap: 6px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: 2px solid color-mix(in srgb, var(--color-border-primary) 95%, black);
+  box-shadow: 0 3px 0 0
+    color-mix(in srgb, var(--color-border-primary) 95%, black);
+  transition:
+    $transition-base,
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
+
+  &:active:not(:disabled) {
+    transition:
+      transform 0.08s ease-out,
+      box-shadow 0.08s ease-out;
+    transform: translateY(4px) translateZ(0);
+    border: 2px solid color-mix(in srgb, var(--color-border-primary) 95%, black);
+    box-shadow: 0 0 0 0
+      color-mix(in srgb, var(--color-border-primary) 95%, black);
   }
 
   &.active {
-    background: $blue;
-    border-color: $blue;
+    background: var(--color-primary);
     color: $white;
+    border: 2px solid color-mix(in srgb, var(--color-primary) 90%, black);
+    box-shadow: 0 3px 0 0 color-mix(in srgb, var(--color-primary) 90%, black);
 
-    @media (hover: hover) {
-      &:hover:not(:disabled) {
-        color: $white;
-      }
+    &:active:not(:disabled) {
+      border: 2px solid color-mix(in srgb, var(--color-primary) 90%, black);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 90%, black);
     }
   }
 }
@@ -128,7 +165,7 @@
 }
 
 .square {
-  border-radius: 8px;
+  border-radius: $radius-btn;
 }
 
 .round {
