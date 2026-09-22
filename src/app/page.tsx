@@ -148,7 +148,7 @@ export default function Home() {
             <Button
               type='button'
               shape='round'
-              variant='outline'
+              variant='toggle'
               size='sm'
               active={activePanel === 'record'}
               onClick={() => switchPanel('record')}
@@ -163,7 +163,7 @@ export default function Home() {
             <Button
               type='button'
               shape='round'
-              variant='outline'
+              variant='toggle'
               size='sm'
               active={activePanel === 'profile'}
               onClick={() => switchPanel('profile')}

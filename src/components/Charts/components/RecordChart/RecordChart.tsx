@@ -191,7 +191,7 @@ export default function RecordChart({
                 <Button
                   type='button'
                   key={part.key}
-                  variant='outline'
+                  variant='ligray'
                   size='md'
                   shape='round'
                   onClick={() => setActivePart(part)}

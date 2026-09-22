@@ -52,7 +52,7 @@ export default function ActionsSection({
     <section className={styles.actionContainer}>
       {!readOnly && (
         <Button
-          variant='outline'
+          variant='toggle'
           shape='round'
           onClick={onEditProfile}
           aria-label='프로필 수정'
@@ -62,7 +62,7 @@ export default function ActionsSection({
       )}
 
       <Button
-        variant='outline'
+        variant='toggle'
         shape='round'
         onClick={onShare}
         aria-label='공유'
@@ -72,7 +72,7 @@ export default function ActionsSection({
 
       {readOnly && !isMyProfile && isLoggedIn && (
         <Button
-          variant='outline'
+          variant='toggle'
           shape='round'
           active={isSubscribed}
           onClick={onSubscribe}
@@ -89,7 +89,7 @@ export default function ActionsSection({
       {!readOnly && (
         <>
           <Button
-            variant='outline'
+            variant='toggle'
             shape='round'
             active={isDarkMode}
             onClick={onToggleDarkMode}
@@ -103,7 +103,7 @@ export default function ActionsSection({
           </Button>
 
           <Button
-            variant='outline'
+            variant='toggle'
             shape='round'
             active={isPublic}
             onClick={onTogglePublic}
@@ -113,7 +113,7 @@ export default function ActionsSection({
           </Button>
 
           <Button
-            variant='outline'
+            variant='toggle'
             shape='round'
             active={isNotificationOn}
             onClick={onToggleNotification}
