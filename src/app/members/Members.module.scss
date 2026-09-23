@@ -13,12 +13,12 @@
   .genderSection {
     .genderSectionTitle {
       @include font-lg-title;
-      color: $text-dark;
+      color: var(--color-text-primary);
       margin: 0 20px 12px;
 
       span {
         @include font-sm;
-        color: $text-muted;
+        color: var(--color-text-muted);
         font-weight: 400;
         margin-left: 4px;
       }
@@ -47,6 +47,6 @@
   margin-bottom: 1.5rem;
 
   button {
-    color: $text-muted;
+    color: var(--color-text-muted);
   }
 }
