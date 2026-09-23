@@ -3,9 +3,9 @@
 .userCard {
   @include flex-center;
   padding: 1.25rem;
-  background-color: $white;
+  background-color: var(--color-bg-primary);
   border-radius: $radius-main;
-  border: 1px solid $border-soft;
+  border: 3px solid var(--color-border-primary);
   text-decoration: none;
   color: inherit;
   transition: $transition-base;
@@ -19,14 +19,14 @@
   @media (hover: hover) {
     &:hover:not(.privateCard) {
       transform: $lift-sm;
-      border-color: $blue;
+      border-color: var(--color-primary);
       box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
     }
   }
 
   &:active:not(.privateCard):not(:has(.subscribedBadgeBtn:active)) {
     transform: scale(0.98);
-    border-color: $blue;
+    border-color: var(--color-primary);
     box-shadow: 0 2px 6px rgba(0, 123, 255, 0.15);
   }
 }
@@ -58,7 +58,7 @@
 
   .statusMessage {
     @include font-sm;
-    color: $text-muted;
+    color: var(--color-text-muted);
     margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
@@ -69,7 +69,7 @@
   .userName {
     margin: 0 0 0.25rem 0;
     @include font-lg-title;
-    color: $text-dark;
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -88,18 +88,22 @@
       flex-shrink: 0;
 
       &.male {
-        background: rgba($blue, 0.12);
-        color: $blue;
+        background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+        color: var(--color-primary);
       }
 
       &.female {
-        background: rgba($pink, 0.12);
-        color: $pink;
+        background: color-mix(in srgb, var(--color-pink) 12%, transparent);
+        color: var(--color-pink);
       }
 
       &.unknown {
-        background: rgba($gray, 0.15);
-        color: $text-muted;
+        background: color-mix(
+          in srgb,
+          var(--color-text-muted) 12%,
+          transparent
+        );
+        color: var(--color-text-muted);
       }
     }
 
@@ -126,7 +130,7 @@
 
     .subscribedBadge {
       flex-shrink: 0;
-      color: $blue;
+      color: var(--color-primary);
       pointer-events: none;
       transition: transform 0.2s ease-in-out;
     }
@@ -135,18 +139,18 @@
   .userStats {
     margin-bottom: 2px;
     @include font-body;
-    color: $text-muted;
+    color: var(--color-text-muted);
 
     span {
       font-weight: 700;
-      color: $blue;
+      color: var(--color-primary);
       margin-left: 0.2rem;
     }
   }
 
   .date {
     @include font-sm;
-    color: $text-muted;
+    color: var(--color-text-muted);
 
     span {
       margin-left: 0.2rem;
@@ -158,16 +162,16 @@
   filter: grayscale(0.5);
   opacity: 0.8;
   pointer-events: none;
-  background: $ligray;
-  border-color: $border-light;
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-secondary);
 
   .lockBadge {
     @include font-sm;
     position: absolute;
     top: 10px;
     right: 10px;
-    background: $gray;
-    color: $white;
+    background: var(--color-gray);
+    color: var(--color-text-primary);
     padding: 2px 6px;
     border-radius: 4px;
   }
