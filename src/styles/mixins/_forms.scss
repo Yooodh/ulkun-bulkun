@@ -8,7 +8,7 @@
 
   label {
     @include font-md-title;
-    color: $dark;
+    color: var(--color-text-primary);
   }
 
   input {
@@ -23,14 +23,14 @@
 
     padding: 0.6rem;
     border-radius: 8px;
-    border: 1px solid $border-soft;
-    background: $white;
-    color: $dark;
+    border: 3px solid var(--color-border-primary);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
     outline: none;
     transition: border-color 0.2s;
 
     &:focus {
-      border-color: $blue;
+      border-color: var(--color-primary);
     }
   }
 }
