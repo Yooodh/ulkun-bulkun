@@ -9,7 +9,7 @@
   background: transparent;
   transition: background 0.15s;
   font-weight: $font-light;
-  color: $text-dark;
+  color: var(--color-text-primary);
 
   &:disabled {
     opacity: 0.4;
@@ -32,7 +32,7 @@
 
     &.active {
       @include font-body;
-      color: $blue;
+      color: var(--color-primary);
       font-weight: $font-bold;
 
       &:hover {
@@ -44,7 +44,7 @@
 
   .dots {
     padding: 0 4px;
-    color: $text-dark;
+    color: var(--color-text-primary);
     user-select: none;
   }
 }
