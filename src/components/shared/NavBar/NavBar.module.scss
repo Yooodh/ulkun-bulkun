@@ -11,20 +11,24 @@
     @include flex-center;
     @include font-body;
     padding: 0.8rem 1.2rem;
-    background-color: $off-white;
-    color: $text-dark;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
     text-decoration: none;
     border-radius: $radius-main;
-    border: 1px solid $border-soft;
-    transition: $transition-base;
-    box-shadow: $shadow-md;
+    border: 2px solid var(--color-border-primary);
+    box-shadow: 0 4px 0 0 var(--color-border-primary);
 
-    &:hover {
-      background-color: $blue;
-      color: $white;
-      border-color: $blue;
-      transform: $lift-sm;
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    transition:
+      $transition-base,
+      transform 0.15s ease-out,
+      box-shadow 0.15s ease-out;
+
+    &:active {
+      transition:
+        transform 0.08s ease-out,
+        box-shadow 0.08s ease-out;
+      transform: translateY(4px) translateZ(0);
+      box-shadow: 0 0 0 0 var(--color-border-primary);
     }
   }
 }
