@@ -16,7 +16,7 @@
 
   p {
     @include font-md-title;
-    color: $text-dark;
+    color: var(--color-text-primary);
     margin: 0;
   }
 
@@ -24,6 +24,6 @@
     display: block;
     margin-top: 8px;
     @include font-body;
-    color: $text-muted;
+    color: var(--color-text-muted);
   }
 }
