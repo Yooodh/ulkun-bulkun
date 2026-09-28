@@ -24,7 +24,8 @@
     }
   }
 
-  &:active:not(.privateCard):not(:has(.subscribedBadgeBtn:active)) {
+  &:active:not(.privateCard):not(:has(.subscribedBadgeBtn:active)),
+  &.pressed:not(.privateCard) {
     transform: scale(0.98);
     border-color: var(--color-primary);
     box-shadow: 0 2px 6px rgba(0, 123, 255, 0.15);

@@ -8,6 +8,7 @@ import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePressNavigate } from '@/hooks/usePressNavigate';
 
 import { formatDate } from '@/utils/dateUtils';
 import { getDisplayDate, getCombinedTotalFromUser } from '@/utils/recordUtils';
@@ -50,6 +51,7 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
 
   const { user: currentUser } = useAuth();
   const { toggle } = useSubscription(user.id, currentUser?.id);
+  const { isPressed, handleClick } = usePressNavigate(`/members/${user.id}`);
 
   const handleUnsubscribeClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -116,7 +118,12 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
   }
 
   return (
-    <Link href={`/members/${user.id}`} className={styles.userCard}>
+    <Link
+      href={`/members/${user.id}`}
+      prefetch
+      className={`${styles.userCard} ${isPressed ? styles.pressed : ''}`}
+      onClick={handleClick}
+    >
       {cardContent}
     </Link>
   );
