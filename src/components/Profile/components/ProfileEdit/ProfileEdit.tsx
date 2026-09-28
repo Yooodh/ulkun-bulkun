@@ -237,11 +237,11 @@ export default function ProfileEdit({
                 💪
               </div>
             )}
-            <div className={styles.avatarOverlay}>
+            <div
+              className={`${styles.avatarOverlay} ${uploading ? styles.uploading : ''}`}
+            >
               {uploading ? (
-                <div className={styles.avatarLoading}>
-                  <Loading size='sm' message='' />
-                </div>
+                <Loading size='sm' message='' />
               ) : (
                 <Camera size={18} strokeWidth={2} />
               )}
