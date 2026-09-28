@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 
-import Loading from '@/components/shared/Loading/Loading';
-
 import { useBackgroundColor } from '@/hooks/useBackgroundColor';
 
 import BackgroundColorButton from './BackgroundColor/BackgroundColorButton';
@@ -12,7 +10,6 @@ import Canvas from './Canvas';
 import styles from './CharacterView.module.scss';
 
 type CharacterViewProps = {
-  isLoading?: boolean;
   totalPR?: number;
   userId?: string;
   backgroundColor?: string;
@@ -20,7 +17,6 @@ type CharacterViewProps = {
 };
 
 export default function CharacterView({
-  isLoading,
   totalPR = 0,
   userId,
   backgroundColor,
@@ -55,11 +51,7 @@ export default function CharacterView({
       )}
 
       <div className={styles.canvasWrapper}>
-        {isLoading ? (
-          <Loading message='캐릭터를 불러오고 있어요!' />
-        ) : (
-          <Canvas totalPR={totalPR} />
-        )}
+        <Canvas totalPR={totalPR} />
       </div>
     </div>
   );

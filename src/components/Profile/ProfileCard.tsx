@@ -43,7 +43,9 @@ export default function ProfileCard({
     records,
     loading: recordsLoading,
     isReady: recordsReady,
+    isError: recordsError,
   } = useRecords(targetId);
+
   const { saveFullProfile } = useProfileUpdate(user!);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -158,13 +160,23 @@ export default function ProfileCard({
   if (isFetched && !loading && !profile)
     return <Empty message='프로필 정보를 불러올 수 없어요.' />;
 
-  const isCharacterReady = !loading && recordsReady;
+  const isPageLoading =
+    loading || (!!targetId && !recordsReady && !recordsError);
+
+  if (isPageLoading) {
+    return (
+      <div className={styles.profileContainer}>
+        <div className={styles.fullLoading}>
+          <Loading size='lg' message='프로필을 불러오고 있어요!' />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.profileContainer}>
       <div className={styles.characterSection}>
         <CharacterView
-          isLoading={!isCharacterReady}
           totalPR={calculateTotalPR(records)}
           userId={targetId}
           backgroundColor={profile?.background_color}
@@ -183,11 +195,7 @@ export default function ProfileCard({
           )}
 
           <div className={styles.infoTitle}>
-            {loading ? (
-              <div className={styles.infoLoading}>
-                <Loading size='sm' message='프로필 정보를 불러오고 있어요!' />
-              </div>
-            ) : isEditing ? (
+            {isEditing ? (
               <div className={styles.editTitle} />
             ) : profile ? (
               <ProfileInfo
