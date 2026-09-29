@@ -11,10 +11,10 @@
     width: 85px;
     height: 85px;
     border-radius: 50%;
-    background: $white;
+    background: var(--color-bg-primary);
     overflow: hidden;
     flex-shrink: 0;
-    border: 1px solid $border-liblue;
+    border: 2px solid var(--color-border-secondary);
 
     .avatar {
       width: 100%;
@@ -27,7 +27,7 @@
       @include flex-center;
       line-height: 1;
       user-select: none;
-      background-color: $white;
+      background-color: var(--color-bg-primary);
     }
   }
 
@@ -46,13 +46,13 @@
       .subText {
         @include font-sm;
         font-weight: $font-light;
-        color: $text-muted;
+        color: var(--color-text-muted);
       }
 
       .nickname {
         @include font-lg-title;
         font-weight: $font-bold;
-        color: $text-dark;
+        color: var(--color-text-primary);
         display: flex;
         align-items: center;
         gap: 6px;
@@ -67,18 +67,22 @@
           flex-shrink: 0;
 
           &.male {
-            background: rgba($blue, 0.12);
-            color: $blue;
+            background: color-mix(
+              in srgb,
+              var(--color-primary) 12%,
+              transparent
+            );
+            color: var(--color-primary);
           }
 
           &.female {
-            background: rgba($pink, 0.12);
-            color: $pink;
+            background: color-mix(in srgb, var(--color-pink) 12%, transparent);
+            color: var(--color-pink);
           }
 
           &.unknown {
-            background: rgba($gray, 0.15);
-            color: $text-muted;
+            background: color-mix(in srgb, var(--color-gray) 15%, transparent);
+            color: var(--color-text-muted);
           }
         }
       }
