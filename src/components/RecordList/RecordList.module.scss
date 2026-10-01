@@ -1,8 +1,8 @@
 @use '../../styles' as *;
 
 .listContainer {
-  background: $white;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-primary);
+  border: 3px solid var(--color-border-primary);
   border-radius: $radius-main;
   padding: 20px;
   width: 100%;
@@ -14,18 +14,29 @@
     flex: 1;
   }
 
-  h1 {
-    @include font-lg-title;
-    color: $text-dark;
+  .titleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 20px;
 
     @media (max-width: 768px) {
-      margin-left: 6px;
+      padding: 0 6px;
     }
+  }
+
+  h1 {
+    @include font-lg-title;
+    color: var(--color-text-primary);
+    margin-bottom: 0;
 
     strong {
-      color: $blue;
+      color: var(--color-primary);
     }
+  }
+
+  .manageToggle {
+    display: none;
   }
 
   .listTable {
@@ -38,10 +49,10 @@
 
       th {
         @include font-md-title;
-        background: $white;
+        background: var(--color-bg-tint);
         padding: 10px;
-        color: $ligray-text;
-        border-bottom: 2px solid $border-light;
+        color: var(--color-text-secondary);
+        border-bottom: 3px solid var(--color-border-secondary);
         white-space: nowrap;
       }
 
@@ -52,13 +63,13 @@
       td {
         @include font-body;
         padding: 12px;
-        border-bottom: 1px solid $border-soft;
+        border-bottom: 2px solid var(--color-border-primary);
         white-space: nowrap;
       }
 
       .total {
-        color: $blue;
-        font-weight: 700;
+        color: var(--color-primary);
+        font-weight: $font-bold;
       }
     }
   }
@@ -92,11 +103,11 @@
     bottom: calc(100% + 6px);
     left: 50%;
     transform: translateX(-50%) translateY(4px);
-    background: $dark;
-    color: $white;
+    background: var(--color-border-primary);
+    color: var(--color-text-primary);
     padding: 5px 10px;
     border-radius: $radius-main;
-    @include font-sm;
+    @include font-body;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -111,7 +122,7 @@
       left: 50%;
       transform: translateX(-50%);
       border: 5px solid transparent;
-      border-top-color: $dark;
+      border-top-color: var(--color-border-primary);
     }
   }
 }
@@ -120,87 +131,98 @@
 @media (max-width: 768px) {
   .listContainer {
     padding: 20px 10px;
-  }
 
-  .listTable {
-    thead {
-      display: none;
+    .manageToggle {
+      display: inline-flex;
     }
 
-    tbody tr {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-areas:
-        'date   date   date   date'
-        'lift1  lift2  lift3  lift4'
-        'total  total  total  total'
-        'manage manage manage manage';
-      background: $white;
-      border: 1px solid $border-soft;
-      border-radius: $radius-main;
-      margin-bottom: 12px;
-      overflow: hidden;
-    }
+    .listTable {
+      table {
+        thead {
+          display: none;
+        }
 
-    td {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 12px;
-      border-bottom: 1px solid $border-soft;
+        tbody tr {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          grid-template-areas:
+            'date   date   date   date'
+            'lift1  lift2  lift3  lift4'
+            'total  total  total  total'
+            'manage manage manage manage';
+          background: var(--color-bg-primary);
+          border: 3px solid var(--color-border-primary);
+          border-radius: $radius-main;
+          margin-bottom: 10px;
+          overflow: hidden;
+        }
 
-      &:last-child {
+        td {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 10px 12px;
+          border-bottom: 3px solid var(--color-border-primary);
+
+          &::before {
+            content: attr(data-label);
+            @include font-body;
+            color: var(--color-text-secondary);
+            margin-bottom: 4px;
+          }
+        }
+
+        td:nth-child(1),
+        td:nth-child(6),
+        td:nth-child(7) {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+
+          &::before {
+            margin-bottom: 0;
+            margin-right: 8px;
+          }
+        }
+
+        td:nth-child(1) {
+          grid-area: date;
+          background: var(--color-bg-tint);
+        }
+        td:nth-child(2) {
+          grid-area: lift1;
+          border-right: 3px solid var(--color-border-primary);
+        }
+        td:nth-child(3) {
+          grid-area: lift2;
+          border-right: 3px solid var(--color-border-primary);
+        }
+        td:nth-child(4) {
+          grid-area: lift3;
+          border-right: 3px solid var(--color-border-primary);
+        }
+        td:nth-child(5) {
+          grid-area: lift4;
+        }
+        td:nth-child(6) {
+          grid-area: total;
+        }
+        td:nth-child(7) {
+          grid-area: manage;
+        }
+
+        tbody tr td:last-child {
+          border-bottom: none;
+        }
+      }
+
+      &:not(.manageOpen) table tbody tr td:nth-child(7) {
+        display: none;
+      }
+
+      &:not(.manageOpen) table tbody tr td:nth-child(6) {
         border-bottom: none;
       }
-
-      &::before {
-        content: attr(data-label);
-        @include font-body;
-        color: $ligray-text;
-        margin-bottom: 4px;
-      }
-    }
-
-    td:nth-child(1),
-    td:nth-child(6),
-    td:nth-child(7) {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-
-      &::before {
-        margin-bottom: 0;
-        margin-right: 8px;
-      }
-    }
-
-    td:nth-child(1) {
-      grid-area: date;
-      background: $off-white;
-    }
-    td:nth-child(2) {
-      grid-area: lift1;
-      border-right: 1px solid $border-soft;
-    }
-    td:nth-child(3) {
-      grid-area: lift2;
-      border-right: 1px solid $border-soft;
-    }
-    td:nth-child(4) {
-      grid-area: lift3;
-      border-right: 1px solid $border-soft;
-    }
-    td:nth-child(5) {
-      grid-area: lift4;
-    }
-
-    td:nth-child(6) {
-      grid-area: total;
-      border-top: 2px solid $border-light;
-    }
-
-    td:nth-child(7) {
-      grid-area: manage;
     }
   }
 }

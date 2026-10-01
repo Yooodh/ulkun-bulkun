@@ -41,7 +41,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(1)}
         disabled={currentPage === 1}
-        className={styles.arrow}
+        className={`${styles.arrow} ${styles.edge}`}
         aria-label='첫 페이지로 이동'
       >
         <ChevronsLeft size={15} />
@@ -89,7 +89,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(totalPageCount)}
         disabled={currentPage === totalPageCount}
-        className={styles.arrow}
+        className={`${styles.arrow} ${styles.edge}`}
         aria-label='마지막 페이지로 이동'
       >
         <ChevronsRight size={15} />
