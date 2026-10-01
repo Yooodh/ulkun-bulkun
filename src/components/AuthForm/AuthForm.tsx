@@ -70,7 +70,11 @@ export default function AuthForm() {
     <div className={styles.authContainer}>
       <h1>울끈불끈 시작하기 🔥</h1>
 
-      <button className={styles.googleBtn} onClick={signInWithGoogle}>
+      <Button
+        variant='white'
+        className={styles.googleBtn}
+        onClick={signInWithGoogle}
+      >
         <Image
           src='/assets/images/google_logo.png'
           alt='Google'
@@ -78,7 +82,7 @@ export default function AuthForm() {
           height={18}
         />
         구글로 1초 만에 로그인
-      </button>
+      </Button>
 
       <p>운동 기록은 안전하게 본인 계정에만 저장됩니다.</p>
     </div>
