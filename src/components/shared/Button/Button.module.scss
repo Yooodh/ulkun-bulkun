@@ -139,14 +139,18 @@
   }
 
   &.active {
-    background: var(--color-primary);
+    background: var(--active-color, var(--color-primary));
     color: $white;
-    border: 2px solid color-mix(in srgb, var(--color-primary) 90%, black);
-    box-shadow: 0 3px 0 0 color-mix(in srgb, var(--color-primary) 90%, black);
+    border: 2px solid
+      color-mix(in srgb, var(--active-color, var(--color-primary)) 90%, black);
+    box-shadow: 0 3px 0 0
+      color-mix(in srgb, var(--active-color, var(--color-primary)) 90%, black);
 
     &:active:not(:disabled) {
-      border: 2px solid color-mix(in srgb, var(--color-primary) 90%, black);
-      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 90%, black);
+      border: 2px solid
+        color-mix(in srgb, var(--active-color, var(--color-primary)) 90%, black);
+      box-shadow: 0 0 0 0
+        color-mix(in srgb, var(--active-color, var(--color-primary)) 90%, black);
     }
   }
 }
