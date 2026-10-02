@@ -191,17 +191,14 @@ export default function RecordChart({
                 <Button
                   type='button'
                   key={part.key}
-                  variant='ligray'
+                  variant='toggle'
                   size='md'
                   shape='round'
+                  active={isSelected}
                   onClick={() => setActivePart(part)}
-                  className={`${styles.partBtn} ${isSelected ? styles.active : ''}`}
+                  className={styles.partBtn}
                   style={
-                    {
-                      backgroundColor: isSelected ? part.color : '',
-                      borderColor: isSelected ? part.color : '',
-                      '--part-color': part.color,
-                    } as React.CSSProperties
+                    { '--active-color': part.color } as React.CSSProperties
                   }
                 >
                   {part.label}
@@ -372,7 +369,7 @@ export default function RecordChart({
                         endIndex={brushRange.endIndex}
                         travellerWidth={isMobile ? 0 : 8}
                         className={styles.charBrush}
-                        y={340}
+                        y={333}
                         tickFormatter={() => ''}
                         onChange={(range) => {
                           if (
