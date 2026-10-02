@@ -19,6 +19,7 @@ export default function Button({
   return (
     <button
       className={`${styles.button} ${styles[variant]} ${styles[size]} ${styles[shape]} ${active ? styles.active : ''} ${className || ''}`}
+      aria-pressed={variant === 'toggle' ? !!active : undefined}
       {...props}
     >
       {children}

@@ -10,15 +10,12 @@
   .btnGroup {
     display: flex;
     gap: 10px;
-    padding: 3px;
-    background: transparent;
     border-radius: 50px;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
     flex-wrap: nowrap;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
     @media (max-width: 768px) {
-      gap: 1px;
+      gap: 8px;
     }
   }
 
@@ -32,26 +29,26 @@
   .rmToggle {
     display: flex;
     gap: 0;
-    border: 1px solid $border-soft;
+    border: 3px solid var(--color-border-primary);
     border-radius: $radius-main;
     overflow: hidden;
     width: fit-content;
 
     .rmToggleBtn {
-      padding: 6px 16px;
+      padding: 4px 12px;
       @include font-body;
-      color: $text-muted;
-      background: $white;
+      color: var(--color-text-muted);
+      background: var(--color-bg-primary);
       border: none;
       cursor: pointer;
       transition: $transition-base;
 
       &:first-child {
-        border-right: 1px solid $border-soft;
+        border-right: 3px solid var(--color-border-primary);
       }
 
       &.rmActive {
-        background: $blue;
+        background: var(--color-primary);
         color: $white;
       }
     }
@@ -69,7 +66,7 @@
     }
 
     .infoIcon {
-      color: $blue;
+      color: var(--color-primary);
       cursor: default;
       display: flex;
       align-items: center;
@@ -84,10 +81,9 @@
       opacity: 0;
       pointer-events: none;
       transition: $transition-base;
-      background: $white;
-      border: 1px solid $border-soft;
+      background: var(--color-bg-primary);
+      border: 3px solid var(--color-border-primary);
       border-radius: $radius-main;
-      box-shadow: $shadow-md;
       padding: 12px 14px;
       width: 220px;
       z-index: 1;
@@ -99,21 +95,21 @@
       }
 
       .infoTitle {
-        color: $text-dark;
+        color: var(--color-text-primary);
         font-weight: 600;
         margin: 0 0 6px 0;
       }
 
       .infoFormula {
-        color: $blue;
-        background: rgba($blue, 0.07);
+        color: var(--color-primary);
+        background: color-mix(in srgb, var(--color-primary) 7%, transparent);
         border-radius: 4px;
         padding: 4px 8px;
         margin: 0 0 6px 0;
       }
 
       .infoDesc {
-        color: $text-muted;
+        color: var(--color-text-muted);
         margin: 0;
         line-height: 1.5;
       }
@@ -125,21 +121,9 @@
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    border: none;
-    background: transparent;
 
-    &:hover:not(:disabled) {
-      color: var(--part-color);
-      background: transparent;
-    }
-
-    &.active {
-      color: $white;
-
-      &:hover:not(:disabled) {
-        color: $white;
-      }
+    &:hover:not(:disabled):not([aria-pressed='true']) {
+      color: var(--active-color);
     }
   }
 
@@ -174,34 +158,29 @@
 
     .chartGrid {
       line {
-        stroke: $border-soft;
+        stroke: var(--color-border-primary);
       }
     }
 
     .chartTick {
       @include font-td;
-      fill: $text-muted;
-    }
-
-    .line {
-      transition: $transition-base;
+      fill: var(--color-text-muted);
     }
 
     .customTooltip {
-      background-color: rgba(255, 255, 255, 0.95);
+      background: color-mix(in srgb, var(--color-bg-primary) 90%, transparent);
       border-radius: $radius-main;
-      box-shadow: $shadow-md;
-      border: 1px solid $border-soft;
+      border: 3px solid var(--color-border-primary);
       padding: 12px;
 
       .tooltipDate {
-        @include font-sm;
+        @include font-body;
         margin: 0 0 4px 0;
-        color: $text-dark;
+        color: var(--color-text-primary);
       }
 
       .tooltipValue {
-        @include font-body;
+        @include font-md-title;
         margin: 0;
       }
     }
@@ -219,7 +198,7 @@
 
   .brushNavText {
     @include font-sm;
-    color: $text-muted;
+    color: var(--color-text-primary);
     text-align: center;
   }
 
@@ -233,7 +212,7 @@
     border: none;
     padding: 2px 8px;
     cursor: pointer;
-    color: $text-dark;
+    color: var(--color-text-primary);
     transition: background 0.15s;
 
     &:disabled {
