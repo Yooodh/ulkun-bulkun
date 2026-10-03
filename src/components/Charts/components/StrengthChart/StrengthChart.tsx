@@ -39,6 +39,13 @@ const STANDARD_RATIOS: Record<string, number> = {
   OHP: 0.5,
 };
 
+const LABEL_OFFSET: Record<string, { dx: number; dy: number }> = {
+  스쿼트: { dx: 0, dy: -10 },
+  데드: { dx: 14, dy: 0 },
+  벤치: { dx: 0, dy: 10 },
+  OHP: { dx: -14, dy: 0 },
+};
+
 const CustomTooltip = ({
   active,
   payload,
@@ -63,7 +70,8 @@ const CustomTooltip = ({
           {
             label: '기준 대비',
             value: `${d.score.toFixed(1)}%`,
-            valueColor: d.score >= 100 ? '#007bff' : '#EF4444',
+            valueColor:
+              d.score >= 100 ? 'var(--color-primary)' : 'var(--color-danger)',
           },
           { label: '최고 추정 1RM', value: `${d.my1RM}kg` },
           { label: '기준값', value: `${d.standard}kg` },
@@ -211,21 +219,26 @@ export default function StrengthChart({
                     data={chartData}
                     margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
                   >
-                    <PolarGrid stroke='var(--border-soft, #e5e7eb)' />
+                    <PolarGrid stroke='var(--color-border-secondary)' />
                     <PolarAngleAxis
                       dataKey='subject'
                       tick={({ x, y, payload }) => {
                         const color =
-                          COLORS[payload.value as LiftSubject] ?? '#6b7280';
+                          COLORS[payload.value as LiftSubject] ??
+                          'var(--color-text-muted)';
+                        const { dx, dy } = LABEL_OFFSET[payload.value] ?? {
+                          dx: 0,
+                          dy: 0,
+                        };
 
                         return (
                           <text
-                            x={x}
-                            y={y}
+                            x={Number(x) + dx}
+                            y={Number(y) + dy}
                             textAnchor='middle'
                             dominantBaseline='central'
                             fill={color}
-                            fontSize={13}
+                            fontSize={16}
                             fontWeight={600}
                           >
                             {payload.value}
@@ -239,8 +252,8 @@ export default function StrengthChart({
                     <Radar
                       name='기준'
                       dataKey={() => 100}
-                      stroke='#d1d5db'
-                      fill='#f3f4f6'
+                      stroke='var(--color-border-secondary)'
+                      fill='var(--color-border-secondary)'
                       fillOpacity={0.4}
                       strokeDasharray='4 4'
                       strokeWidth={1.5}
@@ -250,11 +263,15 @@ export default function StrengthChart({
                     <Radar
                       name='수치'
                       dataKey='score'
-                      stroke='#007bff'
-                      fill='#007bff'
+                      stroke='var(--color-primary)'
+                      fill='var(--color-primary)'
                       fillOpacity={0.2}
                       strokeWidth={2.5}
-                      dot={{ r: 4, fill: '#007bff', strokeWidth: 0 }}
+                      dot={{
+                        r: 4,
+                        fill: 'var(--color-primary)',
+                        strokeWidth: 0,
+                      }}
                     />
                   </RadarChart>
                 </ResponsiveContainer>
@@ -277,18 +294,14 @@ export default function StrengthChart({
 
                     <div className={styles.barWrapper}>
                       <div
-                        className={styles.bar}
-                        style={{
-                          width: `${(barWidth / 150) * 100}%`,
-                          backgroundColor: isOver ? '#007bff' : '#93c5fd',
-                        }}
+                        className={`${styles.bar} ${isOver ? styles.over : styles.under}`}
+                        style={{ width: `${(barWidth / 150) * 100}%` }}
                       />
                       <div className={styles.baseline} />
                     </div>
 
                     <span
-                      className={styles.scoreValue}
-                      style={{ color: isOver ? '#007bff' : '#6b7280' }}
+                      className={`${styles.scoreValue} ${isOver ? styles.valueOver : styles.valueUnder}`}
                     >
                       {item.score.toFixed(1)}%
                     </span>
