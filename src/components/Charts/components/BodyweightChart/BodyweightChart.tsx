@@ -75,7 +75,10 @@ const CustomTooltip = ({
           {
             label: '체중 대비',
             value: `${d.ratio.toFixed(2)}배`,
-            valueColor: d.score >= 100 ? '#007bff' : '#93c5fd',
+            valueColor:
+              d.score >= 100
+                ? 'var(--color-primary)'
+                : 'var(--color-text-muted)',
           },
           { label: '추정 1RM', value: `${d.my1RM}kg` },
           {
@@ -95,8 +98,8 @@ const renderScoreBar = (
   const { x, y, width, height, payload } = props;
   if (!payload) return <Rectangle {...props} />;
 
-  const color = COLORS[payload.subject] ?? '#6b7280';
-  const fill = payload.score >= 100 ? color : `${color}66`;
+  const color = COLORS[payload.subject] ?? 'var(--color-text-muted)';
+  const isOver = payload.score >= 100;
 
   return (
     <Rectangle
@@ -105,7 +108,8 @@ const renderScoreBar = (
       width={width}
       height={height}
       radius={[6, 6, 0, 0]}
-      fill={fill}
+      fill={color}
+      fillOpacity={isOver ? 1 : 0.4}
     />
   );
 };
@@ -350,7 +354,7 @@ export default function BodyweightChart({
                   >
                     <CartesianGrid
                       vertical={false}
-                      stroke='var(--border-soft, #e5e7eb)'
+                      stroke='var(--color-border-secondary)'
                     />
 
                     <XAxis
@@ -359,14 +363,15 @@ export default function BodyweightChart({
                       tickLine={false}
                       tick={({ x, y, payload }) => {
                         const color =
-                          COLORS[payload.value as LiftSubject] ?? '#6b7280';
+                          COLORS[payload.value as LiftSubject] ??
+                          'var(--color-text-muted)';
                         return (
                           <text
                             x={x}
                             y={Number(y) + 12}
                             textAnchor='middle'
                             fill={color}
-                            fontSize={13}
+                            fontSize={16}
                             fontWeight={600}
                           >
                             {payload.value}
@@ -379,19 +384,22 @@ export default function BodyweightChart({
 
                     <Tooltip
                       content={<CustomTooltip />}
-                      cursor={{ fill: 'rgba(0,0,0,0.03)' }}
+                      cursor={{
+                        fill: 'var(--color-border-secondary)',
+                        fillOpacity: 0.3,
+                      }}
                     />
 
                     <ReferenceLine
                       y={100}
-                      stroke='#d1d5db'
+                      stroke='var(--color-text-muted)'
                       strokeDasharray='4 4'
                       strokeWidth={1.5}
                       label={{
                         value: '목표',
                         position: 'right',
-                        fill: '#9ca3af',
-                        fontSize: 11,
+                        fill: 'var(--color-text-muted)',
+                        fontSize: 14,
                       }}
                     />
 
@@ -404,14 +412,15 @@ export default function BodyweightChart({
                       <LabelList
                         dataKey='ratio'
                         position='top'
+                        offset={8}
                         formatter={(v: unknown) => {
                           if (v === null || v === undefined) return '';
                           const num = Number(v);
                           return Number.isNaN(num) ? '' : `${num.toFixed(2)}배`;
                         }}
-                        fontSize={12}
+                        fontSize={16}
                         fontWeight={600}
-                        fill='#374151'
+                        fill='var(--color-text-primary)'
                       />
                     </Bar>
                   </BarChart>
