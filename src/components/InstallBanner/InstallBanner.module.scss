@@ -6,14 +6,13 @@
   left: 0;
   right: 0;
   z-index: 2;
-  background: $dark;
-  color: $white;
+  background: color-mix(in srgb, var(--color-bg-primary) 90%, transparent);
+  color: var(--color-text-primary);
   padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  box-shadow: $shadow-md;
 
   .contentWrapper {
     display: flex;
@@ -25,19 +24,19 @@
       width: 50px;
       height: 50px;
       border-radius: 10px;
-      background: $white;
+      background: var(--color-bg-primary);
     }
 
     .text {
       strong {
         display: block;
-        @include font-md-title;
+        @include font-lg-title;
         margin-bottom: 2px;
       }
 
       p {
         @include font-body;
-        color: $text-muted;
+        color: var(--color-text-muted);
         margin: 0;
         display: flex;
         flex-wrap: wrap;
@@ -46,21 +45,21 @@
         row-gap: 6px;
 
         .sharedBtn {
-          color: $blue;
+          color: var(--color-primary);
           flex-shrink: 0;
           vertical-align: text-bottom;
           margin: 0 2px;
         }
 
         .arrow {
-          color: $text-muted;
+          color: var(--color-text-muted);
           flex-shrink: 0;
         }
 
         strong {
           display: inline;
           margin: 0;
-          color: $white;
+          color: var(--color-primary);
           white-space: nowrap;
         }
 
@@ -82,7 +81,7 @@
       @include font-body;
       background: transparent;
       border: none;
-      color: $ligray-text;
+      color: var(--color-text-muted);
       cursor: pointer;
       padding: 4px;
     }
