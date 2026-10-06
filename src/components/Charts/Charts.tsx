@@ -84,7 +84,9 @@ export default function Charts({ userId }: ChartsProps) {
           key={tab.key}
           type='button'
           variant='toggle'
-          className={`${styles.tabBtn} ${activeView === tab.key ? styles.active : ''}`}
+          size='sm'
+          active={activeView === tab.key}
+          className={styles.tabBtn}
           onClick={() => handleTabClick(tab.key)}
           aria-label={tab.label}
           title={tab.label}
@@ -94,7 +96,6 @@ export default function Charts({ userId }: ChartsProps) {
       ))}
     </div>
   );
-
   return (
     <div
       className={`${styles.container} ${

@@ -1,11 +1,11 @@
 @use '../../styles' as *;
 
-$chart-height: 610px;
-$chart-height-mobile: 650px;
+$chart-height: 660px;
+$chart-height-mobile: 700px;
 
 .container {
-  background: $white;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-primary);
+  border: 3px solid var(--color-border-primary);
   border-radius: $radius-main;
   padding: 20px;
   width: 100%;
@@ -39,7 +39,7 @@ $chart-height-mobile: 650px;
 
   h1 {
     @include font-lg-title;
-    color: $text-dark;
+    color: var(--color-text-primary);
     margin-bottom: 0;
 
     @media (max-width: 768px) {
@@ -47,7 +47,7 @@ $chart-height-mobile: 650px;
     }
 
     strong {
-      color: $blue;
+      color: var(--color-primary);
     }
   }
 }
@@ -108,19 +108,4 @@ $chart-height-mobile: 650px;
 
 .tabBtn {
   padding: 8px;
-  border-radius: $radius-main;
-  border: 2px solid $border-soft;
-  color: $text-muted;
-  cursor: pointer;
-  transition: $transition-base;
-
-  &.active {
-    background: $blue;
-    border-color: $blue;
-    color: $white;
-
-    &:hover {
-      color: $white;
-    }
-  }
 }
