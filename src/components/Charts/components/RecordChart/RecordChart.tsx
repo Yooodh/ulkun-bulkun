@@ -369,7 +369,7 @@ export default function RecordChart({
                         endIndex={brushRange.endIndex}
                         travellerWidth={isMobile ? 0 : 8}
                         className={styles.charBrush}
-                        y={333}
+                        y={380}
                         tickFormatter={() => ''}
                         onChange={(range) => {
                           if (
