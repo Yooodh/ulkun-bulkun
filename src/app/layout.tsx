@@ -1,8 +1,8 @@
 import { ThemeProvider } from 'next-themes';
-import { Toaster } from 'sonner';
 
 import AuthForm from '@/components/AuthForm/AuthForm';
 import InstallBanner from '@/components/InstallBanner/InstallBanner';
+import ThemedToaster from '@/components/shared/ThemedToaster/ThemedToaster';
 import ScrollToTopButton from '@/components/shared/ScrollToTopButton/ScrollToTopButton';
 
 import QueryProvider from '@/providers/QueryProvider';
@@ -33,17 +33,7 @@ export default function RootLayout({
               <ScrollToTopButton />
             </div>
           </QueryProvider>
-          <Toaster
-            containerAriaLabel='알림'
-            position='top-center'
-            richColors
-            toastOptions={{
-              style: {
-                fontFamily: 'var(--font-title)',
-                fontSize: '18px',
-              },
-            }}
-          />
+          <ThemedToaster />
         </ThemeProvider>
       </body>
     </html>
