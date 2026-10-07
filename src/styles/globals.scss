@@ -3,6 +3,7 @@
 :root {
   --color-primary: #{colors.$primary};
 
+  --color-success: #{colors.$success};
   --color-danger: #{colors.$danger};
 
   --color-pink: #{colors.$pink};
@@ -24,6 +25,7 @@
 }
 
 .dark {
+  --color-success: #{colors.$dark-success};
   --color-danger: #{colors.$dark-danger};
 
   --color-gray: #{colors.$dark-gray};
