@@ -1,0 +1,45 @@
+@use '../../../styles' as *;
+
+.info.info,
+.success.success,
+.error.error {
+  &[data-styled='true'] {
+    border-radius: $radius-main;
+    padding: 16px;
+    border: none;
+    justify-content: center;
+  }
+}
+
+.info.info[data-styled='true'] {
+  color: $white;
+  background: var(--color-primary);
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-primary) 75%, black);
+}
+
+.success.success[data-styled='true'] {
+  color: $white;
+  background: var(--color-success);
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-success) 75%, black);
+}
+
+.error.error[data-styled='true'] {
+  color: $white;
+  background: var(--color-danger);
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-danger) 75%, black);
+}
+
+.title {
+  @include font-md-title;
+  line-height: 1.6;
+  word-break: keep-all;
+  color: inherit;
+  text-align: center;
+}
+
+.description {
+  @include font-body;
+  color: inherit;
+  opacity: 0.85;
+  text-align: center;
+}
