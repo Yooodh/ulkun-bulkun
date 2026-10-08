@@ -51,7 +51,7 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
 
   const { user: currentUser } = useAuth();
   const { toggle } = useSubscription(user.id, currentUser?.id);
-  const { isPressed, handleClick } = usePressNavigate(`/members/${user.id}`);
+  const { isPressed, handlers } = usePressNavigate(`/members/${user.id}`);
 
   const handleUnsubscribeClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -87,6 +87,7 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
               type='button'
               aria-label='팔로우 취소'
               className={styles.subscribedBadgeBtn}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={handleUnsubscribeClick}
             >
               <UserRoundCheck size={18} className={styles.subscribedBadge} />
@@ -122,7 +123,7 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
       href={`/members/${user.id}`}
       prefetch
       className={`${styles.userCard} ${isPressed ? styles.pressed : ''}`}
-      onClick={handleClick}
+      {...handlers}
     >
       {cardContent}
     </Link>
