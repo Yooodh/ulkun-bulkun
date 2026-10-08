@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import { usePressNavigate } from '@/hooks/usePressNavigate';
+
 import styles from './NavBar.module.scss';
 
 type NavBarProps = {
@@ -11,7 +12,7 @@ type NavBarProps = {
 };
 
 export default function NavBar({ href, label }: NavBarProps) {
-  const { isPressed, handleClick } = usePressNavigate(href);
+  const { isPressed, handlers } = usePressNavigate(href);
 
   return (
     <div className={styles.navBarContainer}>
@@ -19,7 +20,7 @@ export default function NavBar({ href, label }: NavBarProps) {
         href={href}
         prefetch
         className={`${styles.navBarLink} ${isPressed ? styles.pressed : ''}`}
-        onClick={handleClick}
+        {...handlers}
       >
         {label}
       </Link>
