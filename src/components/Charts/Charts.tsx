@@ -55,10 +55,10 @@ export default function Charts({ userId }: ChartsProps) {
     bodyweight: false,
   });
 
-  const [hasData, setHasData] = useState<Record<ChartView, boolean>>({
-    record: true,
-    strength: true,
-    bodyweight: true,
+  const [hasData, setHasData] = useState<Record<ChartView, boolean | null>>({
+    record: null,
+    strength: null,
+    bodyweight: null,
   });
 
   const handleTabClick = (view: ChartView) => {
@@ -75,7 +75,7 @@ export default function Charts({ userId }: ChartsProps) {
   const activeTab = TABS.find((tab) => tab.key === activeView) ?? TABS[0];
   const displayName = profile?.nickname || '';
 
-  const shouldUseAutoHeight = !hasData[activeView];
+  const shouldUseAutoHeight = hasData[activeView] !== true;
 
   const tabButtons = (
     <div className={styles.tabGroup}>
@@ -96,6 +96,7 @@ export default function Charts({ userId }: ChartsProps) {
       ))}
     </div>
   );
+
   return (
     <div
       className={`${styles.container} ${
@@ -127,7 +128,7 @@ export default function Charts({ userId }: ChartsProps) {
                 : shouldUseAutoHeight
                   ? styles.hidden
                   : styles.inactive
-            } ${activeView === 'record' && !hasData.record ? styles.auto : ''}`}
+            } ${activeView === 'record' && hasData.record !== true ? styles.auto : ''}`}
           >
             <RecordChart
               userId={userId}
@@ -146,7 +147,9 @@ export default function Charts({ userId }: ChartsProps) {
                   ? styles.hidden
                   : styles.inactive
             } ${
-              activeView === 'strength' && !hasData.strength ? styles.auto : ''
+              activeView === 'strength' && hasData.strength !== true
+                ? styles.auto
+                : ''
             }`}
           >
             <StrengthChart
@@ -166,7 +169,7 @@ export default function Charts({ userId }: ChartsProps) {
                   ? styles.hidden
                   : styles.inactive
             } ${
-              activeView === 'bodyweight' && !hasData.bodyweight
+              activeView === 'bodyweight' && hasData.bodyweight !== true
                 ? styles.auto
                 : ''
             }`}
