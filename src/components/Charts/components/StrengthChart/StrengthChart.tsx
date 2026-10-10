@@ -11,15 +11,12 @@ import {
 } from 'recharts';
 import { InfoIcon } from 'lucide-react';
 
-import Loading from '@/components/shared/Loading/Loading';
-import Empty from '@/components/shared/Empty/Empty';
-
 import { useRecords } from '@/hooks/useRecords';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { useBestRecords } from '@/hooks/useBestRecords';
 
-import { getBest1RM } from '@/utils/recordUtils';
-
+import ChartState from '../ChartState/ChartState';
 import ChartTooltip from '../ChartTooltip/ChartTooltip';
 
 import { COLORS, type LiftSubject } from '../../constants/strengthStandards';
@@ -98,16 +95,7 @@ export default function StrengthChart({
   const isReadOnly = !!userId;
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
-  const bestRecords = useMemo(() => {
-    if (!records.length) return null;
-
-    return {
-      squat1rm: getBest1RM(records, 'squat', 'squat_reps'),
-      deadlift1rm: getBest1RM(records, 'deadlift', 'deadlift_reps'),
-      bench1rm: getBest1RM(records, 'bench_press', 'bench_press_reps'),
-      ohp1rm: getBest1RM(records, 'ohp', 'ohp_reps'),
-    };
-  }, [records]);
+  const { bestRecords, hasBigThree: hasEnoughData } = useBestRecords(records);
 
   const chartData = useMemo(() => {
     if (!bestRecords) return [];
@@ -135,12 +123,6 @@ export default function StrengthChart({
       };
     });
   }, [bestRecords]);
-
-  const hasEnoughData =
-    !!bestRecords &&
-    bestRecords.squat1rm > 0 &&
-    bestRecords.deadlift1rm > 0 &&
-    bestRecords.bench1rm > 0;
 
   useEffect(() => {
     if (!isPageLoading) {
@@ -194,149 +176,146 @@ export default function StrengthChart({
       </div>
 
       <div className={styles.contentWrapper}>
-        {isPageLoading ? (
-          <div className={styles.stateWrapper}>
-            <Loading message='밸런스를 분석하고 있어요' />
-          </div>
-        ) : !hasEnoughData ? (
-          <div className={styles.stateWrapper}>
-            <Empty
-              message='밸런스 분석을 위한 데이터가 부족합니다.'
-              subMessage='스쿼트, 데드리프트, 벤치프레스 기록이 필요해요.'
-            />
-          </div>
-        ) : (
-          <>
-            <div className={styles.chartArea}>
-              {isActive && (
-                <ResponsiveContainer
-                  width='100%'
-                  height='100%'
-                  initialDimension={{ width: 320, height: 200 }}
+        <ChartState
+          isLoading={isPageLoading}
+          loadingMessage='밸런스를 분석하고 있어요'
+          empty={
+            hasEnoughData
+              ? null
+              : {
+                  message: '밸런스 분석을 위한 데이터가 부족합니다.',
+                  subMessage: '스쿼트, 데드리프트, 벤치프레스 기록이 필요해요.',
+                }
+          }
+        >
+          <div className={styles.chartArea}>
+            {isActive && (
+              <ResponsiveContainer
+                width='100%'
+                height='100%'
+                initialDimension={{ width: 320, height: 200 }}
+              >
+                <RadarChart
+                  accessibilityLayer={false}
+                  data={chartData}
+                  margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
                 >
-                  <RadarChart
-                    accessibilityLayer={false}
-                    data={chartData}
-                    margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
+                  <PolarGrid stroke='var(--color-border-secondary)' />
+                  <PolarAngleAxis
+                    dataKey='subject'
+                    tick={({ x, y, payload }) => {
+                      const color =
+                        COLORS[payload.value as LiftSubject] ??
+                        'var(--color-text-muted)';
+                      const { dx, dy } = LABEL_OFFSET[payload.value] ?? {
+                        dx: 0,
+                        dy: 0,
+                      };
+
+                      return (
+                        <text
+                          x={Number(x) + dx}
+                          y={Number(y) + dy}
+                          textAnchor='middle'
+                          dominantBaseline='central'
+                          fill={color}
+                          fontSize={16}
+                          fontWeight={600}
+                        >
+                          {payload.value}
+                        </text>
+                      );
+                    }}
+                  />
+
+                  <Tooltip content={<CustomTooltip />} cursor={false} />
+
+                  <Radar
+                    name='기준'
+                    dataKey={() => 100}
+                    stroke='var(--color-border-secondary)'
+                    fill='var(--color-border-secondary)'
+                    fillOpacity={0.4}
+                    strokeDasharray='4 4'
+                    strokeWidth={1.5}
+                    dot={false}
+                  />
+
+                  <Radar
+                    name='수치'
+                    dataKey='score'
+                    stroke='var(--color-primary)'
+                    fill='var(--color-primary)'
+                    fillOpacity={0.2}
+                    strokeWidth={2.5}
+                    dot={{
+                      r: 4,
+                      fill: 'var(--color-primary)',
+                      strokeWidth: 0,
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          <div className={styles.scoreList}>
+            {chartData.map((item) => {
+              const isOver = item.score >= 100;
+              const barWidth = Math.min(item.score, 150);
+
+              return (
+                <div key={item.subject} className={styles.scoreItem}>
+                  <span
+                    className={styles.scoreLabel}
+                    style={{ color: COLORS[item.subject as LiftSubject] }}
                   >
-                    <PolarGrid stroke='var(--color-border-secondary)' />
-                    <PolarAngleAxis
-                      dataKey='subject'
-                      tick={({ x, y, payload }) => {
-                        const color =
-                          COLORS[payload.value as LiftSubject] ??
-                          'var(--color-text-muted)';
-                        const { dx, dy } = LABEL_OFFSET[payload.value] ?? {
-                          dx: 0,
-                          dy: 0,
-                        };
+                    {item.subject}
+                  </span>
 
-                        return (
-                          <text
-                            x={Number(x) + dx}
-                            y={Number(y) + dy}
-                            textAnchor='middle'
-                            dominantBaseline='central'
-                            fill={color}
-                            fontSize={16}
-                            fontWeight={600}
-                          >
-                            {payload.value}
-                          </text>
-                        );
-                      }}
+                  <div className={styles.barWrapper}>
+                    <div
+                      className={`${styles.bar} ${isOver ? styles.over : styles.under}`}
+                      style={{ width: `${(barWidth / 150) * 100}%` }}
                     />
-
-                    <Tooltip content={<CustomTooltip />} cursor={false} />
-
-                    <Radar
-                      name='기준'
-                      dataKey={() => 100}
-                      stroke='var(--color-border-secondary)'
-                      fill='var(--color-border-secondary)'
-                      fillOpacity={0.4}
-                      strokeDasharray='4 4'
-                      strokeWidth={1.5}
-                      dot={false}
-                    />
-
-                    <Radar
-                      name='수치'
-                      dataKey='score'
-                      stroke='var(--color-primary)'
-                      fill='var(--color-primary)'
-                      fillOpacity={0.2}
-                      strokeWidth={2.5}
-                      dot={{
-                        r: 4,
-                        fill: 'var(--color-primary)',
-                        strokeWidth: 0,
-                      }}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-
-            <div className={styles.scoreList}>
-              {chartData.map((item) => {
-                const isOver = item.score >= 100;
-                const barWidth = Math.min(item.score, 150);
-
-                return (
-                  <div key={item.subject} className={styles.scoreItem}>
-                    <span
-                      className={styles.scoreLabel}
-                      style={{ color: COLORS[item.subject as LiftSubject] }}
-                    >
-                      {item.subject}
-                    </span>
-
-                    <div className={styles.barWrapper}>
-                      <div
-                        className={`${styles.bar} ${isOver ? styles.over : styles.under}`}
-                        style={{ width: `${(barWidth / 150) * 100}%` }}
-                      />
-                      <div className={styles.baseline} />
-                    </div>
-
-                    <span
-                      className={`${styles.scoreValue} ${isOver ? styles.valueOver : styles.valueUnder}`}
-                    >
-                      {item.score.toFixed(1)}%
-                    </span>
+                    <div className={styles.baseline} />
                   </div>
-                );
-              })}
-            </div>
 
-            {strongest && weakest && strongest.subject !== weakest.subject && (
-              <div className={styles.summary}>
-                <div className={`${styles.summaryItem} ${styles.strong}`}>
-                  <span className={styles.summaryIcon}>💪</span>
-                  <div>
-                    <p className={styles.summaryLabel}>강점</p>
-                    <p className={styles.summaryValue}>
-                      {strongest.subject}{' '}
-                      <span>({strongest.score.toFixed(1)}%)</span>
-                    </p>
-                  </div>
+                  <span
+                    className={`${styles.scoreValue} ${isOver ? styles.valueOver : styles.valueUnder}`}
+                  >
+                    {item.score.toFixed(1)}%
+                  </span>
                 </div>
+              );
+            })}
+          </div>
 
-                <div className={`${styles.summaryItem} ${styles.weak}`}>
-                  <span className={styles.summaryIcon}>🎯</span>
-                  <div>
-                    <p className={styles.summaryLabel}>보완 필요</p>
-                    <p className={styles.summaryValue}>
-                      {weakest.subject}{' '}
-                      <span>({weakest.score.toFixed(1)}%)</span>
-                    </p>
-                  </div>
+          {strongest && weakest && strongest.subject !== weakest.subject && (
+            <div className={styles.summary}>
+              <div className={`${styles.summaryItem} ${styles.strong}`}>
+                <span className={styles.summaryIcon}>💪</span>
+                <div>
+                  <p className={styles.summaryLabel}>강점</p>
+                  <p className={styles.summaryValue}>
+                    {strongest.subject}{' '}
+                    <span>({strongest.score.toFixed(1)}%)</span>
+                  </p>
                 </div>
               </div>
-            )}
-          </>
-        )}
+
+              <div className={`${styles.summaryItem} ${styles.weak}`}>
+                <span className={styles.summaryIcon}>🎯</span>
+                <div>
+                  <p className={styles.summaryLabel}>보완 필요</p>
+                  <p className={styles.summaryValue}>
+                    {weakest.subject} <span>({weakest.score.toFixed(1)}%)</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </ChartState>
       </div>
     </div>
   );
