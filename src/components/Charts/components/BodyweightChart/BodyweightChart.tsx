@@ -16,16 +16,14 @@ import {
 import type { RectangleProps } from 'recharts';
 import { InfoIcon } from 'lucide-react';
 
-import Loading from '@/components/shared/Loading/Loading';
-import Empty from '@/components/shared/Empty/Empty';
-
 import { useRecords } from '@/hooks/useRecords';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { useBestRecords } from '@/hooks/useBestRecords';
 
-import { getBest1RM } from '@/utils/recordUtils';
 import { calculateAge } from '@/utils/dateUtils';
 
+import ChartState, { type ChartEmptyState } from '../ChartState/ChartState';
 import ChartTooltip from '../ChartTooltip/ChartTooltip';
 
 import {
@@ -135,15 +133,7 @@ export default function BodyweightChart({
   const ageBracket = age !== null ? getAgeBracket(age) : null;
   const isPageLoading = recordsLoading || profileLoading;
 
-  const bestRecords = useMemo(() => {
-    if (!records.length) return null;
-    return {
-      squat1rm: getBest1RM(records, 'squat', 'squat_reps'),
-      deadlift1rm: getBest1RM(records, 'deadlift', 'deadlift_reps'),
-      bench1rm: getBest1RM(records, 'bench_press', 'bench_press_reps'),
-      ohp1rm: getBest1RM(records, 'ohp', 'ohp_reps'),
-    };
-  }, [records]);
+  const { bestRecords, hasBigThree } = useBestRecords(records);
 
   const chartData: ChartDataItem[] = useMemo(() => {
     if (!bestRecords || !bodyweight || !gender || !ageBracket) return [];
@@ -183,14 +173,7 @@ export default function BodyweightChart({
     });
   }, [bestRecords, bodyweight, gender, ageBracket]);
 
-  const hasEnoughData =
-    !!bestRecords &&
-    bestRecords.squat1rm > 0 &&
-    bestRecords.deadlift1rm > 0 &&
-    bestRecords.bench1rm > 0 &&
-    !!bodyweight &&
-    !!gender &&
-    !!ageBracket;
+  const hasEnoughData = hasBigThree && !!bodyweight && !!gender && !!ageBracket;
 
   useEffect(() => {
     if (!isPageLoading) {
@@ -206,15 +189,31 @@ export default function BodyweightChart({
     ? chartData.reduce((a, b) => (a.score < b.score ? a : b))
     : null;
 
-  const noWeight = !isPageLoading && records.length > 0 && !bodyweight;
-  const noGender =
-    !isPageLoading && records.length > 0 && !!bodyweight && !gender;
-  const noBirthDate =
-    !isPageLoading &&
-    records.length > 0 &&
-    !!bodyweight &&
-    !!gender &&
-    !ageBracket;
+  // 프로필 항목 누락 안내 문구
+  const missingProfile = (field: string): ChartEmptyState => ({
+    message: `${field} 정보가 없어요.`,
+    subMessage: isReadOnly
+      ? `${displayName}님이 아직 ${field}을 등록하지 않았어요.`
+      : `프로필 수정에서 ${field}을 입력하면 체중 대비 밸런스를 확인할 수 있어요!`,
+  });
+
+  // 우선순위: 체중 → 성별 → 생년월일 → 기록 부족
+  const getEmptyState = (): ChartEmptyState | null => {
+    if (records.length > 0) {
+      if (!bodyweight) return missingProfile('체중');
+      if (!gender) return missingProfile('성별');
+      if (!ageBracket) return missingProfile('생년월일');
+    }
+
+    if (!hasEnoughData) {
+      return {
+        message: '밸런스 분석을 위한 데이터가 부족합니다.',
+        subMessage: '스쿼트, 데드리프트, 벤치프레스 기록이 필요해요.',
+      };
+    }
+
+    return null;
+  };
 
   // 실제 체중/연령대가 있으면 그 값으로, 없으면 대표 체중+ 기본 연령대(18-39)로 근사치
   const infoGender: Gender = gender ?? 'male';
@@ -275,185 +274,143 @@ export default function BodyweightChart({
       </div>
 
       <div className={styles.contentWrapper}>
-        {isPageLoading ? (
-          <div className={styles.stateWrapper}>
-            <Loading message='체중 대비 데이터를 분석하고 있어요!' />
-          </div>
-        ) : noWeight ? (
-          <div className={styles.stateWrapper}>
-            <Empty
-              message='체중 정보가 없어요.'
-              subMessage={
-                isReadOnly
-                  ? `${displayName}님이 아직 체중을 등록하지 않았어요.`
-                  : '프로필 수정에서 체중을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
-              }
-            />
-          </div>
-        ) : noGender ? (
-          <div className={styles.stateWrapper}>
-            <Empty
-              message='성별 정보가 없어요.'
-              subMessage={
-                isReadOnly
-                  ? `${displayName}님이 아직 성별을 등록하지 않았어요.`
-                  : '프로필 수정에서 성별을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
-              }
-            />
-          </div>
-        ) : noBirthDate ? (
-          <div className={styles.stateWrapper}>
-            <Empty
-              message='생년월일 정보가 없어요.'
-              subMessage={
-                isReadOnly
-                  ? `${displayName}님이 아직 생년월일을 등록하지 않았어요.`
-                  : '프로필 수정에서 생년월일을 입력하면 체중 대비 밸런스를 확인할 수 있어요!'
-              }
-            />
-          </div>
-        ) : !hasEnoughData ? (
-          <div className={styles.stateWrapper}>
-            <Empty
-              message='밸런스 분석을 위한 데이터가 부족합니다.'
-              subMessage='스쿼트, 데드리프트, 벤치프레스 기록이 필요해요.'
-            />
-          </div>
-        ) : (
-          <>
-            <div className={styles.bodyweightBadge}>
-              <div className={styles.badgeItem}>
-                <span className={styles.badgeLabel}>체중</span>
-                <span className={styles.badgeValue}>{bodyweight}kg</span>
-              </div>
-              <span className={styles.badgeDivider} />
-              <div className={styles.badgeItem}>
-                <span className={styles.badgeLabel}>성별</span>
-                <span className={styles.badgeValue}>
-                  {gender === 'female' ? '여성' : '남성'}
-                </span>
-              </div>
-              <span className={styles.badgeDivider} />
-              <div className={styles.badgeItem}>
-                <span className={styles.badgeLabel}>나이</span>
-                <span className={styles.badgeValue}>{age}세</span>
-              </div>
+        <ChartState
+          isLoading={isPageLoading}
+          loadingMessage='체중 대비 데이터를 분석하고 있어요!'
+          empty={getEmptyState()}
+        >
+          <div className={styles.bodyweightBadge}>
+            <div className={styles.badgeItem}>
+              <span className={styles.badgeLabel}>체중</span>
+              <span className={styles.badgeValue}>{bodyweight}kg</span>
             </div>
+            <span className={styles.badgeDivider} />
+            <div className={styles.badgeItem}>
+              <span className={styles.badgeLabel}>성별</span>
+              <span className={styles.badgeValue}>
+                {gender === 'female' ? '여성' : '남성'}
+              </span>
+            </div>
+            <span className={styles.badgeDivider} />
+            <div className={styles.badgeItem}>
+              <span className={styles.badgeLabel}>나이</span>
+              <span className={styles.badgeValue}>{age}세</span>
+            </div>
+          </div>
 
-            <div className={styles.chartArea}>
-              {isActive && (
-                <ResponsiveContainer
-                  width='100%'
-                  height='100%'
-                  initialDimension={{ width: 320, height: 200 }}
+          <div className={styles.chartArea}>
+            {isActive && (
+              <ResponsiveContainer
+                width='100%'
+                height='100%'
+                initialDimension={{ width: 320, height: 200 }}
+              >
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 20, right: 30, bottom: 10, left: 30 }}
+                  barCategoryGap='30%'
                 >
-                  <BarChart
-                    data={chartData}
-                    margin={{ top: 20, right: 30, bottom: 10, left: 30 }}
-                    barCategoryGap='30%'
+                  <CartesianGrid
+                    vertical={false}
+                    stroke='var(--color-border-secondary)'
+                  />
+
+                  <XAxis
+                    dataKey='subject'
+                    axisLine={false}
+                    tickLine={false}
+                    tick={({ x, y, payload }) => {
+                      const color =
+                        COLORS[payload.value as LiftSubject] ??
+                        'var(--color-text-muted)';
+                      return (
+                        <text
+                          x={x}
+                          y={Number(y) + 12}
+                          textAnchor='middle'
+                          fill={color}
+                          fontSize={16}
+                          fontWeight={600}
+                        >
+                          {payload.value}
+                        </text>
+                      );
+                    }}
+                  />
+
+                  <YAxis hide domain={[0, 'dataMax + 20']} />
+
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{
+                      fill: 'var(--color-border-secondary)',
+                      fillOpacity: 0.3,
+                    }}
+                  />
+
+                  <ReferenceLine
+                    y={100}
+                    stroke='var(--color-text-muted)'
+                    strokeDasharray='4 4'
+                    strokeWidth={1.5}
+                    label={{
+                      value: '목표',
+                      position: 'right',
+                      fill: 'var(--color-text-muted)',
+                      fontSize: 14,
+                    }}
+                  />
+
+                  <Bar
+                    dataKey='score'
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={48}
+                    shape={renderScoreBar}
                   >
-                    <CartesianGrid
-                      vertical={false}
-                      stroke='var(--color-border-secondary)'
-                    />
-
-                    <XAxis
-                      dataKey='subject'
-                      axisLine={false}
-                      tickLine={false}
-                      tick={({ x, y, payload }) => {
-                        const color =
-                          COLORS[payload.value as LiftSubject] ??
-                          'var(--color-text-muted)';
-                        return (
-                          <text
-                            x={x}
-                            y={Number(y) + 12}
-                            textAnchor='middle'
-                            fill={color}
-                            fontSize={16}
-                            fontWeight={600}
-                          >
-                            {payload.value}
-                          </text>
-                        );
+                    <LabelList
+                      dataKey='ratio'
+                      position='top'
+                      offset={8}
+                      formatter={(v: unknown) => {
+                        if (v === null || v === undefined) return '';
+                        const num = Number(v);
+                        return Number.isNaN(num) ? '' : `${num.toFixed(2)}배`;
                       }}
+                      fontSize={16}
+                      fontWeight={600}
+                      fill='var(--color-text-primary)'
                     />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
 
-                    <YAxis hide domain={[0, 'dataMax + 20']} />
-
-                    <Tooltip
-                      content={<CustomTooltip />}
-                      cursor={{
-                        fill: 'var(--color-border-secondary)',
-                        fillOpacity: 0.3,
-                      }}
-                    />
-
-                    <ReferenceLine
-                      y={100}
-                      stroke='var(--color-text-muted)'
-                      strokeDasharray='4 4'
-                      strokeWidth={1.5}
-                      label={{
-                        value: '목표',
-                        position: 'right',
-                        fill: 'var(--color-text-muted)',
-                        fontSize: 14,
-                      }}
-                    />
-
-                    <Bar
-                      dataKey='score'
-                      radius={[6, 6, 0, 0]}
-                      maxBarSize={48}
-                      shape={renderScoreBar}
-                    >
-                      <LabelList
-                        dataKey='ratio'
-                        position='top'
-                        offset={8}
-                        formatter={(v: unknown) => {
-                          if (v === null || v === undefined) return '';
-                          const num = Number(v);
-                          return Number.isNaN(num) ? '' : `${num.toFixed(2)}배`;
-                        }}
-                        fontSize={16}
-                        fontWeight={600}
-                        fill='var(--color-text-primary)'
-                      />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-
-            {strongest && weakest && strongest.subject !== weakest.subject && (
-              <div className={styles.summary}>
-                <div className={`${styles.summaryItem} ${styles.strong}`}>
-                  <span className={styles.summaryIcon}>💪</span>
-                  <div>
-                    <p className={styles.summaryLabel}>강점</p>
-                    <p className={styles.summaryValue}>
-                      {strongest.subject}{' '}
-                      <span>({strongest.ratio.toFixed(2)}배)</span>
-                    </p>
-                  </div>
-                </div>
-                <div className={`${styles.summaryItem} ${styles.weak}`}>
-                  <span className={styles.summaryIcon}>🎯</span>
-                  <div>
-                    <p className={styles.summaryLabel}>보완 필요</p>
-                    <p className={styles.summaryValue}>
-                      {weakest.subject}{' '}
-                      <span>({weakest.ratio.toFixed(2)}배)</span>
-                    </p>
-                  </div>
+          {strongest && weakest && strongest.subject !== weakest.subject && (
+            <div className={styles.summary}>
+              <div className={`${styles.summaryItem} ${styles.strong}`}>
+                <span className={styles.summaryIcon}>💪</span>
+                <div>
+                  <p className={styles.summaryLabel}>강점</p>
+                  <p className={styles.summaryValue}>
+                    {strongest.subject}{' '}
+                    <span>({strongest.ratio.toFixed(2)}배)</span>
+                  </p>
                 </div>
               </div>
-            )}
-          </>
-        )}
+              <div className={`${styles.summaryItem} ${styles.weak}`}>
+                <span className={styles.summaryIcon}>🎯</span>
+                <div>
+                  <p className={styles.summaryLabel}>보완 필요</p>
+                  <p className={styles.summaryValue}>
+                    {weakest.subject}{' '}
+                    <span>({weakest.ratio.toFixed(2)}배)</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </ChartState>
       </div>
     </div>
   );
