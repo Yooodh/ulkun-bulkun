@@ -8,6 +8,7 @@ export function ConfirmToast(
   message: string,
   onConfirm: () => void,
   onCancel?: () => void,
+  toastId?: string,
 ) {
   toast.custom(
     (id) => (
@@ -37,6 +38,6 @@ export function ConfirmToast(
         </div>
       </div>
     ),
-    { duration: Infinity },
+    { id: toastId, duration: Infinity, unstyled: true },
   );
 }

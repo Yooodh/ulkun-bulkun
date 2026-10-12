@@ -5,8 +5,8 @@ import { toast } from 'sonner';
 
 import styles from './AuthForm.module.scss';
 
-import Button from '../shared/Button/Button';
-import Loading from '../shared/Loading/Loading';
+import Button from '@/components/shared/Button/Button';
+import Loading from '@/components/shared/Loading/Loading';
 import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -47,17 +47,29 @@ export default function AuthForm() {
           variant='gray'
           size='sm'
           onClick={() => {
-            ConfirmToast('로그아웃 하시겠습니까?', async () => {
-              try {
-                await signOut();
-                toast.info('로그아웃 되었습니다. 내일도 득근!');
-                window.location.href = '/';
-              } catch (error) {
-                toast.error(
-                  `로그아웃 중 오류 발생: ${(error as Error).message}`,
-                );
-              }
-            });
+            ConfirmToast(
+              '로그아웃 하시겠습니까?',
+              async () => {
+                try {
+                  await signOut();
+                  toast.info('로그아웃 되었습니다. 내일도 득근!', {
+                    id: 'auth-logout',
+                  });
+                  setTimeout(() => {
+                    window.location.href = '/';
+                  }, 1200);
+                } catch (error) {
+                  toast.error(
+                    `로그아웃 중 오류 발생: ${(error as Error).message}`,
+                    {
+                      id: 'auth-logout-error',
+                    },
+                  );
+                }
+              },
+              undefined,
+              'auth-logout-confirm',
+            );
           }}
         >
           로그아웃
