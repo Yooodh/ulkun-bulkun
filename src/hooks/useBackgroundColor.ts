@@ -26,15 +26,12 @@ export function useBackgroundColor(
       .from('profiles')
       .update({ background_color: nextColor })
       .eq('id', userId)
-      .select();
+      .select('id');
 
     setSaving(false);
 
-    console.log('userId:', userId);
-    console.log('update result:', { data, error });
-
-    if (error) {
-      toast.error('배경 색상 저장에 실패했어요.');
+    if (error || !data?.length) {
+      toast.error('배경 색상 저장에 실패했어요.', { id: 'profile-bg-error' });
       return;
     }
 

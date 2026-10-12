@@ -56,6 +56,7 @@ export function useNotificationToggle(userId?: string | null) {
       if (error) {
         toast.error(
           '알림 설정을 변경할 수 없어요. 잠시 후 다시 시도해 주세요.',
+          { id: 'notification-error' },
         );
         return;
       }
@@ -66,20 +67,25 @@ export function useNotificationToggle(userId?: string | null) {
         if (!resubscribed) {
           toast.error(
             '알림 권한이 필요해요. 브라우저 설정에서 알림을 허용한 뒤 다시 시도해 주세요.',
+            { id: 'notification-error' },
           );
           return;
         }
 
         setIsNotificationOn(true);
-        toast.info('전체 알림을 켰어요!');
+        toast.info('전체 알림을 켰어요!', { id: 'notification-toggle' });
         return;
       }
 
       setIsNotificationOn(next);
-      toast.info(next ? '전체 알림을 켰어요!' : '전체 알림을 껐어요!');
+      toast.info(next ? '전체 알림을 켰어요!' : '전체 알림을 껐어요!', {
+        id: 'notification-toggle',
+      });
     } catch (e) {
       console.error('알림 토글 처리 중 예외 발생:', e);
-      toast.error('알 수 없는 오류가 발생했어요.');
+      toast.error('알 수 없는 오류가 발생했어요.', {
+        id: 'notification-error',
+      });
     } finally {
       setToggling(false);
     }
