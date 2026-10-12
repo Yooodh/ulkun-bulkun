@@ -57,9 +57,14 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    ConfirmToast(`${user.nickname}님 팔로우를 취소할까요?`, () => {
-      toggle();
-    });
+    ConfirmToast(
+      `${user.nickname}님 팔로우를 취소할까요?`,
+      () => {
+        toggle();
+      },
+      undefined,
+      'subscription-cancel-confirm',
+    );
   };
 
   const cardContent = (
