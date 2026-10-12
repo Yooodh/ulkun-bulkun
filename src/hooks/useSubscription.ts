@@ -11,6 +11,7 @@ export function useSubscription(targetId?: string, myId?: string) {
 
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [toggling, setToggling] = useState<boolean>(false);
 
   useEffect(() => {
     if (!targetId || !myId || targetId === myId) {
@@ -31,18 +32,26 @@ export function useSubscription(targetId?: string, myId?: string) {
   }, [targetId, myId]);
 
   const toggle = async () => {
-    if (!targetId || !myId) return;
+    if (!targetId || !myId || toggling) return;
+    setToggling(true);
 
-    if (isSubscribed) {
-      const { error } = await supabase
-        .from('subscriptions')
-        .delete()
-        .eq('subscriber_id', myId)
-        .eq('target_id', targetId);
+    try {
+      if (isSubscribed) {
+        const { error } = await supabase
+          .from('subscriptions')
+          .delete()
+          .eq('subscriber_id', myId)
+          .eq('target_id', targetId);
 
-      if (!error) {
+        if (error) {
+          toast.error('팔로우 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', {
+            id: 'subscription-error',
+          });
+          return;
+        }
+
         setIsSubscribed(false);
-        toast.info('팔로우를 취소했어요.');
+        toast.info('팔로우를 취소했어요.', { id: 'subscription-toggle' });
 
         queryClient.setQueryData<Set<string>>(
           ['mySubscriptions', myId],
@@ -61,15 +70,20 @@ export function useSubscription(targetId?: string, myId?: string) {
             return next;
           },
         );
-      }
-    } else {
-      const { error } = await supabase
-        .from('subscriptions')
-        .insert({ subscriber_id: myId, target_id: targetId });
+      } else {
+        const { error } = await supabase
+          .from('subscriptions')
+          .insert({ subscriber_id: myId, target_id: targetId });
 
-      if (!error) {
+        if (error) {
+          toast.error('팔로우 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', {
+            id: 'subscription-error',
+          });
+          return;
+        }
+
         setIsSubscribed(true);
-        toast.info('팔로우를 시작했어요!');
+        toast.info('팔로우를 시작했어요!', { id: 'subscription-toggle' });
 
         queryClient.setQueryData<Set<string>>(
           ['mySubscriptions', myId],
@@ -93,6 +107,13 @@ export function useSubscription(targetId?: string, myId?: string) {
           body: JSON.stringify({ target_id: targetId }),
         }).catch((err) => console.error('팔로우 알림 에러:', err));
       }
+    } catch (e) {
+      console.error('팔로우 처리 중 예외 발생:', e);
+      toast.error('알 수 없는 오류가 발생했어요.', {
+        id: 'subscription-error',
+      });
+    } finally {
+      setToggling(false);
     }
   };
 
