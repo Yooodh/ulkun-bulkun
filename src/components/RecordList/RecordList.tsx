@@ -6,10 +6,10 @@ import { toast } from 'sonner';
 import styles from './RecordList.module.scss';
 
 import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
-import Pagination from '../shared/Pagination/Pagination';
-import Loading from '../shared/Loading/Loading';
-import Button from '../shared/Button/Button';
-import Empty from '../shared/Empty/Empty';
+import Pagination from '@/components/shared/Pagination/Pagination';
+import Loading from '@/components/shared/Loading/Loading';
+import Button from '@/components/shared/Button/Button';
+import Empty from '@/components/shared/Empty/Empty';
 
 import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
@@ -95,7 +95,7 @@ export default function RecordList({ userId }: RecordListProps) {
       await updateRecordDate(id, editDate);
       setEditingId(null);
     } catch (error) {
-      toast.error('날짜 수정에 실패했습니다.');
+      toast.error('날짜 수정에 실패했습니다.', { id: 'record-date-error' });
     }
   };
 
@@ -262,9 +262,13 @@ export default function RecordList({ userId }: RecordListProps) {
                                   try {
                                     await deleteRecord(r.id);
                                   } catch (e) {
-                                    toast.error('삭제에 실패했습니다.');
+                                    toast.error('삭제에 실패했습니다.', {
+                                      id: 'record-delete-error',
+                                    });
                                   }
                                 },
+                                undefined,
+                                'record-delete-confirm',
                               );
                             }}
                           >
