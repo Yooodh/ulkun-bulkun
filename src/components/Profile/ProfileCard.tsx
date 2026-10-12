@@ -109,28 +109,34 @@ export default function ProfileCard({
       ? '내 기록을 공유하고 함께 운동해볼까요?'
       : '내 기록을 비밀로 유지할까요?';
 
-    ConfirmToast(confirmMessage, async () => {
-      const success = await saveFullProfile(
-        profile.nickname,
-        profile.status_message,
-        profile.avatar_url,
-        nextPublicStatus,
-        profile.weight,
-        profile.gender,
-        profile.birth_date,
-      );
-
-      if (success) {
-        queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
-        queryClient.invalidateQueries({ queryKey: ['users'] });
-
-        toast.info(
-          nextPublicStatus
-            ? '프로필이 전체 공개로 설정되었습니다.'
-            : '프로필이 비공개로 설정되었습니다.',
+    ConfirmToast(
+      confirmMessage,
+      async () => {
+        const success = await saveFullProfile(
+          profile.nickname,
+          profile.status_message,
+          profile.avatar_url,
+          nextPublicStatus,
+          profile.weight,
+          profile.gender,
+          profile.birth_date,
         );
-      }
-    });
+
+        if (success) {
+          queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+
+          toast.info(
+            nextPublicStatus
+              ? '프로필이 전체 공개로 설정되었습니다.'
+              : '프로필이 비공개로 설정되었습니다.',
+            { id: 'profile-public' },
+          );
+        }
+      },
+      undefined,
+      'profile-public-confirm',
+    );
   };
 
   const cycleStage = () => {
@@ -147,13 +153,18 @@ export default function ProfileCard({
       url: window.location.href,
     };
     try {
-      if (navigator.share) await navigator.share(shareData);
-      else {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
         await navigator.clipboard.writeText(window.location.href);
-        toast.info('프로필 링크가 클립보드에 복사되었습니다!');
+        toast.info('프로필 링크가 클립보드에 복사되었습니다!', {
+          id: 'profile-share',
+        });
       }
     } catch (error) {
+      if ((error as Error).name === 'AbortError') return;
       console.error('공유 실패:', error);
+      toast.error('공유에 실패했어요.', { id: 'profile-share-error' });
     }
   };
 
