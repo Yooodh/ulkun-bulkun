@@ -6,12 +6,16 @@
   overflow: hidden;
   border: 3px solid var(--color-border-primary);
   position: relative;
-  min-height: 700px;
+  min-height: 710px;
 
   .fullLoading {
     @include flex-center;
     position: absolute;
     inset: 0;
+  }
+
+  @media (max-width: 780px) {
+    min-height: 660px;
   }
 }
 
