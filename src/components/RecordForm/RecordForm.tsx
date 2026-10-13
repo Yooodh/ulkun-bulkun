@@ -76,7 +76,7 @@ export default function RecordForm() {
     onCommitSuccess: (fieldName) => {
       const field = FIELDS.find((f) => f.name === fieldName);
       toast.success(`${field?.ko || fieldName} 기록 완료!`, {
-        id: 'record-commit',
+        id: `record-commit-${fieldName}`,
       });
     },
     onError: (message) => toast.error(`${message}`, { id: 'record-error' }),
