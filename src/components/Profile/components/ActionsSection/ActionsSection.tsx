@@ -22,6 +22,7 @@ type ActionsSectionProps = {
   onEditProfile?: () => void;
   onTogglePublic?: () => void;
   onSubscribe?: () => void;
+  isSubscribing?: boolean;
   onToggleNotification?: () => void;
   onToggleDarkMode?: () => void;
   isPublic?: boolean;
@@ -38,6 +39,7 @@ export default function ActionsSection({
   onEditProfile,
   onTogglePublic,
   onSubscribe,
+  isSubscribing,
   onToggleNotification,
   onToggleDarkMode,
   isPublic,
@@ -76,6 +78,7 @@ export default function ActionsSection({
           shape='round'
           active={isSubscribed}
           onClick={onSubscribe}
+          disabled={isSubscribing}
           aria-label={isSubscribed ? '팔로우 취소' : '팔로우'}
         >
           {isSubscribed ? (

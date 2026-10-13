@@ -34,7 +34,7 @@ export function useRecords(userId: string | null | undefined = null) {
     if (query.isError) {
       toast.error('기록을 불러오지 못했어요.', { id: 'records-load-error' });
     }
-  }, [query.isError]);
+  }, [query.isError, query.errorUpdatedAt]);
 
   // 데이터 삭제
   const deleteMutation = useMutation({
