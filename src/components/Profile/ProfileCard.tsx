@@ -51,10 +51,11 @@ export default function ProfileCard({
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [stage, setStage] = useState<1 | 2>(1);
 
-  const { isSubscribed, toggle: handleSubscribe } = useSubscription(
-    targetId,
-    user?.id,
-  );
+  const {
+    isSubscribed,
+    toggling: isSubscribing,
+    toggle: handleSubscribe,
+  } = useSubscription(targetId, user?.id);
 
   const isMyProfile = !userId || userId === user?.id;
   const canEdit = isMyProfile && user && !readOnly;
@@ -245,6 +246,7 @@ export default function ProfileCard({
                   }}
                   onTogglePublic={handleTogglePublic}
                   onSubscribe={handleSubscribe}
+                  isSubscribing={isSubscribing}
                   onToggleNotification={handleNotificationToggle}
                   onToggleDarkMode={handleToggleDarkMode}
                   isPublic={profile?.is_public}
