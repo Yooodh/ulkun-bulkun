@@ -19,16 +19,28 @@ export function useSubscription(targetId?: string, myId?: string) {
       return;
     }
 
+    let isMounted = true;
+
     supabase
       .from('subscriptions')
       .select('id')
       .eq('subscriber_id', myId)
       .eq('target_id', targetId)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (!isMounted) return;
+
+        if (error) {
+          console.error('팔로우 상태 조회 실패:', error);
+        }
+
         setIsSubscribed(!!data);
         setLoading(false);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, [targetId, myId]);
 
   const toggle = async () => {
@@ -117,5 +129,5 @@ export function useSubscription(targetId?: string, myId?: string) {
     }
   };
 
-  return { isSubscribed, loading, toggle };
+  return { isSubscribed, loading, toggling, toggle };
 }
