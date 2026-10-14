@@ -8,9 +8,8 @@
   text-decoration: none;
   color: inherit;
   position: relative;
-
   border: 2px solid var(--color-border-primary);
-  box-shadow: 0 4px 0 0 var(--color-border-primary);
+  box-shadow: 0 3px 0 0 var(--color-border-primary);
 
   transition:
     $transition-base,
