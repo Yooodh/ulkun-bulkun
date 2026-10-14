@@ -6,7 +6,7 @@ import { SquareArrowUp, ArrowRight, X } from 'lucide-react';
 
 import styles from './InstallBanner.module.scss';
 
-import Button from '../shared/Button/Button';
+import Button from '@/components/shared/Button/Button';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
