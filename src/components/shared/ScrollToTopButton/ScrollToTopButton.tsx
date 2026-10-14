@@ -49,11 +49,9 @@ export default function ScrollToTopButton() {
     };
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+  const scrollToTop = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -63,8 +61,7 @@ export default function ScrollToTopButton() {
       data-visible={isVisible}
       onClick={scrollToTop}
       aria-label='맨 위로 가기'
-      aria-hidden={!isVisible}
-      tabIndex={isVisible ? 0 : -1}
+      inert={!isVisible}
     >
       <ArrowBigUp size={22} fill='currentColor' aria-hidden='true' />
     </button>
