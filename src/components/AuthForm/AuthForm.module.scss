@@ -4,8 +4,7 @@
   @include flex-center;
   flex-direction: column;
   padding: 24px;
-  border: 2px solid var(--color-border-primary);
-  box-shadow: 0 2px 0 0 var(--color-border-primary);
+  box-shadow: 0 4px 0 0 var(--color-border-primary);
   border-radius: 0 0 16px 16px;
   text-align: center;
   background-color: var(--color-bg-primary);
@@ -38,8 +37,7 @@
   text-align: center;
   background-color: var(--color-bg-tint);
   border-radius: 0 0 16px 16px;
-  border: 2px solid var(--color-border-primary);
-  box-shadow: 0 2px 0 0 var(--color-border-primary);
+  box-shadow: 0 4px 0 0 var(--color-border-primary);
   p {
     @include font-md-title;
     margin-bottom: 12px;
