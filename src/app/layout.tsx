@@ -2,7 +2,9 @@ import { ThemeProvider } from 'next-themes';
 
 import AuthForm from '@/components/AuthForm/AuthForm';
 import InstallBanner from '@/components/InstallBanner/InstallBanner';
+
 import ThemedToaster from '@/components/shared/ThemedToaster/ThemedToaster';
+import ThemeColorSync from '@/components/shared/ThemeColorSync/ThemeColorSync';
 import ScrollToTopButton from '@/components/shared/ScrollToTopButton/ScrollToTopButton';
 
 import QueryProvider from '@/providers/QueryProvider';
@@ -23,6 +25,7 @@ export default function RootLayout({
     <html lang='ko' suppressHydrationWarning>
       <body className={Font.variable}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
+          <ThemeColorSync />
           <InstallBanner />
           <QueryProvider>
             <div className={styles.wrapper}>
