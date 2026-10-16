@@ -28,8 +28,12 @@ self.addEventListener('push', (event) => {
   const title = data.title || '울끈불끈';
   const options = {
     body: data.body || '운동 기록을 남겨보세요!',
-    icon: '/assets/images/muscle.png',
-    badge: '/assets/images/muscle.png',
+
+    // 알림 본문 옆에 표시되는 큰 아이콘
+    icon: '/assets/images/ulkun-bulkun_app_logo.png',
+
+    // 안드로이드 상태 표시줄에 뜨는 작은 알림 아이콘
+    badge: '/assets/images/ulkun-bulkun_favicon.png',
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });

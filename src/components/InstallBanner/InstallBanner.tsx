@@ -77,9 +77,9 @@ export default function InstallBanner() {
     <div className={styles.bannerContainer}>
       <div className={styles.contentWrapper}>
         <Image
-          width={50}
-          height={50}
-          src='/assets/images/muscle.png'
+          width={80}
+          height={80}
+          src='/assets/images/ulkun-bulkun_app_logo.png'
           alt='앱 아이콘'
           className={styles.icon}
         />
