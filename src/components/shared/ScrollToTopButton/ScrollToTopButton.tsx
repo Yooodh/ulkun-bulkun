@@ -1,39 +1,36 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ChevronUp } from 'lucide-react';
+import { ArrowBigUp } from 'lucide-react';
 
 import styles from './ScrollToTopButton.module.scss';
 
 const SHOW_SCROLL_Y = 300;
-const HIDE_DELAY_MS = 1000;
+const SCROLL_DELTA_THRESHOLD = 5;
 
 export default function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
   const ticking = useRef(false);
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const clearHideTimer = () => {
-      if (hideTimer.current) {
-        clearTimeout(hideTimer.current);
-        hideTimer.current = null;
-      }
-    };
+    lastScrollY.current = window.scrollY;
 
     const updateVisibility = () => {
       const currentY = window.scrollY;
 
       if (currentY <= SHOW_SCROLL_Y) {
         setIsVisible(false);
-        clearHideTimer();
-      } else {
-        setIsVisible(true);
+        lastScrollY.current = currentY;
+        ticking.current = false;
+        return;
+      }
 
-        clearHideTimer();
-        hideTimer.current = setTimeout(() => {
-          setIsVisible(false);
-        }, HIDE_DELAY_MS);
+      const delta = currentY - lastScrollY.current;
+
+      if (Math.abs(delta) >= SCROLL_DELTA_THRESHOLD) {
+        setIsVisible(delta < 0);
+        lastScrollY.current = currentY;
       }
 
       ticking.current = false;
@@ -49,15 +46,12 @@ export default function ScrollToTopButton() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearHideTimer();
     };
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+  const scrollToTop = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -67,10 +61,9 @@ export default function ScrollToTopButton() {
       data-visible={isVisible}
       onClick={scrollToTop}
       aria-label='맨 위로 가기'
-      aria-hidden={!isVisible}
-      tabIndex={isVisible ? 0 : -1}
+      inert={!isVisible}
     >
-      <ChevronUp size={22} aria-hidden='true' />
+      <ArrowBigUp size={22} fill='currentColor' aria-hidden='true' />
     </button>
   );
 }

@@ -8,6 +8,7 @@ import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePressNavigate } from '@/hooks/usePressNavigate';
 
 import { formatDate } from '@/utils/dateUtils';
 import { getDisplayDate, getCombinedTotalFromUser } from '@/utils/recordUtils';
@@ -50,14 +51,20 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
 
   const { user: currentUser } = useAuth();
   const { toggle } = useSubscription(user.id, currentUser?.id);
+  const { isPressed, handlers } = usePressNavigate(`/members/${user.id}`);
 
   const handleUnsubscribeClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    ConfirmToast(`${user.nickname}님 팔로우를 취소할까요?`, () => {
-      toggle();
-    });
+    ConfirmToast(
+      `${user.nickname}님 팔로우를 취소할까요?`,
+      () => {
+        toggle();
+      },
+      undefined,
+      'subscription-cancel-confirm',
+    );
   };
 
   const cardContent = (
@@ -85,6 +92,7 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
               type='button'
               aria-label='팔로우 취소'
               className={styles.subscribedBadgeBtn}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={handleUnsubscribeClick}
             >
               <UserRoundCheck size={18} className={styles.subscribedBadge} />
@@ -116,7 +124,12 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
   }
 
   return (
-    <Link href={`/members/${user.id}`} className={styles.userCard}>
+    <Link
+      href={`/members/${user.id}`}
+      prefetch
+      className={`${styles.userCard} ${isPressed ? styles.pressed : ''}`}
+      {...handlers}
+    >
       {cardContent}
     </Link>
   );

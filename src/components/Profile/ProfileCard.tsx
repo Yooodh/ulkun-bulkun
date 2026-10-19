@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -42,16 +43,19 @@ export default function ProfileCard({
     records,
     loading: recordsLoading,
     isReady: recordsReady,
+    isError: recordsError,
   } = useRecords(targetId);
+
   const { saveFullProfile } = useProfileUpdate(user!);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [stage, setStage] = useState<1 | 2>(1);
 
-  const { isSubscribed, toggle: handleSubscribe } = useSubscription(
-    targetId,
-    user?.id,
-  );
+  const {
+    isSubscribed,
+    toggling: isSubscribing,
+    toggle: handleSubscribe,
+  } = useSubscription(targetId, user?.id);
 
   const isMyProfile = !userId || userId === user?.id;
   const canEdit = isMyProfile && user && !readOnly;
@@ -59,6 +63,13 @@ export default function ProfileCard({
 
   const { isNotificationOn, toggle: handleNotificationToggle } =
     useNotificationToggle(isMyProfile ? user?.id : null);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDarkMode = mounted && resolvedTheme === 'dark';
+  const handleToggleDarkMode = () => setTheme(isDarkMode ? 'light' : 'dark');
 
   const queryClient = useQueryClient();
 
@@ -99,28 +110,34 @@ export default function ProfileCard({
       ? '내 기록을 공유하고 함께 운동해볼까요?'
       : '내 기록을 비밀로 유지할까요?';
 
-    ConfirmToast(confirmMessage, async () => {
-      const success = await saveFullProfile(
-        profile.nickname,
-        profile.status_message,
-        profile.avatar_url,
-        nextPublicStatus,
-        profile.weight,
-        profile.gender,
-        profile.birth_date,
-      );
-
-      if (success) {
-        queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
-        queryClient.invalidateQueries({ queryKey: ['users'] });
-
-        toast.info(
-          nextPublicStatus
-            ? '프로필이 전체 공개로 설정되었습니다.'
-            : '프로필이 비공개로 설정되었습니다.',
+    ConfirmToast(
+      confirmMessage,
+      async () => {
+        const success = await saveFullProfile(
+          profile.nickname,
+          profile.status_message,
+          profile.avatar_url,
+          nextPublicStatus,
+          profile.weight,
+          profile.gender,
+          profile.birth_date,
         );
-      }
-    });
+
+        if (success) {
+          queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+
+          toast.info(
+            nextPublicStatus
+              ? '프로필이 전체 공개로 설정되었습니다.'
+              : '프로필이 비공개로 설정되었습니다.',
+            { id: 'profile-public' },
+          );
+        }
+      },
+      undefined,
+      'profile-public-confirm',
+    );
   };
 
   const cycleStage = () => {
@@ -137,26 +154,41 @@ export default function ProfileCard({
       url: window.location.href,
     };
     try {
-      if (navigator.share) await navigator.share(shareData);
-      else {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
         await navigator.clipboard.writeText(window.location.href);
-        toast.info('프로필 링크가 클립보드에 복사되었습니다!');
+        toast.info('프로필 링크가 클립보드에 복사되었습니다!', {
+          id: 'profile-share',
+        });
       }
     } catch (error) {
+      if ((error as Error).name === 'AbortError') return;
       console.error('공유 실패:', error);
+      toast.error('공유에 실패했어요.', { id: 'profile-share-error' });
     }
   };
 
   if (isFetched && !loading && !profile)
     return <Empty message='프로필 정보를 불러올 수 없어요.' />;
 
-  const isCharacterReady = !loading && recordsReady;
+  const isPageLoading =
+    loading || (!!targetId && !recordsReady && !recordsError);
+
+  if (isPageLoading) {
+    return (
+      <div className={styles.profileContainer}>
+        <div className={styles.fullLoading}>
+          <Loading size='lg' message='프로필을 불러오고 있어요!' />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.profileContainer}>
       <div className={styles.characterSection}>
         <CharacterView
-          isLoading={!isCharacterReady}
           totalPR={calculateTotalPR(records)}
           userId={targetId}
           backgroundColor={profile?.background_color}
@@ -175,11 +207,7 @@ export default function ProfileCard({
           )}
 
           <div className={styles.infoTitle}>
-            {loading ? (
-              <div className={styles.infoLoading}>
-                <Loading size='sm' message='프로필 정보를 불러오고 있어요!' />
-              </div>
-            ) : isEditing ? (
+            {isEditing ? (
               <div className={styles.editTitle} />
             ) : profile ? (
               <ProfileInfo
@@ -218,10 +246,13 @@ export default function ProfileCard({
                   }}
                   onTogglePublic={handleTogglePublic}
                   onSubscribe={handleSubscribe}
+                  isSubscribing={isSubscribing}
                   onToggleNotification={handleNotificationToggle}
+                  onToggleDarkMode={handleToggleDarkMode}
                   isPublic={profile?.is_public}
                   isSubscribed={isSubscribed}
                   isNotificationOn={isNotificationOn}
+                  isDarkMode={isDarkMode}
                   readOnly={!canEdit}
                   isLoggedIn={isLoggedIn}
                   isMyProfile={isMyProfile}

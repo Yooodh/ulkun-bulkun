@@ -6,10 +6,10 @@ import { toast } from 'sonner';
 import styles from './RecordList.module.scss';
 
 import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
-import Pagination from '../shared/Pagination/Pagination';
-import Loading from '../shared/Loading/Loading';
-import Button from '../shared/Button/Button';
-import Empty from '../shared/Empty/Empty';
+import Pagination from '@/components/shared/Pagination/Pagination';
+import Loading from '@/components/shared/Loading/Loading';
+import Button from '@/components/shared/Button/Button';
+import Empty from '@/components/shared/Empty/Empty';
 
 import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
@@ -79,6 +79,7 @@ export default function RecordList({ userId }: RecordListProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDate, setEditDate] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [manageMode, setManageMode] = useState<boolean>(false);
 
   const isReadOnly = !!userId;
   const displayName = profile?.nickname || '';
@@ -94,7 +95,7 @@ export default function RecordList({ userId }: RecordListProps) {
       await updateRecordDate(id, editDate);
       setEditingId(null);
     } catch (error) {
-      toast.error('날짜 수정에 실패했습니다.');
+      toast.error('날짜 수정에 실패했습니다.', { id: 'record-date-error' });
     }
   };
 
@@ -107,29 +108,52 @@ export default function RecordList({ userId }: RecordListProps) {
     else if (e.key === 'Escape') setEditingId(null);
   };
 
+  const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
+
   useEffect(() => {
-    setCurrentPage(1);
+    setCurrentPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
+
+  useEffect(() => {
+    if (records.length === 0) setManageMode(false);
   }, [records.length]);
 
+  const safePage = Math.min(currentPage, totalPages);
+
   const paginatedRecords = records.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
   );
 
   return (
     <div className={styles.listContainer}>
-      <h1>
-        {displayName && (
-          <>
-            <strong>{displayName}</strong> 님의{' '}
-          </>
+      <div className={styles.titleRow}>
+        <h1>
+          {displayName && (
+            <>
+              <strong>{displayName}</strong> 님의{' '}
+            </>
+          )}
+          기록 히스토리
+        </h1>
+
+        {!isReadOnly && records.length > 0 && (
+          <Button
+            variant='toggle'
+            shape='round'
+            size='sm'
+            active={manageMode}
+            className={styles.manageToggle}
+            onClick={() => setManageMode((prev) => !prev)}
+          >
+            {manageMode ? '완료' : '관리'}
+          </Button>
         )}
-        기록 히스토리
-      </h1>
+      </div>
 
       <div className={styles.contentWrapper}>
         {isPageLoading ? (
-          <Loading message='기록을 불러오고 있어요!' />
+          <Loading size='lg' message='기록을 불러오고 있어요!' />
         ) : records.length === 0 ? (
           <Empty
             message={
@@ -144,7 +168,9 @@ export default function RecordList({ userId }: RecordListProps) {
             }
           />
         ) : (
-          <div className={styles.listTable}>
+          <div
+            className={`${styles.listTable} ${manageMode ? styles.manageOpen : ''}`}
+          >
             <table>
               <thead>
                 <tr>
@@ -236,9 +262,13 @@ export default function RecordList({ userId }: RecordListProps) {
                                   try {
                                     await deleteRecord(r.id);
                                   } catch (e) {
-                                    toast.error('삭제에 실패했습니다.');
+                                    toast.error('삭제에 실패했습니다.', {
+                                      id: 'record-delete-error',
+                                    });
                                   }
                                 },
+                                undefined,
+                                'record-delete-confirm',
                               );
                             }}
                           >
@@ -260,7 +290,7 @@ export default function RecordList({ userId }: RecordListProps) {
           <Pagination
             totalCount={records.length}
             pageSize={PAGE_SIZE}
-            currentPage={currentPage}
+            currentPage={safePage}
             onPageChange={setCurrentPage}
           />
         </div>

@@ -18,17 +18,17 @@
 
       .avatarWrapper {
         position: relative;
-        width: 80px;
-        height: 80px;
+        width: 85px;
+        height: 85px;
         border-radius: 50%;
         overflow: hidden;
         cursor: pointer;
         flex-shrink: 0;
-        box-shadow: $shadow-md;
-        border: 1px solid $border-liblue;
+        background: var(--color-bg-primary);
+        border: 2px solid var(--color-border-secondary);
 
         &:hover .avatarOverlay {
-          opacity: 1;
+          opacity: 0.7;
         }
 
         .avatar {
@@ -42,7 +42,7 @@
           @include flex-center;
           line-height: 1;
           user-select: none;
-          background-color: $white;
+          background-color: var(--color-bg-primary);
         }
 
         .avatarOverlay {
@@ -51,16 +51,13 @@
           font-weight: 500;
           position: absolute;
           inset: 0;
-          background: rgba(0, 0, 0, 0.4);
-          color: $white;
+          background-color: var(--color-bg-primary);
           opacity: 0;
           transition: opacity 0.2s;
-        }
 
-        .uploadLoading {
-          @include flex-center;
-          position: absolute;
-          top: 30;
+          &.uploading {
+            opacity: 0.7;
+          }
         }
       }
     }
@@ -88,7 +85,7 @@
 
         label {
           @include font-sm;
-          color: $text-muted;
+          color: var(--color-text-muted);
           font-weight: $font-medium;
           padding-left: 2px;
         }
@@ -100,23 +97,23 @@
           input {
             @include font-body;
             width: 100%;
-            border: 1.5px solid $border-soft;
+            border: 3px solid var(--color-border-primary);
             border-radius: $radius-main;
             padding: 10px 25px 10px 12px;
             outline: none;
-            background: $off-white;
-            color: $text-dark;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
             transition:
               border-color 0.2s,
               background 0.2s;
 
             &:focus {
-              border-color: $blue;
-              background: $white;
+              border-color: var(--color-primary);
+              background: var(--color-bg-tint);
             }
 
             &::placeholder {
-              color: $gray;
+              color: var(--color-text-muted);
               font-weight: $font-light;
             }
           }
@@ -131,7 +128,7 @@
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            color: $gray;
+            color: var(--color-gray);
             pointer-events: none;
           }
         }
@@ -145,10 +142,10 @@
           @include font-body;
           flex: 1;
           padding: 10px 0;
-          border: 1.5px solid $border-soft;
+          border: 3px solid var(--color-border-primary);
           border-radius: $radius-main;
-          background: $off-white;
-          color: $text-muted;
+          background: var(--color-bg-secondary);
+          color: var(--color-text-muted);
           cursor: pointer;
           transition:
             border-color 0.2s,
@@ -156,31 +153,25 @@
             color 0.2s;
 
           &.male.active {
-            border-color: $blue;
-            background: rgba($blue, 0.07);
-            color: $blue;
-            font-weight: 600;
+            border-color: var(--color-primary);
+            background: color-mix(
+              in srgb,
+              var(--color-primary) 7%,
+              transparent
+            );
+            color: var(--color-primary);
+            font-weight: $font-bold;
           }
 
           &.female.active {
-            border-color: $pink;
-            background: rgba($pink, 0.08);
-            color: $pink;
-            font-weight: 600;
+            border-color: var(--color-pink);
+            background: color-mix(in srgb, var(--color-pink) 8%, transparent);
+            color: var(--color-pink);
+            font-weight: $font-bold;
           }
         }
       }
     }
-  }
-
-  .dangerBtns {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border-top: 1px solid $border-soft;
   }
 
   .editBtns {
@@ -188,7 +179,7 @@
     gap: 8px;
     width: 100%;
     padding-top: 14px;
-    border-top: 1px solid $border-soft;
+    border-top: 2px solid var(--color-border-primary);
 
     button {
       flex: 1;
@@ -208,22 +199,22 @@
       background: none;
       border: none;
       padding: 4px 2px;
-      color: $text-muted;
       text-decoration: underline;
       text-underline-offset: 3px;
       cursor: pointer;
       transition: color 0.2s;
+      color: var(--color-text-secondary);
 
       &:hover {
-        color: $text-dark;
+        color: var(--color-text-muted);
       }
     }
 
     .deleteLink {
-      color: rgba($red, 0.6);
+      color: var(--color-danger);
 
       &:hover {
-        color: $red;
+        color: color-mix(in srgb, var(--color-danger) 60%, transparent);
       }
     }
   }

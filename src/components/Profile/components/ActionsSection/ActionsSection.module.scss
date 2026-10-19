@@ -6,8 +6,8 @@
   justify-content: space-between;
   width: 100%;
   gap: 10px;
-  padding: 15px 0 0 0;
-  border-top: 1px solid $border-soft;
+  padding: 12px 0 4px 0;
+  border-top: 2px solid var(--color-border-primary);
   overflow: hidden;
 
   @media (max-width: 768px) {
@@ -19,14 +19,12 @@
     min-width: 0;
 
     @media (max-width: 768px) {
-      @include font-sm;
-      font-weight: $font-medium;
       padding: 8px 2px;
       gap: 4px;
 
       svg {
-        width: 14px;
-        height: 14px;
+        width: 18px;
+        height: 18px;
       }
     }
   }

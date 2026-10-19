@@ -53,18 +53,17 @@ export default function StatsSection({ records, loading }: StatsSectionProps) {
 
   return (
     <div className={styles.statsContainer}>
-      <div className={styles.overviewWrapper}>
-        <div className={styles.mainStatBox}>
-          <label className={styles.statLabel}>PR</label>
-          <strong className={styles.statValue}>
-            {stats.bigThree}
-            {stats.bigThree > 0 && <span>kg</span>}
-          </strong>
-        </div>
-        <div className={styles.streakBox}>
-          <strong className={styles.statValue}>{stats.weeklyStreak}</strong>
-          <label className={styles.statLabel}>🔥주 연속 기록🔥</label>
-        </div>
+      <div className={styles.streakBox}>
+        <strong className={styles.statValue}>{stats.weeklyStreak}</strong>
+        <label className={styles.statLabel}>🔥주 연속 기록🔥</label>
+      </div>
+
+      <div className={styles.mainStatBox}>
+        <label className={styles.statLabel}>PR</label>
+        <strong className={styles.statValue}>
+          {stats.bigThree}
+          {stats.bigThree > 0 && <span>kg</span>}
+        </strong>
       </div>
 
       <div className={styles.recordsWrapper}>

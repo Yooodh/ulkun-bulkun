@@ -3,9 +3,9 @@
 .formContainer {
   @include flex-center;
   flex-direction: column;
-  background-color: $white;
-  color: $dark;
-  border: 1px solid $border-soft;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: 3px solid var(--color-border-primary);
   border-radius: $radius-main;
   width: 100%;
   margin: 0;
@@ -38,6 +38,11 @@
           min-width: 0;
           width: 100%;
           @include font-body;
+
+          &::placeholder {
+            color: var(--color-text-muted);
+            opacity: 1;
+          }
         }
 
         .repsWrapper {
@@ -52,19 +57,19 @@
             min-width: 0;
             text-align: center;
             @include font-body;
-            border-width: 2px;
+            border-width: 3px;
 
             &.committed {
               @include font-body;
-              border-color: $blue;
-              background: $off-white;
-              color: $blue;
+              border-color: var(--color-primary);
+              background: var(--color-bg-secondary);
+              color: var(--color-primary);
             }
           }
 
           .repsLabel {
             @include font-sm;
-            color: $text-muted;
+            color: var(--color-text-muted);
             white-space: nowrap;
           }
         }
@@ -73,28 +78,27 @@
           flex: 0.5;
           min-width: 75px;
           text-align: center;
-
           cursor: default;
           @include font-body;
-          border-width: 2px;
-          background-color: $white;
+          border-width: 3px;
+          background: var(--color-bg-primary);
           outline: none;
 
           &.committed {
-            border-color: $blue;
-            background: $off-white;
-            color: $blue;
+            border-color: var(--color-primary);
+            background: var(--color-bg-secondary);
+            color: var(--color-primary);
           }
 
           &.uncommitted {
-            border-color: $red;
-            color: $red;
+            border-color: var(--color-danger);
+            color: var(--color-danger);
             opacity: 0.7;
           }
 
           &.uncommittedOptional {
-            border-color: $border-light;
-            color: $text-muted;
+            border-color: var(--color-border-primary);
+            color: var(--color-text-muted);
           }
         }
 
@@ -106,9 +110,10 @@
       }
 
       .ohpdec {
-        @include font-sm;
-        color: $red;
+        @include font-body;
+        color: var(--color-danger);
         display: block;
+        margin-top: 4px;
       }
     }
 
@@ -120,22 +125,18 @@
 
   .totalGroup {
     @include input-group;
-    border-top: 2px dashed $border-soft;
+    border-top: 3px dashed var(--color-border-primary);
     padding-top: 1rem;
 
     input.totalInput {
       @include font-md-title;
-      background-color: $off-white;
-      color: $dark;
-      border: 1px solid $blue;
+      background: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+      border: 3px solid var(--color-primary);
       text-align: center;
       width: 100%;
       box-sizing: border-box;
       height: 50px;
-
-      &:focus {
-        border-color: $blue;
-      }
     }
   }
 }

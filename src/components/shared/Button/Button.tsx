@@ -1,7 +1,7 @@
 import styles from './Button.module.scss';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'gray' | 'red' | 'ligray' | 'blue' | 'white' | 'outline';
+  variant?: 'gray' | 'red' | 'ligray' | 'blue' | 'white' | 'toggle';
   size?: 'sm' | 'md' | 'lg';
   shape?: 'square' | 'round';
   active?: boolean;
@@ -19,6 +19,7 @@ export default function Button({
   return (
     <button
       className={`${styles.button} ${styles[variant]} ${styles[size]} ${styles[shape]} ${active ? styles.active : ''} ${className || ''}`}
+      aria-pressed={variant === 'toggle' ? !!active : undefined}
       {...props}
     >
       {children}

@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import { supabase } from '@/lib/supabase';
 
@@ -27,6 +29,12 @@ export function useRecords(userId: string | null | undefined = null) {
     enabled: !!userId,
     staleTime: 1000 * 60 * 5,
   });
+
+  useEffect(() => {
+    if (query.isError) {
+      toast.error('기록을 불러오지 못했어요.', { id: 'records-load-error' });
+    }
+  }, [query.isError, query.errorUpdatedAt]);
 
   // 데이터 삭제
   const deleteMutation = useMutation({

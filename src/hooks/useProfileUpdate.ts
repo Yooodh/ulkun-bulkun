@@ -1,5 +1,8 @@
+'use client';
+
 import { useState } from 'react';
 import { User } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 import { supabase } from '@/lib/supabase';
 
@@ -43,6 +46,9 @@ export function useProfileUpdate(user: User) {
       return publicUrl;
     } catch (error) {
       console.error('Upload error:', error);
+      toast.error('이미지 업로드에 실패했어요.', {
+        id: 'profile-upload-error',
+      });
       return null;
     } finally {
       setUploading(false);
@@ -76,6 +82,7 @@ export function useProfileUpdate(user: User) {
       return true;
     } catch (error) {
       console.error('Save error:', error);
+      toast.error('프로필 저장에 실패했어요.', { id: 'profile-save-error' });
       return false;
     }
   };
@@ -103,6 +110,7 @@ export function useProfileUpdate(user: User) {
       return true;
     } catch (error) {
       console.error('Reset error:', error);
+      toast.error('프로필 초기화에 실패했어요.', { id: 'profile-reset-error' });
       return false;
     }
   };

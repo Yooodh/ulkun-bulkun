@@ -69,15 +69,17 @@ export default function RecordForm() {
     lastCommits,
   } = useRecordForm({
     onSuccess: () => {
-      toast.success('모든 기록을 저장했어요!');
+      toast.success('모든 기록을 저장했어요!', { id: 'record-save' });
       if (user?.id)
         queryClient.invalidateQueries({ queryKey: ['records', user.id] });
     },
     onCommitSuccess: (fieldName) => {
       const field = FIELDS.find((f) => f.name === fieldName);
-      toast.success(`${field?.ko || fieldName} 기록 완료!`);
+      toast.success(`${field?.ko || fieldName} 기록 완료!`, {
+        id: `record-commit-${fieldName}`,
+      });
     },
-    onError: (message) => toast.error(`${message}`),
+    onError: (message) => toast.error(`${message}`, { id: 'record-error' }),
   });
 
   const isAllRequiredCommitted = FIELDS.filter((f) => f.required).every(

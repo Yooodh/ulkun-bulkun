@@ -4,11 +4,11 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: $white;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-border-primary);
+  box-shadow: 0 3px 0 0 var(--color-border-primary);
   border-radius: $radius-main;
   padding: 16px;
-  box-shadow: $shadow-md;
   width: 356px;
   max-width: 90vw;
   margin: 0 auto;
@@ -20,7 +20,7 @@
   line-height: 1.6;
   word-break: keep-all;
   white-space: pre-wrap;
-  color: $text-dark;
+  color: var(--color-text-primary);
   margin: 0;
   text-align: center;
 }

@@ -32,6 +32,7 @@ export default function BackgroundColorButton({
 
     const handleChange = (e: Event) => {
       const value = (e.target as HTMLInputElement).value;
+      if (value === color) return;
 
       ConfirmToast(
         '배경 색상을 변경하시겠습니까?',
@@ -40,6 +41,7 @@ export default function BackgroundColorButton({
           setDraftColor(color);
           onPreview(color);
         },
+        'profile-bg-confirm',
       );
     };
 

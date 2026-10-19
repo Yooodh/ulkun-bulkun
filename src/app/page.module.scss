@@ -87,7 +87,7 @@
   width: 100%;
   text-align: center;
   padding: 1rem;
-  background: $off-white;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-secondary);
+  border: 3px solid var(--color-border-primary);
   border-radius: 15px;
 }

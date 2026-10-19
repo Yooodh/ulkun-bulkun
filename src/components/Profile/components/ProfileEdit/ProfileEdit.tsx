@@ -82,26 +82,36 @@ export default function ProfileEdit({
     const trimmedStatus = tempStatus.trim();
 
     if (trimmedNickname.length < 2) {
-      toast.info('닉네임은 최소 2글자 이상 입력해 주세요.');
+      toast.info('닉네임은 최소 2글자 이상 입력해 주세요.', {
+        id: 'profile-edit-validation',
+      });
       return;
     }
     if (trimmedNickname.length > 10) {
-      toast.info('닉네임은 최대 10글자까지 가능합니다.');
+      toast.info('닉네임은 최대 10글자까지 가능합니다.', {
+        id: 'profile-edit-validation',
+      });
       return;
     }
     if (trimmedStatus.length < 2) {
-      toast.info('상태 메시지는 최소 2글자 이상 입력해 주세요.');
+      toast.info('상태 메시지는 최소 2글자 이상 입력해 주세요.', {
+        id: 'profile-edit-validation',
+      });
       return;
     }
     if (trimmedStatus.length > 20) {
-      toast.info('상태 메시지는 최대 20글자까지 가능합니다.');
+      toast.info('상태 메시지는 최대 20글자까지 가능합니다.', {
+        id: 'profile-edit-validation',
+      });
       return;
     }
 
     const parsedWeight = tempWeight.trim() !== '' ? Number(tempWeight) : null;
     if (parsedWeight !== null) {
       if (isNaN(parsedWeight) || parsedWeight < 30 || parsedWeight > 300) {
-        toast.info('체중은 30kg ~ 300kg 사이로 입력해 주세요.');
+        toast.info('체중은 30kg ~ 300kg 사이로 입력해 주세요.', {
+          id: 'profile-edit-validation',
+        });
         return;
       }
     }
@@ -111,39 +121,50 @@ export default function ProfileEdit({
       const birth = new Date(trimmedBirthDate);
       const today = new Date();
       if (isNaN(birth.getTime()) || birth > today) {
-        toast.info('생년월일을 올바르게 입력해 주세요.');
+        toast.info('생년월일을 올바르게 입력해 주세요.', {
+          id: 'profile-edit-validation',
+        });
         return;
       }
       const age = today.getFullYear() - birth.getFullYear();
       if (age > 120 || age < 10) {
-        toast.info('생년월일을 다시 확인해 주세요.');
+        toast.info('생년월일을 다시 확인해 주세요.', {
+          id: 'profile-edit-validation',
+        });
         return;
       }
     }
 
-    ConfirmToast('정말 변경하시겠습니까?', async () => {
-      const success = await saveFullProfile(
-        trimmedNickname,
-        trimmedStatus,
-        tempAvatar,
-        initialIsPublic,
-        parsedWeight,
-        tempGender,
-        trimmedBirthDate || null,
-      );
-      if (success) {
-        onUpdate(
+    ConfirmToast(
+      '정말 변경하시겠습니까?',
+      async () => {
+        const success = await saveFullProfile(
           trimmedNickname,
-          tempAvatar,
           trimmedStatus,
+          tempAvatar,
+          initialIsPublic,
           parsedWeight,
           tempGender,
           trimmedBirthDate || null,
         );
-        onEditingChange(false);
-        toast.success('프로필이 변경되었습니다!');
-      }
-    });
+        if (success) {
+          onUpdate(
+            trimmedNickname,
+            tempAvatar,
+            trimmedStatus,
+            parsedWeight,
+            tempGender,
+            trimmedBirthDate || null,
+          );
+          onEditingChange(false);
+          toast.success('프로필이 변경되었습니다!', {
+            id: 'profile-edit-save',
+          });
+        }
+      },
+      undefined,
+      'profile-edit-save-confirm',
+    );
   };
 
   const handleCancel = () => {
@@ -159,6 +180,8 @@ export default function ProfileEdit({
       ConfirmToast(
         '수정 중인 내용은 저장되지 않습니다. 취소하시겠습니까?',
         () => onEditingChange(false),
+        undefined,
+        'profile-edit-cancel-confirm',
       );
     } else {
       onEditingChange(false);
@@ -166,53 +189,72 @@ export default function ProfileEdit({
   };
 
   const handleReset = (): void => {
-    ConfirmToast('프로필을 처음 상태로 초기화할까요?', async () => {
-      const success = await resetProfile();
-      if (success) {
-        const defaultNickname =
-          user.user_metadata?.full_name ||
-          user.user_metadata?.name ||
-          '울끈불끈이';
-        const defaultAvatar =
-          user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-        const defaultStatus = '울끈불끈!';
-        setTempNickname(defaultNickname);
-        setTempAvatar(defaultAvatar);
-        setTempStatus(defaultStatus);
-        setTempWeight('');
-        setTempGender(null);
-        setTempBirthDate('');
-        onUpdate(
-          defaultNickname,
-          defaultAvatar,
-          defaultStatus,
-          null,
-          null,
-          null,
-        );
-        onEditingChange(false);
-        toast.success('프로필이 초기화되었습니다!');
-      }
-    });
+    ConfirmToast(
+      '프로필을 처음 상태로 초기화할까요?',
+      async () => {
+        const success = await resetProfile();
+        if (success) {
+          const defaultNickname =
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            '울끈불끈이';
+          const defaultAvatar =
+            user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+          const defaultStatus = '울끈불끈!';
+          setTempNickname(defaultNickname);
+          setTempAvatar(defaultAvatar);
+          setTempStatus(defaultStatus);
+          setTempWeight('');
+          setTempGender(null);
+          setTempBirthDate('');
+          onUpdate(
+            defaultNickname,
+            defaultAvatar,
+            defaultStatus,
+            null,
+            null,
+            null,
+          );
+          onEditingChange(false);
+          toast.success('프로필이 초기화되었습니다!', {
+            id: 'profile-edit-reset',
+          });
+        }
+      },
+      undefined,
+      'profile-edit-reset-confirm',
+    );
   };
 
   const handleDeleteAccount = (): void => {
-    ConfirmToast('정말 탈퇴하시겠습니까?', () => {
-      ConfirmToast(
-        '모든 데이터가 삭제되며\n 복구할 수 없습니다.\n 정말 탈퇴하시겠습니까?',
-        async () => {
-          const success = await deleteAccount();
-          if (success) {
-            toast.success('탈퇴가 완료되었습니다.');
-            window.location.href = '/';
-          } else {
-            toast.error(
-              '탈퇴 처리 중 오류가 발생했습니다. 다시 시도해 주세요.',
-            );
-          }
-        },
-      );
-    });
+    ConfirmToast(
+      '정말 탈퇴하시겠습니까?',
+      () => {
+        ConfirmToast(
+          '모든 데이터가 삭제되며\n 복구할 수 없습니다.\n 정말 탈퇴하시겠습니까?',
+          async () => {
+            const success = await deleteAccount();
+            if (success) {
+              toast.success('탈퇴가 완료되었습니다.', {
+                id: 'profile-edit-delete',
+              });
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 1200);
+            } else {
+              toast.error(
+                '탈퇴 처리 중 오류가 발생했습니다. 다시 시도해 주세요.',
+                { id: 'profile-edit-delete-error' },
+              );
+            }
+          },
+          undefined,
+          'profile-edit-delete-confirm-2',
+        );
+      },
+      undefined,
+      'profile-edit-delete-confirm-1',
+    );
   };
 
   return (
@@ -237,11 +279,11 @@ export default function ProfileEdit({
                 💪
               </div>
             )}
-            <div className={styles.avatarOverlay}>
+            <div
+              className={`${styles.avatarOverlay} ${uploading ? styles.uploading : ''}`}
+            >
               {uploading ? (
-                <div className={styles.avatarLoading}>
-                  <Loading size='sm' message='' />
-                </div>
+                <Loading size='sm' message='' />
               ) : (
                 <Camera size={18} strokeWidth={2} />
               )}
