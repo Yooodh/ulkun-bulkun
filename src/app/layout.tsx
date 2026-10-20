@@ -23,6 +23,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang='ko' suppressHydrationWarning>
+      <head>
+        <meta
+          name='theme-color'
+          content='#f0f7ff'
+          media='(prefers-color-scheme: light)'
+        />
+        <meta
+          name='theme-color'
+          content='#222f37'
+          media='(prefers-color-scheme: dark)'
+        />
+      </head>
       <body className={Font.variable}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           <ThemeColorSync />
