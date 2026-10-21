@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: '울끈불끈 당신의 성장을 기록하세요.',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'black',
     title: '울끈불끈',
   },
   icons: {
