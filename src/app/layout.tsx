@@ -3,6 +3,7 @@ import { ThemeProvider } from 'next-themes';
 import AuthForm from '@/components/AuthForm/AuthForm';
 import InstallBanner from '@/components/InstallBanner/InstallBanner';
 
+import NoticeModal from '@/components/shared/NoticeModal/NoticeModal';
 import ThemedToaster from '@/components/shared/ThemedToaster/ThemedToaster';
 import ThemeColorSync from '@/components/shared/ThemeColorSync/ThemeColorSync';
 import ScrollToTopButton from '@/components/shared/ScrollToTopButton/ScrollToTopButton';
@@ -48,6 +49,7 @@ export default function RootLayout({
               <ScrollToTopButton />
             </div>
           </QueryProvider>
+          <NoticeModal />
           <ThemedToaster />
         </ThemeProvider>
       </body>
