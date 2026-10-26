@@ -4,32 +4,42 @@ import { useCallback, useEffect, useState } from 'react';
 
 import Button from '../Button/Button';
 
-import { NOTICE, NOTICE_STORAGE_KEY } from '@/lib/notice';
+import { fetchNotice, NOTICE_STORAGE_KEY, type Notice } from '@/lib/notice';
 
 import styles from './NoticeModal.module.scss';
 
 export default function NoticeModal() {
+  const [notice, setNotice] = useState<Notice | null>(null);
   const [open, setOpen] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   useEffect(() => {
-    if (!NOTICE) return;
-    try {
-      const dismissed = localStorage.getItem(NOTICE_STORAGE_KEY);
-      if (dismissed !== NOTICE.version) setOpen(true);
-    } catch {
-      setOpen(true);
-    }
+    let cancelled = false;
+
+    fetchNotice().then((data) => {
+      if (cancelled || !data) return;
+      setNotice(data);
+      try {
+        const dismissed = localStorage.getItem(NOTICE_STORAGE_KEY);
+        if (dismissed !== data.version) setOpen(true);
+      } catch {
+        setOpen(true);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleClose = useCallback(() => {
-    if (dontShowAgain && NOTICE) {
+    if (dontShowAgain && notice) {
       try {
-        localStorage.setItem(NOTICE_STORAGE_KEY, NOTICE.version);
+        localStorage.setItem(NOTICE_STORAGE_KEY, notice.version);
       } catch {}
     }
     setOpen(false);
-  }, [dontShowAgain]);
+  }, [dontShowAgain, notice]);
 
   useEffect(() => {
     if (!open) return;
@@ -40,7 +50,7 @@ export default function NoticeModal() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [open, handleClose]);
 
-  if (!open || !NOTICE) return null;
+  if (!open || !notice) return null;
 
   return (
     <div
@@ -52,32 +62,52 @@ export default function NoticeModal() {
     >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.meta}>
-          <span className={styles.date}>{NOTICE.date}</span>
-          <span className={styles.badge}>{NOTICE.version}</span>
+          <span className={styles.date}>{notice.date}</span>
+          <span className={styles.badge}>{notice.version}</span>
         </div>
 
         <h2 id='notice-title' className={styles.title}>
-          {NOTICE.title}
+          {notice.title}
         </h2>
 
         <ul className={styles.list}>
-          {NOTICE.content.map((item, i) => (
-            <li key={i}>{item}</li>
+          {notice.content.map((item, i) => (
+            <li key={i} className={styles.item}>
+              <span className={styles.itemTitle}>{item.title}</span>
+              {item.description && (
+                <span className={styles.itemDescription}>
+                  {item.description}
+                </span>
+              )}
+            </li>
           ))}
         </ul>
 
-        {!!NOTICE.highlight?.trim() && (
-          <div className={styles.highlight}>{NOTICE.highlight}</div>
+        {!!notice.highlight?.trim() && (
+          <div className={styles.highlight}>{notice.highlight}</div>
         )}
 
-        <label className={styles.checkbox}>
-          <input
-            type='checkbox'
-            checked={dontShowAgain}
-            onChange={(e) => setDontShowAgain(e.target.checked)}
-          />
-          다시 보지 않기
-        </label>
+        <div className={styles.footer}>
+          <label className={styles.checkbox}>
+            <input
+              type='checkbox'
+              checked={dontShowAgain}
+              onChange={(e) => setDontShowAgain(e.target.checked)}
+            />
+            다시 보지 않기
+          </label>
+
+          {notice.link_url && /^https?:\/\//.test(notice.link_url) && (
+            <a
+              href={notice.link_url}
+              target='_blank'
+              rel='noopener noreferrer'
+              className={styles.link}
+            >
+              자세히 보기
+            </a>
+          )}
+        </div>
 
         <Button
           variant='blue'
