@@ -19,4 +19,5 @@ export const Font = localFont({
     },
   ],
   variable: '--font-title',
+  preload: false,
 });
