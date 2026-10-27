@@ -3,6 +3,7 @@ import { ThemeProvider } from 'next-themes';
 import AuthForm from '@/components/AuthForm/AuthForm';
 import InstallBanner from '@/components/InstallBanner/InstallBanner';
 
+import NoticeModal from '@/components/shared/NoticeModal/NoticeModal';
 import ThemedToaster from '@/components/shared/ThemedToaster/ThemedToaster';
 import ThemeColorSync from '@/components/shared/ThemeColorSync/ThemeColorSync';
 import ScrollToTopButton from '@/components/shared/ScrollToTopButton/ScrollToTopButton';
@@ -23,6 +24,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang='ko' suppressHydrationWarning>
+      <head>
+        <meta
+          name='theme-color'
+          content='#f0f7ff'
+          media='(prefers-color-scheme: light)'
+        />
+        <meta
+          name='theme-color'
+          content='#222f37'
+          media='(prefers-color-scheme: dark)'
+        />
+      </head>
       <body className={Font.variable}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           <ThemeColorSync />
@@ -36,6 +49,7 @@ export default function RootLayout({
               <ScrollToTopButton />
             </div>
           </QueryProvider>
+          <NoticeModal />
           <ThemedToaster />
         </ThemeProvider>
       </body>

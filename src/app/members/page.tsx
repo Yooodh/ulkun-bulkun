@@ -135,7 +135,9 @@ export default function MembersPage() {
   };
 
   if (loading || subsLoading || subscribersLoading)
-    return <Loading fullHeight={true} message='울끈불끈이들 입장 중!' />;
+    return (
+      <Loading size='lg' fullHeight={true} message='울끈불끈이들 입장 중!' />
+    );
 
   return (
     <div className={styles.membersContainer}>

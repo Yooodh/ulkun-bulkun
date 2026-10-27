@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 
 export const viewport: Viewport = {
-  themeColor: '#f0f7ff',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -14,7 +13,7 @@ export const metadata: Metadata = {
   description: '울끈불끈 당신의 성장을 기록하세요.',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'black',
     title: '울끈불끈',
   },
   icons: {

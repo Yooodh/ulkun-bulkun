@@ -33,7 +33,7 @@ self.addEventListener('push', (event) => {
     icon: '/assets/images/ulkun-bulkun_app_logo.png',
 
     // 안드로이드 상태 표시줄에 뜨는 작은 알림 아이콘
-    badge: '/assets/images/ulkun-bulkun_favicon.png',
+    badge: '/assets/images/ulkun-bulkun_badge',
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });

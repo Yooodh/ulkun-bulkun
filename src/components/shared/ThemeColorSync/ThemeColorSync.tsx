@@ -12,16 +12,22 @@ export default function ThemeColorSync() {
     if (!resolvedTheme) return;
     const color = resolvedTheme === 'dark' ? COLORS.dark : COLORS.light;
 
-    let meta = document.querySelector<HTMLMetaElement>(
+    const metas = document.querySelectorAll<HTMLMetaElement>(
       'meta[name="theme-color"]',
     );
-    if (!meta) {
-      meta = document.createElement('meta');
+
+    if (metas.length === 0) {
+      const meta = document.createElement('meta');
       meta.name = 'theme-color';
+      meta.content = color;
       document.head.appendChild(meta);
+      return;
     }
-    meta.removeAttribute('media');
-    meta.content = color;
+
+    metas.forEach((meta) => {
+      meta.removeAttribute('media');
+      meta.content = color;
+    });
   }, [resolvedTheme]);
 
   return null;
