@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
           JSON.stringify({
             title: '새로운 운동 기록!',
             body: `${authorProfile?.nickname ?? '울끈불끈이'}님이 새 기록을 올렸어요 💪`,
-            url: `/members/${user_id}`,
+            url: `/members/${encodeURIComponent(authorProfile?.nickname ?? user_id)}`,
           }),
         ),
       ),
