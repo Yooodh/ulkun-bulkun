@@ -5,6 +5,19 @@ import { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
 import { supabase } from '@/lib/supabase';
+import {
+  isValidNickname,
+  normalizeNickname,
+  resolveResetNickname,
+} from '@/utils/nicknameUtils';
+
+const isNicknameConflict = (
+  error: { code?: string; details?: string; message?: string } | null,
+): boolean =>
+  error?.code === '23505' &&
+  `${error.message ?? ''} ${error.details ?? ''}`.includes(
+    'profiles_nickname_unique_ci',
+  );
 
 export function useProfileUpdate(user: User) {
   const [uploading, setUploading] = useState<boolean>(false);
@@ -66,9 +79,17 @@ export function useProfileUpdate(user: User) {
     birthDate?: string | null,
   ) => {
     try {
+      const normalizedNickname = normalizeNickname(nickname);
+      if (!isValidNickname(normalizedNickname)) {
+        toast.error('닉네임은 한글, 영문 소문자, 숫자로 2~10자 입력해 주세요.', {
+          id: 'profile-nickname-validation',
+        });
+        return false;
+      }
+
       const { error } = await supabase.from('profiles').upsert({
         id: user.id,
-        nickname: nickname || '울끈불끈이',
+        nickname: normalizedNickname,
         status_message: status || '울끈불끈!',
         avatar_url: avatarUrl,
         is_public: isPublic,
@@ -78,7 +99,15 @@ export function useProfileUpdate(user: User) {
         updated_at: new Date().toISOString(),
       });
 
-      if (error) throw error;
+      if (error) {
+        if (isNicknameConflict(error)) {
+          toast.error('이미 사용 중인 닉네임입니다.', {
+            id: 'profile-nickname-conflict',
+          });
+          return false;
+        }
+        throw error;
+      }
       return true;
     } catch (error) {
       console.error('Save error:', error);
@@ -88,10 +117,13 @@ export function useProfileUpdate(user: User) {
   };
 
   // 프로필 리셋
-  const resetProfile = async (): Promise<boolean> => {
+  const resetProfile = async (currentNickname: string): Promise<boolean> => {
     try {
       const meta = user.user_metadata;
-      const originalNickname = meta?.full_name || meta?.name || '울끈불끈이';
+      const originalNickname = resolveResetNickname(
+        meta?.full_name || meta?.name,
+        currentNickname,
+      );
       const originalAvatar = meta?.avatar_url || meta?.picture || '';
 
       const { error } = await supabase.from('profiles').upsert({
@@ -106,7 +138,16 @@ export function useProfileUpdate(user: User) {
         updated_at: new Date().toISOString(),
       });
 
-      if (error) throw error;
+      if (error) {
+        if (isNicknameConflict(error)) {
+          toast.error(
+            '초기 닉네임이 이미 사용 중이라 프로필을 초기화하지 못했어요.',
+            { id: 'profile-nickname-conflict' },
+          );
+          return false;
+        }
+        throw error;
+      }
       return true;
     } catch (error) {
       console.error('Reset error:', error);
