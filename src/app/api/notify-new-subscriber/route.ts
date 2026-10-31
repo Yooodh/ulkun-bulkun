@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       JSON.stringify({
         title: '새로운 팔로워!',
         body: `${subscriberProfile?.nickname ?? '울끈불끈이'}님이 나를 팔로우했어요 🔔`,
-        url: `/members/${subscriber_id}`,
+        url: `/members/${encodeURIComponent(subscriberProfile?.nickname ?? subscriber_id)}`,
       }),
     );
 
