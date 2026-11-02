@@ -1,0 +1,107 @@
+@use '../../styles' as *;
+
+.gate {
+  display: grid;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.content {
+  width: min(100%, 460px);
+}
+
+.card {
+  width: 100%;
+  padding: 32px;
+  border: 3px solid var(--color-border-primary);
+  border-radius: 20px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+
+  h1 {
+    @include font-lg-title;
+    margin: 8px 0 12px;
+  }
+
+  > p {
+    @include font-body;
+    margin: 0;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+
+  .inputWrapper {
+    position: relative;
+    width: 100%;
+    input {
+      @include font-md-title;
+      width: 100%;
+      border: 3px solid var(--color-border-primary);
+      border-radius: $radius-main;
+      padding: 15px 30px 15px 17px;
+      outline: none;
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      transition:
+        border-color 0.2s,
+        background 0.2s;
+
+      &:focus {
+        border-color: var(--color-primary);
+        background: var(--color-bg-tint);
+      }
+
+      &::placeholder {
+        color: var(--color-text-muted);
+        font-weight: $font-light;
+      }
+    }
+
+    span {
+      @include font-body;
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-gray);
+      pointer-events: none;
+    }
+  }
+
+  button {
+    width: 100%;
+  }
+}
+
+.actions {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.counter {
+  justify-self: end;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.error {
+  @include font-body;
+  margin: 0;
+  color: var(--color-danger);
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 24px 20px;
+  }
+}

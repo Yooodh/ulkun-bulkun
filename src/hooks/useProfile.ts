@@ -26,13 +26,14 @@ export function useProfile(userId: string | undefined) {
           'id, nickname, avatar_url, status_message, is_public, weight, gender, birth_date, background_color',
         )
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) return null;
 
       return {
         id: data.id,
-        nickname: data.nickname || '울끈불끈이',
+        nickname: data.nickname ?? '',
         avatar_url:
           data.avatar_url && data.avatar_url.trim() !== ''
             ? data.avatar_url

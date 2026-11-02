@@ -1,6 +1,7 @@
 import { ThemeProvider } from 'next-themes';
 
 import AuthForm from '@/components/AuthForm/AuthForm';
+import NicknameGate from '@/components/NicknameGate/NicknameGate';
 import InstallBanner from '@/components/InstallBanner/InstallBanner';
 
 import NoticeModal from '@/components/shared/NoticeModal/NoticeModal';
@@ -43,8 +44,10 @@ export default function RootLayout({
           <QueryProvider>
             <div className={styles.wrapper}>
               <main className={styles.container}>
-                <AuthForm />
-                {children}
+                <NicknameGate>
+                  <AuthForm />
+                  {children}
+                </NicknameGate>
               </main>
               <ScrollToTopButton />
             </div>
