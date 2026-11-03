@@ -1,11 +1,10 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
 import NavBar from '@/components/shared/NavBar/NavBar';
-import Empty from '@/components/shared/Empty/Empty';
 
 import Charts from '@/components/Charts';
 import ProfileCard from '@/components/Profile';
@@ -61,22 +60,7 @@ export default function MemberDetailPage() {
     }
   }, [loading, profile, isMyPage, router]);
 
-  if (!memberSlug || (!loading && !profile)) {
-    return (
-      <div className={styles.MemberDetailContainer}>
-        <header className={styles.header}>
-          <div className={styles.navGroup}>
-            <NavBar href='/members' label='뒤로가기' />
-            <div className={styles.title} />
-            <NavBar href='/' label='대시보드로 돌아가기' />
-          </div>
-        </header>
-        <div className={styles.contents}>
-          <Empty fullHeight={true} message='유저 정보를 찾을 수 없습니다.' />
-        </div>
-      </div>
-    );
-  }
+  if (!memberSlug || (!loading && !profile)) notFound();
   if (!isMyPage && profile?.is_public === false) return null;
 
   return (
