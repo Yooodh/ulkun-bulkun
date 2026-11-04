@@ -43,14 +43,19 @@
 
 * {
   box-sizing: border-box;
+  user-select: none;
   padding: 0;
   margin: 0;
+
   -webkit-tap-highlight-color: transparent;
-  user-select: none;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-bg-primary);
 }
 
 body {
   font-family: var(--font-title), sans-serif;
   line-height: 1.5;
+
   -webkit-font-smoothing: antialiased;
 }
