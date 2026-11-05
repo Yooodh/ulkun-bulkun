@@ -1,30 +1,57 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
 import NavBar from '@/components/shared/NavBar/NavBar';
-import Empty from '@/components/shared/Empty/Empty';
 
 import Charts from '@/components/Charts';
 import ProfileCard from '@/components/Profile';
 import RecordList from '@/components/RecordList/RecordList';
 
-import { useProfile } from '@/hooks/useProfile';
+import { useProfile, useProfileByNickname } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 
 import styles from './MemberDetail.module.scss';
 
+function decodeMemberSlug(slug: string | undefined): string | undefined {
+  if (!slug) return slug;
+
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
 export default function MemberDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const userId = params?.id as string;
+  const memberSlug = decodeMemberSlug(params?.id as string | undefined);
+  const isLegacyUserId =
+    !!memberSlug &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      memberSlug,
+    );
 
   const { user: currentUser } = useAuth();
-  const { data: profile, isLoading: loading } = useProfile(userId);
+  const { data: profileById, isLoading: isLoadingById } = useProfile(
+    isLegacyUserId ? memberSlug : undefined,
+  );
+  const { data: profileByNickname, isLoading: isLoadingByNickname } =
+    useProfileByNickname(isLegacyUserId ? undefined : memberSlug);
+  const profile = profileById ?? profileByNickname;
+  const loading = isLoadingById || isLoadingByNickname;
+  const userId = profile?.id;
 
   const isMyPage = currentUser?.id === userId;
+
+  useEffect(() => {
+    if (isLegacyUserId && profile) {
+      router.replace(`/members/${encodeURIComponent(profile.nickname)}`);
+    }
+  }, [isLegacyUserId, profile, router]);
 
   useEffect(() => {
     if (!loading && profile && !isMyPage && profile.is_public === false) {
@@ -33,7 +60,7 @@ export default function MemberDetailPage() {
     }
   }, [loading, profile, isMyPage, router]);
 
-  if (!userId) return <Empty message='유저 정보를 찾을 수 없습니다.' />;
+  if (!memberSlug || (!loading && !profile)) notFound();
   if (!isMyPage && profile?.is_public === false) return null;
 
   return (
@@ -55,11 +82,13 @@ export default function MemberDetailPage() {
         </div>
       </header>
 
-      <div className={styles.contents}>
-        <ProfileCard userId={userId} readOnly={true} />
-        <Charts userId={userId} />
-        <RecordList userId={userId} />
-      </div>
+      {userId && (
+        <div className={styles.contents}>
+          <ProfileCard userId={userId} readOnly={true} />
+          <Charts userId={userId} />
+          <RecordList userId={userId} />
+        </div>
+      )}
     </div>
   );
 }

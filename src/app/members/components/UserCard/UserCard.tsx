@@ -51,7 +51,8 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
 
   const { user: currentUser } = useAuth();
   const { toggle } = useSubscription(user.id, currentUser?.id);
-  const { isPressed, handlers } = usePressNavigate(`/members/${user.id}`);
+  const memberUrl = `/members/${encodeURIComponent(user.nickname)}`;
+  const { isPressed, handlers } = usePressNavigate(memberUrl);
 
   const handleUnsubscribeClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -125,7 +126,7 @@ export default function UserCard({ user, isSubscribed }: UserCardProps) {
 
   return (
     <Link
-      href={`/members/${user.id}`}
+      href={memberUrl}
       prefetch
       className={`${styles.userCard} ${isPressed ? styles.pressed : ''}`}
       {...handlers}

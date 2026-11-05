@@ -1,0 +1,28 @@
+@use '../styles' as *;
+
+.container {
+  @include flex-center;
+  min-height: 60vh;
+  flex-direction: column;
+  padding: 48px 24px;
+  text-align: center;
+
+  .image {
+    width: min(100%, 800px);
+    height: auto;
+  }
+
+  h1 {
+    @include font-xl-title;
+    margin: 8px 0 0;
+    color: var(--color-text-primary);
+  }
+
+  .description {
+    @include font-body;
+    margin: 10px 0 0;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    word-break: keep-all;
+  }
+}

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 
 export type ProfileData = {
+  id: string;
   nickname: string;
   avatar_url: string;
   status_message: string;
@@ -22,15 +23,17 @@ export function useProfile(userId: string | undefined) {
       const { data, error } = await supabase
         .from('profiles')
         .select(
-          'nickname, avatar_url, status_message, is_public, weight, gender, birth_date, background_color',
+          'id, nickname, avatar_url, status_message, is_public, weight, gender, birth_date, background_color',
         )
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) return null;
 
       return {
-        nickname: data.nickname || '울끈불끈이',
+        id: data.id,
+        nickname: data.nickname ?? '',
         avatar_url:
           data.avatar_url && data.avatar_url.trim() !== ''
             ? data.avatar_url
@@ -44,5 +47,41 @@ export function useProfile(userId: string | undefined) {
       };
     },
     enabled: !!userId,
+  });
+}
+
+export function useProfileByNickname(nickname: string | undefined) {
+  return useQuery({
+    queryKey: ['profile-by-nickname', nickname],
+    queryFn: async (): Promise<ProfileData | null> => {
+      if (!nickname) return null;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(
+          'id, nickname, avatar_url, status_message, is_public, weight, gender, birth_date, background_color',
+        )
+        .eq('nickname', nickname)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        nickname: data.nickname || '울끈불끈이',
+        avatar_url:
+          data.avatar_url && data.avatar_url.trim() !== ''
+            ? data.avatar_url
+            : undefined,
+        status_message: data.status_message || '울끈불끈!',
+        is_public: data.is_public ?? true,
+        weight: data.weight ?? null,
+        gender: data.gender ?? null,
+        birth_date: data.birth_date ?? null,
+        background_color: data.background_color || '#e3f2fd',
+      };
+    },
+    enabled: !!nickname,
   });
 }

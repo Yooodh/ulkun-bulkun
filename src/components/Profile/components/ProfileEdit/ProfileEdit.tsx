@@ -11,6 +11,11 @@ import Loading from '@/components/shared/Loading/Loading';
 import { ConfirmToast } from '@/components/shared/ConfirmToast/ConfirmToast';
 
 import { useProfileUpdate } from '@/hooks/useProfileUpdate';
+import {
+  isValidNickname,
+  normalizeNickname,
+  resolveResetNickname,
+} from '@/utils/nicknameUtils';
 
 import styles from './ProfileEdit.module.scss';
 
@@ -78,17 +83,11 @@ export default function ProfileEdit({
   };
 
   const handleConfirmSave = (): void => {
-    const trimmedNickname = tempNickname.trim();
+    const normalizedNickname = normalizeNickname(tempNickname);
     const trimmedStatus = tempStatus.trim();
 
-    if (trimmedNickname.length < 2) {
-      toast.info('닉네임은 최소 2글자 이상 입력해 주세요.', {
-        id: 'profile-edit-validation',
-      });
-      return;
-    }
-    if (trimmedNickname.length > 10) {
-      toast.info('닉네임은 최대 10글자까지 가능합니다.', {
+    if (!isValidNickname(normalizedNickname)) {
+      toast.info('닉네임은 한글, 영문 소문자, 숫자로 2~10자 입력해 주세요.', {
         id: 'profile-edit-validation',
       });
       return;
@@ -139,7 +138,7 @@ export default function ProfileEdit({
       '정말 변경하시겠습니까?',
       async () => {
         const success = await saveFullProfile(
-          trimmedNickname,
+          normalizedNickname,
           trimmedStatus,
           tempAvatar,
           initialIsPublic,
@@ -149,7 +148,7 @@ export default function ProfileEdit({
         );
         if (success) {
           onUpdate(
-            trimmedNickname,
+            normalizedNickname,
             tempAvatar,
             trimmedStatus,
             parsedWeight,
@@ -192,12 +191,14 @@ export default function ProfileEdit({
     ConfirmToast(
       '프로필을 처음 상태로 초기화할까요?',
       async () => {
-        const success = await resetProfile();
+        const metadataNickname =
+          user.user_metadata?.full_name || user.user_metadata?.name;
+        const defaultNickname = resolveResetNickname(
+          metadataNickname,
+          initialNickname,
+        );
+        const success = await resetProfile(initialNickname);
         if (success) {
-          const defaultNickname =
-            user.user_metadata?.full_name ||
-            user.user_metadata?.name ||
-            '울끈불끈이';
           const defaultAvatar =
             user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
           const defaultStatus = '울끈불끈!';
@@ -321,7 +322,7 @@ export default function ProfileEdit({
                 type='text'
                 value={tempNickname}
                 onChange={(e) => setTempNickname(e.target.value)}
-                placeholder='닉네임을 입력해주세요.'
+                placeholder='한글, 영문 소문자, 숫자 (2~10자)'
                 maxLength={10}
               />
               <span>{tempNickname.length}/10</span>
