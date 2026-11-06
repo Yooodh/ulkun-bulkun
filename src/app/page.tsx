@@ -17,7 +17,7 @@ import Button from '@/components/shared/Button/Button';
 import RecordForm from '@/components/RecordForm/RecordForm';
 import RecordList from '@/components/RecordList/RecordList';
 import Charts from '@/components/Charts';
-import ProfileCard from '@/components/Profile';
+import Profile from '@/components/Profile';
 
 import { useAuth } from '@/hooks/useAuth';
 
@@ -209,7 +209,7 @@ export default function Home() {
                 aria-labelledby='tab-profile'
                 aria-hidden={activePanel !== 'profile'}
               >
-                <ProfileCard />
+                <Profile />
               </div>
             </div>
           </div>

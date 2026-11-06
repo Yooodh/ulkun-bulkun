@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import NavBar from '@/components/shared/NavBar/NavBar';
 
 import Charts from '@/components/Charts';
-import ProfileCard from '@/components/Profile';
+import Profile from '@/components/Profile';
 import RecordList from '@/components/RecordList/RecordList';
 
 import { useProfile, useProfileByNickname } from '@/hooks/useProfile';
@@ -84,7 +84,7 @@ export default function MemberDetailPage() {
 
       {userId && (
         <div className={styles.contents}>
-          <ProfileCard userId={userId} readOnly={true} />
+          <Profile userId={userId} readOnly={true} />
           <Charts userId={userId} />
           <RecordList userId={userId} />
         </div>
