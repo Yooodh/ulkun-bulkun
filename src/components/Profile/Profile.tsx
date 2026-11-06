@@ -26,15 +26,15 @@ import ActionsSection from './components/ActionsSection/ActionsSection';
 
 import styles from './Profile.module.scss';
 
-type ProfileCardProps = {
+type ProfileProps = {
   userId?: string;
   readOnly?: boolean;
 };
 
-export default function ProfileCard({
+export default function Profile({
   userId,
   readOnly = false,
-}: ProfileCardProps) {
+}: ProfileProps) {
   const { user } = useAuth();
   const targetId = userId || user?.id;
 

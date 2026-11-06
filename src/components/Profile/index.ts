@@ -1,1 +1,2 @@
-export { default } from './ProfileCard';
+export { default } from './Profile';
+
