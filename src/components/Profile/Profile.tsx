@@ -237,7 +237,11 @@ export default function Profile({
               />
             ) : (
               <div className={styles.contentDetails}>
-                <StatsSection records={records} loading={recordsLoading} />
+                <StatsSection
+                  records={records}
+                  loading={recordsLoading}
+                  onClick={() => setStage(1)}
+                />
                 <ActionsSection
                   onShare={handleShare}
                   onEditProfile={() => {
