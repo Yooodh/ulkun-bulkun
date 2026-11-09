@@ -21,6 +21,7 @@
 
 .infoSection {
   position: absolute;
+  top: calc(100% - 145px);
   left: 0;
   right: 0;
   bottom: 0;
@@ -28,14 +29,18 @@
   border-radius: 16px 16px 0 0;
   display: grid;
   grid-template-rows: auto 0fr;
-  transition: grid-template-rows 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  transition:
+    top 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    grid-template-rows 0.4s cubic-bezier(0.32, 0.72, 0, 1);
   overflow: hidden;
   max-height: 100%;
   z-index: 1;
 
   &.stage2,
   &.isEditing {
-    grid-template-rows: auto 1fr;
+    top: 0;
+    grid-template-rows: auto minmax(0, 1fr);
+    border-radius: 0;
   }
 
   .infoHeader {
@@ -58,16 +63,6 @@
       }
     }
 
-    &:hover .handleBar {
-      background: var(--color-ligray);
-      transform: scaleX(1.1);
-    }
-
-    &:active .handleBar {
-      background: var(--color-gray);
-      transform: scaleX(1.05) translateY(1px);
-    }
-
     .infoTitle {
       padding: 0 24px;
 
@@ -82,8 +77,20 @@
     pointer-events: none;
   }
 
+  &:hover .handleBar {
+    background: var(--color-ligray);
+    transform: scaleX(1.1);
+  }
+
+  &:active .handleBar {
+    background: var(--color-gray);
+    transform: scaleX(1.05) translateY(1px);
+  }
+
   .infoContent {
     grid-row: 2;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -96,20 +103,23 @@
     }
 
     .contentBox {
-      padding: 0 24px 15px;
+      flex: 1;
+      padding: 0 24px;
       display: flex;
       flex-direction: column;
 
       @media (max-width: 768px) {
-        padding: 0 10px 15px;
+        padding: 0 10px;
       }
     }
 
     .contentDetails {
+      flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      margin-top: 10px;
+      gap: 10px;
+      margin-top: 0;
       @include fade-in-anim();
     }
   }
