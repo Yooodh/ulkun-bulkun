@@ -14,9 +14,14 @@ import { StrengthRecord } from '@/types/record';
 type StatsSectionProps = {
   records: StrengthRecord[];
   loading?: boolean;
+  onClick?: () => void;
 };
 
-export default function StatsSection({ records, loading }: StatsSectionProps) {
+export default function StatsSection({
+  records,
+  loading,
+  onClick,
+}: StatsSectionProps) {
   const stats = useMemo(() => {
     if (!records || records.length === 0) {
       return {
@@ -52,7 +57,19 @@ export default function StatsSection({ records, loading }: StatsSectionProps) {
   if (loading) return <Loading message='기록을 불러오고 있어요!' />;
 
   return (
-    <div className={styles.statsContainer}>
+    <div
+      className={styles.statsContainer}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick?.();
+        }
+      }}
+      role='button'
+      tabIndex={0}
+      aria-label='프로필 접기'
+    >
       <div className={styles.streakBox}>
         <strong className={styles.statValue}>{stats.weeklyStreak}</strong>
         <label className={styles.statLabel}>🔥주 연속 기록🔥</label>
