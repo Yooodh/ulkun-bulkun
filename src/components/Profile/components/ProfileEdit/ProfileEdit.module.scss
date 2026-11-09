@@ -1,13 +1,19 @@
 @use '../../../../styles' as *;
 
 .editContainer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100%;
   width: 100%;
   padding-top: 8px;
 
   .editWrapper {
+    flex: 1;
     gap: 20px;
     display: flex;
     flex-direction: column;
+    justify-content: space-evenly;
     align-items: center;
     padding-bottom: 10px;
 
@@ -192,7 +198,7 @@
     gap: 20px;
     width: 100%;
     padding-top: 14px;
-    padding-bottom: 4px;
+    padding-bottom: 14px;
 
     .dangerLink {
       @include font-sm;
