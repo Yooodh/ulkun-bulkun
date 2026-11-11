@@ -19,11 +19,95 @@
     }
   }
 
+  .viewControls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 16px;
+
+    @media (max-width: 768px) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+    }
+  }
+
   .rmToggleWrapper {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+  }
+
+  .rangeControls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    order: -1;
+
+    @media (max-width: 768px) {
+      display: contents;
+
+      > div:first-child {
+        grid-column: 1;
+        grid-row: 1;
+        justify-self: start;
+      }
+    }
+  }
+
+  .dateRange {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    input {
+      @include font-sm;
+      min-height: 34px;
+      min-width: 0;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 8px;
+      padding: 4px 8px;
+      color: var(--color-text-primary);
+      background: var(--color-bg-primary);
+    }
+
+    input {
+      width: 116px;
+      max-width: 34vw;
+      border-width: 3px;
+
+      @media (min-width: 769px) {
+        width: 132px;
+        max-width: none;
+      }
+    }
+  }
+
+  .applyDateButton {
+    flex-shrink: 0;
+  }
+
+  .dateRangeRow {
+    display: flex;
+    margin: 0;
+
+    @media (max-width: 768px) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      margin-top: 8px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .rmToggleWrapper {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
   }
 
   .rmToggle {
@@ -56,6 +140,7 @@
 
   .infoWrapper {
     position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
 
@@ -75,8 +160,8 @@
     .infoTooltip {
       @include font-sm;
       position: absolute;
-      left: 24px;
-      top: 50%;
+      right: 0;
+      top: calc(100% + 18px);
       transform: translateY(4px);
       opacity: 0;
       pointer-events: none;
@@ -85,14 +170,8 @@
       border: 3px solid var(--color-border-primary);
       border-radius: $radius-main;
       padding: 12px 14px;
-      width: 220px;
+      width: min(220px, calc(100vw - 32px));
       z-index: 1;
-
-      @media (max-width: 768px) {
-        left: -60px;
-        top: 150%;
-        width: 200px;
-      }
 
       .infoTitle {
         color: var(--color-text-primary);
@@ -142,6 +221,15 @@
     .chartArea {
       flex: 1;
       min-height: 200px;
+      touch-action: none;
+
+      @media (min-width: 769px) {
+        cursor: grab;
+
+        &:active {
+          cursor: grabbing;
+        }
+      }
     }
   }
 
@@ -178,49 +266,63 @@
     }
   }
 
-  .brushNav {
+  .rangeFooter {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0 35px;
-    position: relative;
-    left: 12px;
-    min-height: 36px;
-  }
-
-  .brushNavText {
     @include font-sm;
-    color: var(--color-text-primary);
-    text-align: center;
-  }
+    gap: 12px;
+    min-height: 32px;
+    color: var(--color-text-muted);
 
-  .brushNavGroup {
-    display: flex;
-    gap: 2px;
-  }
+    button {
+      display: grid;
+      place-items: center;
+      background: transparent;
+      border: 0;
+      padding: 4px;
+      color: var(--color-text-primary);
+      cursor: pointer;
 
-  .brushNavBtn {
-    background: none;
-    border: none;
-    padding: 2px 8px;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    transition: background 0.15s;
-
-    &:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+      &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
     }
   }
 
-  .charBrush {
-    @media (max-width: 768px) {
-      :global(.recharts-brush-traveller) {
-        display: none;
-      }
-      :global(.recharts-brush-slide) {
-        pointer-events: none;
-      }
+  .rangeNavGroup {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .rangeSummary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+  }
+
+  .rangeCount {
+    @include font-body;
+    color: var(--color-text-primary);
+  }
+
+  .rangeDate {
+    @include font-body;
+    color: var(--color-text-secondary);
+  }
+
+  .gestureHint {
+    @include font-sm;
+    margin: 0 0 8px;
+    color: var(--color-text-muted);
+    text-align: center;
+
+    @media (min-width: 769px) {
+      display: none;
     }
   }
 }

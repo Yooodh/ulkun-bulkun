@@ -1,5 +1,11 @@
 export const LIFT_SUBJECTS = ['스쿼트', '데드', '벤치', 'OHP'] as const;
 export type LiftSubject = (typeof LIFT_SUBJECTS)[number];
+export type ChartColorKey =
+  | 'total_weight'
+  | 'squat'
+  | 'deadlift'
+  | 'bench_press'
+  | 'ohp';
 
 export type Gender = 'male' | 'female';
 export type AgeBracket = '18-39' | '40-49' | '50-59' | '60+';
@@ -426,12 +432,26 @@ const REFERENCE_BODYWEIGHT: Record<Gender, number> = {
   female: 60,
 };
 
-export const COLORS: Record<LiftSubject, string> = {
-  스쿼트: '#EF4444',
-  데드: '#F97316',
-  벤치: '#22C55E',
-  OHP: '#A855F7',
+export const COLORS: Record<ChartColorKey, string> = {
+  total_weight: '#007bff',
+  squat: '#EF4444',
+  deadlift: '#F97316',
+  bench_press: '#22C55E',
+  ohp: '#A855F7',
 };
+
+const SUBJECT_COLOR_KEYS: Record<
+  LiftSubject,
+  Exclude<ChartColorKey, 'total_weight'>
+> = {
+  스쿼트: 'squat',
+  데드: 'deadlift',
+  벤치: 'bench_press',
+  OHP: 'ohp',
+};
+
+export const getLiftColor = (subject: LiftSubject): string =>
+  COLORS[SUBJECT_COLOR_KEYS[subject]];
 
 // 체중 구간 사이를 선형보간해 절대 기준 1RM(kg) 계산
 const interpolateStandardKg = (

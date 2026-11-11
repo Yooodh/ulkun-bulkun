@@ -8,13 +8,23 @@ export type ChartTooltipRow = {
 
 type ChartTooltipProps = {
   title: string;
+  titleColor?: string;
   rows: ChartTooltipRow[];
 };
 
-export default function ChartTooltip({ title, rows }: ChartTooltipProps) {
+export default function ChartTooltip({
+  title,
+  titleColor,
+  rows,
+}: ChartTooltipProps) {
   return (
     <div className={styles.tooltip}>
-      <p className={styles.tooltipTitle}>{title}</p>
+      <p
+        className={styles.tooltipTitle}
+        style={titleColor ? { color: titleColor } : undefined}
+      >
+        {title}
+      </p>
       {rows.map((row) => (
         <p key={row.label} className={styles.tooltipRow}>
           <span>{row.label}</span>

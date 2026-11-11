@@ -19,7 +19,7 @@ import { useBestRecords } from '@/hooks/useBestRecords';
 import ChartState from '../ChartState/ChartState';
 import ChartTooltip from '../ChartTooltip/ChartTooltip';
 
-import { COLORS, type LiftSubject } from '../../constants/strengthStandards';
+import { getLiftColor, type LiftSubject } from '../../constants/strengthStandards';
 
 import styles from './StrengthChart.module.scss';
 
@@ -63,6 +63,7 @@ const CustomTooltip = ({
     return (
       <ChartTooltip
         title={d.subject}
+        titleColor={getLiftColor(d.subject as LiftSubject)}
         rows={[
           {
             label: '기준 대비',
@@ -205,7 +206,7 @@ export default function StrengthChart({
                     dataKey='subject'
                     tick={({ x, y, payload }) => {
                       const color =
-                        COLORS[payload.value as LiftSubject] ??
+                        getLiftColor(payload.value as LiftSubject) ??
                         'var(--color-text-muted)';
                       const { dx, dy } = LABEL_OFFSET[payload.value] ?? {
                         dx: 0,
@@ -268,7 +269,7 @@ export default function StrengthChart({
                 <div key={item.subject} className={styles.scoreItem}>
                   <span
                     className={styles.scoreLabel}
-                    style={{ color: COLORS[item.subject as LiftSubject] }}
+                    style={{ color: getLiftColor(item.subject as LiftSubject) }}
                   >
                     {item.subject}
                   </span>
