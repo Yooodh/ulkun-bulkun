@@ -23,24 +23,9 @@ export function useProfileUpdate(user: User) {
   const [uploading, setUploading] = useState<boolean>(false);
 
   // 이미지 업로드
-  const uploadImage = async (
-    file: File,
-    prevAvatarUrl?: string,
-  ): Promise<string | null> => {
+  const uploadImage = async (file: File): Promise<string | null> => {
     try {
       setUploading(true);
-
-      // 기존 이미지 삭제
-      if (prevAvatarUrl) {
-        // URL에서 폴더명/파일명만 추출
-        const urlParts = prevAvatarUrl.split('/');
-        const fileNameWithFolder = `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`;
-
-        if (fileNameWithFolder.includes(user.id)) {
-          // 내 폴더의 파일인지 확인
-          await supabase.storage.from('avatar').remove([fileNameWithFolder]);
-        }
-      }
 
       const fileExt = file.name.split('.').pop();
       // 파일명 앞에 유저 ID와 /를 붙여 폴더 지정
@@ -65,6 +50,23 @@ export function useProfileUpdate(user: User) {
       return null;
     } finally {
       setUploading(false);
+    }
+  };
+
+  const deleteAvatar = async (avatarUrl: string): Promise<void> => {
+    try {
+      const url = new URL(avatarUrl);
+      const marker = '/storage/v1/object/public/avatar/';
+      const markerIndex = url.pathname.indexOf(marker);
+      if (markerIndex < 0) return;
+
+      const filePath = decodeURIComponent(url.pathname.slice(markerIndex + marker.length));
+      if (!filePath.startsWith(`${user.id}/`)) return;
+
+      const { error } = await supabase.storage.from('avatar').remove([filePath]);
+      if (error) console.error('Avatar cleanup error:', error);
+    } catch (error) {
+      console.error('Avatar cleanup error:', error);
     }
   };
 
@@ -183,6 +185,7 @@ export function useProfileUpdate(user: User) {
 
   return {
     uploadImage,
+    deleteAvatar,
     saveFullProfile,
     resetProfile,
     deleteAccount,

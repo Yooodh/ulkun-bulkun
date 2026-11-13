@@ -65,8 +65,10 @@ export default function ProfileEdit({
   );
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadedAvatarsRef = useRef<string[]>([]);
   const {
     uploadImage,
+    deleteAvatar,
     saveFullProfile,
     resetProfile,
     deleteAccount,
@@ -78,8 +80,15 @@ export default function ProfileEdit({
   ): Promise<void> => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const publicUrl = await uploadImage(file, tempAvatar);
-    if (publicUrl) setTempAvatar(publicUrl);
+    const publicUrl = await uploadImage(file);
+    if (publicUrl) {
+      if (tempAvatar !== initialAvatar && uploadedAvatarsRef.current.includes(tempAvatar)) {
+        await deleteAvatar(tempAvatar);
+        uploadedAvatarsRef.current = uploadedAvatarsRef.current.filter((url) => url !== tempAvatar);
+      }
+      uploadedAvatarsRef.current.push(publicUrl);
+      setTempAvatar(publicUrl);
+    }
   };
 
   const handleConfirmSave = (): void => {
@@ -147,7 +156,9 @@ export default function ProfileEdit({
           trimmedBirthDate || null,
         );
         if (success) {
-          onUpdate(
+          if (initialAvatar && initialAvatar !== tempAvatar) await deleteAvatar(initialAvatar);
+          uploadedAvatarsRef.current = [];
+          await onUpdate(
             normalizedNickname,
             tempAvatar,
             trimmedStatus,
@@ -178,7 +189,11 @@ export default function ProfileEdit({
     if (isChanged) {
       ConfirmToast(
         '수정 중인 내용은 저장되지 않습니다. 취소하시겠습니까?',
-        () => onEditingChange(false),
+        async () => {
+          for (const avatar of uploadedAvatarsRef.current) await deleteAvatar(avatar);
+          uploadedAvatarsRef.current = [];
+          onEditingChange(false);
+        },
         undefined,
         'profile-edit-cancel-confirm',
       );
@@ -199,6 +214,11 @@ export default function ProfileEdit({
         );
         const success = await resetProfile(initialNickname);
         if (success) {
+          for (const avatar of uploadedAvatarsRef.current) await deleteAvatar(avatar);
+          uploadedAvatarsRef.current = [];
+          if (initialAvatar && initialAvatar !== (user.user_metadata?.avatar_url || user.user_metadata?.picture || '')) {
+            await deleteAvatar(initialAvatar);
+          }
           const defaultAvatar =
             user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
           const defaultStatus = '울끈불끈!';
@@ -208,7 +228,7 @@ export default function ProfileEdit({
           setTempWeight('');
           setTempGender(null);
           setTempBirthDate('');
-          onUpdate(
+          await onUpdate(
             defaultNickname,
             defaultAvatar,
             defaultStatus,
