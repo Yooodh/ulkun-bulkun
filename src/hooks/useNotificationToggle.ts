@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { supabase } from '@/lib/supabase';
+
 import { subscribeAndSave } from '@/utils/pushSubscriptionUtils';
 
 export function useNotificationToggle(userId?: string | null) {
   const [isNotificationOn, setIsNotificationOn] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<boolean>(false);
   const [toggling, setToggling] = useState<boolean>(false);
 
   useEffect(() => {
@@ -31,6 +33,7 @@ export function useNotificationToggle(userId?: string | null) {
           console.error('알림 상태 조회 실패:', error);
         }
 
+        setLoadError(!!error);
         setIsNotificationOn(data?.is_active ?? true);
         setLoading(false);
       });
@@ -91,5 +94,5 @@ export function useNotificationToggle(userId?: string | null) {
     }
   };
 
-  return { isNotificationOn, loading, toggling, toggle };
+  return { isNotificationOn, loading, loadError, toggling, toggle };
 }
