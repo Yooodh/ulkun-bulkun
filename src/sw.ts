@@ -18,7 +18,7 @@ const serwist = new Serwist({
 });
 
 self.addEventListener('push', (event) => {
-  let data: { title?: string; body?: string } = {};
+  let data: { title?: string; body?: string; url?: string } = {};
   try {
     data = (event as PushEvent).data?.json() ?? {};
   } catch {
@@ -34,13 +34,43 @@ self.addEventListener('push', (event) => {
 
     // 안드로이드 상태 표시줄에 뜨는 작은 알림 아이콘
     badge: '/assets/images/ulkun-bulkun_badge.png',
+    data: { url: data.url || '/' },
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
-  (event as NotificationEvent).notification.close();
-  event.waitUntil(self.clients.openWindow('/'));
+  const notificationEvent = event as NotificationEvent;
+  notificationEvent.notification.close();
+
+  const requestedUrl = notificationEvent.notification.data?.url;
+  let targetUrl = new URL('/', self.location.origin);
+
+  if (typeof requestedUrl === 'string') {
+    try {
+      const candidateUrl = new URL(requestedUrl, self.location.origin);
+      if (candidateUrl.origin === self.location.origin) {
+        targetUrl = candidateUrl;
+      }
+    } catch {
+    }
+  }
+
+  notificationEvent.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true,
+      });
+
+      for (const windowClient of windows) {
+        await windowClient.navigate(targetUrl.href);
+        return windowClient.focus();
+      }
+
+      return self.clients.openWindow(targetUrl.href);
+    })(),
+  );
 });
 
 serwist.addEventListeners();
