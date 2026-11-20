@@ -109,13 +109,13 @@
     bottom: calc(100% + 6px);
     left: 50%;
     transform: translateX(-50%) translateY(3px) scale(0.96);
-    background: var(--color-border-primary);
+    background: var(--color-bg-primary);
+    border: 3px solid var(--color-border-primary);
     color: var(--color-text-primary);
-    padding: 5px 9px;
+    padding: 2px 8px;
     border-radius: $radius-main;
     @include font-body;
     display: grid;
-    gap: 2px;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -129,7 +129,7 @@
       top: 100%;
       left: 50%;
       transform: translateX(-50%);
-      border: 5px solid transparent;
+      border: 8px solid transparent;
       border-top-color: var(--color-border-primary);
     }
   }
