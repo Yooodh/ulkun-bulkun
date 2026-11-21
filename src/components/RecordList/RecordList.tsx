@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import styles from './RecordList.module.scss';
@@ -66,6 +66,7 @@ function WeightCell({ weight, reps, label, className }: RepsTooltipProps) {
 }
 
 export default function RecordList({ userId }: RecordListProps) {
+  const listContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
@@ -86,15 +87,19 @@ export default function RecordList({ userId }: RecordListProps) {
 
   const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
 
-  useEffect(() => {
-    setCurrentPage((prev) => Math.min(prev, totalPages));
-  }, [totalPages]);
-
-  useEffect(() => {
-    if (records.length === 0) setManageMode(false);
-  }, [records.length]);
-
   const safePage = Math.min(currentPage, totalPages);
+  const previousPageRef = useRef(safePage);
+  const isManageMode = records.length > 0 && manageMode;
+
+  useEffect(() => {
+    if (previousPageRef.current === safePage) return;
+
+    previousPageRef.current = safePage;
+    listContainerRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [safePage]);
 
   const paginatedRecords = records.slice(
     (safePage - 1) * PAGE_SIZE,
@@ -102,7 +107,7 @@ export default function RecordList({ userId }: RecordListProps) {
   );
 
   return (
-    <div className={styles.listContainer}>
+    <div ref={listContainerRef} className={styles.listContainer}>
       <div className={styles.titleRow}>
         <h1>
           {displayName && (
@@ -118,11 +123,11 @@ export default function RecordList({ userId }: RecordListProps) {
             variant='toggle'
             shape='round'
             size='sm'
-            active={manageMode}
+            active={isManageMode}
             className={styles.manageToggle}
             onClick={() => setManageMode((prev) => !prev)}
           >
-            {manageMode ? '완료' : '관리'}
+            {isManageMode ? '완료' : '관리'}
           </Button>
         )}
       </div>
@@ -145,7 +150,7 @@ export default function RecordList({ userId }: RecordListProps) {
           />
         ) : (
           <div
-            className={`${styles.listTable} ${manageMode ? styles.manageOpen : ''}`}
+            className={`${styles.listTable} ${isManageMode ? styles.manageOpen : ''}`}
           >
             <table>
               <thead>
@@ -244,7 +249,7 @@ export default function RecordList({ userId }: RecordListProps) {
                                 async () => {
                                   try {
                                     await deleteRecord(r.id);
-                                  } catch (e) {
+                                  } catch {
                                     toast.error('삭제에 실패했습니다.', {
                                       id: 'record-delete-error',
                                     });
