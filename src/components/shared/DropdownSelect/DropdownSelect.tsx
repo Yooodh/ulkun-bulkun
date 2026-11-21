@@ -28,7 +28,9 @@ export default function DropdownSelect<Value extends string>({
   placeholder = '선택하세요',
 }: DropdownSelectProps<Value>) {
   const [isOpen, setIsOpen] = useState(false);
-  const [pressAnimation, setPressAnimation] = useState<'keyboard' | 'touch' | null>(null);
+  const [pressAnimation, setPressAnimation] = useState<
+    'keyboard' | 'touch' | null
+  >(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const touchPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -42,15 +44,18 @@ export default function DropdownSelect<Value extends string>({
 
   const close = useCallback((restoreFocus = false) => {
     setIsOpen(false);
-    setPressAnimation((current) => current === 'touch' ? current : null);
+    setPressAnimation((current) => (current === 'touch' ? current : null));
     if (restoreFocus) triggerRef.current?.focus();
   }, []);
 
-  const focusOption = useCallback((index: number) => {
-    if (!options.length) return;
-    const wrappedIndex = (index + options.length) % options.length;
-    optionRefs.current[wrappedIndex]?.focus();
-  }, [options.length]);
+  const focusOption = useCallback(
+    (index: number) => {
+      if (!options.length) return;
+      const wrappedIndex = (index + options.length) % options.length;
+      optionRefs.current[wrappedIndex]?.focus();
+    },
+    [options.length],
+  );
 
   useEffect(() => {
     if (!isOpen) return;
@@ -64,13 +69,14 @@ export default function DropdownSelect<Value extends string>({
     setIsOpen(true);
   };
 
-  useEffect(() => () => {
-    if (touchPressTimerRef.current) clearTimeout(touchPressTimerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (touchPressTimerRef.current) clearTimeout(touchPressTimerRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
-    // Close the popover when its data source becomes empty while it is open.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (options.length === 0 && isOpen) close();
   }, [close, isOpen, options.length]);
 
@@ -107,10 +113,13 @@ export default function DropdownSelect<Value extends string>({
         disabled={options.length === 0}
         onPointerDown={(event) => {
           if (event.pointerType === 'touch') {
-            if (touchPressTimerRef.current) clearTimeout(touchPressTimerRef.current);
+            if (touchPressTimerRef.current)
+              clearTimeout(touchPressTimerRef.current);
             setPressAnimation('touch');
             touchPressTimerRef.current = setTimeout(() => {
-              setPressAnimation((current) => current === 'touch' ? null : current);
+              setPressAnimation((current) =>
+                current === 'touch' ? null : current,
+              );
               touchPressTimerRef.current = null;
             }, 160);
           }
@@ -136,7 +145,12 @@ export default function DropdownSelect<Value extends string>({
         <ChevronDown size={16} />
       </button>
       {isOpen && (
-        <div id={listboxId} className={styles.menu} role='listbox' aria-label={ariaLabel}>
+        <div
+          id={listboxId}
+          className={styles.menu}
+          role='listbox'
+          aria-label={ariaLabel}
+        >
           {options.map((option, index) => (
             <button
               type='button'
