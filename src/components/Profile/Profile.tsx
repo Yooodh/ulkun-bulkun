@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { useTheme } from 'next-themes';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -26,15 +26,17 @@ import ActionsSection from './components/ActionsSection/ActionsSection';
 
 import styles from './Profile.module.scss';
 
-type ProfileCardProps = {
+type ProfileProps = {
   userId?: string;
   readOnly?: boolean;
 };
 
-export default function ProfileCard({
+const subscribeToNothing = () => () => {};
+
+export default function Profile({
   userId,
   readOnly = false,
-}: ProfileCardProps) {
+}: ProfileProps) {
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
@@ -61,11 +63,18 @@ export default function ProfileCard({
   const canEdit = isMyProfile && user && !readOnly;
   const isLoggedIn = !!user;
 
-  const { isNotificationOn, toggle: handleNotificationToggle } =
-    useNotificationToggle(isMyProfile ? user?.id : null);
+  const {
+    isNotificationOn,
+    loading: notificationLoading,
+    loadError: notificationLoadError,
+    toggle: handleNotificationToggle,
+  } = useNotificationToggle(isMyProfile ? user?.id : null);
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
 
   const { resolvedTheme, setTheme } = useTheme();
   const isDarkMode = mounted && resolvedTheme === 'dark';
@@ -83,21 +92,24 @@ export default function ProfileCard({
     birthDate: string | null,
   ) => {
     if (!profile) return;
-    const success = await saveFullProfile(
-      nickname,
-      status_message,
-      avatar_url,
-      profile.is_public,
-      weight,
-      gender,
-      birthDate,
+    queryClient.setQueryData(['profile', targetId], (current: typeof profile) =>
+      current
+        ? {
+            ...current,
+            nickname,
+            avatar_url,
+            status_message,
+            weight,
+            gender,
+            birth_date: birthDate,
+          }
+        : current,
     );
-
-    if (success) {
-      queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      setIsEditing(false);
-    }
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['profile', targetId] }),
+      queryClient.invalidateQueries({ queryKey: ['users'] }),
+    ]);
+    setIsEditing(false);
   };
 
   // 공개/비공개
@@ -237,7 +249,11 @@ export default function ProfileCard({
               />
             ) : (
               <div className={styles.contentDetails}>
-                <StatsSection records={records} loading={recordsLoading} />
+                <StatsSection
+                  records={records}
+                  loading={recordsLoading}
+                  onClick={() => setStage(1)}
+                />
                 <ActionsSection
                   onShare={handleShare}
                   onEditProfile={() => {
@@ -252,6 +268,9 @@ export default function ProfileCard({
                   isPublic={profile?.is_public}
                   isSubscribed={isSubscribed}
                   isNotificationOn={isNotificationOn}
+                  isNotificationDisabled={
+                    notificationLoading || notificationLoadError
+                  }
                   isDarkMode={isDarkMode}
                   readOnly={!canEdit}
                   isLoggedIn={isLoggedIn}

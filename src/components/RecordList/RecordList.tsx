@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import styles from './RecordList.module.scss';
@@ -15,7 +15,8 @@ import { useRecords } from '@/hooks/useRecords';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 
-import { formatDate, toInputDate } from '@/utils/dateUtils';
+import { formatDate } from '@/utils/dateUtils';
+import { calc1RM } from '@/utils/recordUtils';
 
 import { StrengthRecord } from '@/types/record';
 
@@ -43,7 +44,7 @@ function WeightCell({ weight, reps, label, className }: RepsTooltipProps) {
   if (weight === 0) {
     return (
       <td data-label={label} className={className}>
-        0kg
+        -
       </td>
     );
   }
@@ -53,10 +54,11 @@ function WeightCell({ weight, reps, label, className }: RepsTooltipProps) {
       data-label={label}
       className={`${styles.weightCell} ${className ?? ''}`}
     >
-      <span className={styles.weightWithTooltip}>
+      <span className={styles.weightWithTooltip} tabIndex={0}>
         {weight}kg
         <span className={styles.tooltip}>
-          {weight}kg x {reps}회
+          <span>{reps}회</span>
+          <span>추정 {calc1RM(weight, reps)}kg</span>
         </span>
       </span>
     </td>
@@ -64,6 +66,7 @@ function WeightCell({ weight, reps, label, className }: RepsTooltipProps) {
 }
 
 export default function RecordList({ userId }: RecordListProps) {
+  const listContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const targetId = userId || user?.id;
 
@@ -71,13 +74,10 @@ export default function RecordList({ userId }: RecordListProps) {
     records,
     loading: recordsLoading,
     deleteRecord,
-    updateRecordDate,
   } = useRecords(targetId);
 
   const { data: profile, isLoading: profileLoading } = useProfile(targetId);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDate, setEditDate] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [manageMode, setManageMode] = useState<boolean>(false);
 
@@ -85,40 +85,21 @@ export default function RecordList({ userId }: RecordListProps) {
   const displayName = profile?.nickname || '';
   const isPageLoading = recordsLoading || (isReadOnly && profileLoading);
 
-  const handleBlur = async (id: string, originalDate: string) => {
-    if (toInputDate(originalDate) === editDate) {
-      setEditingId(null);
-      return;
-    }
-
-    try {
-      await updateRecordDate(id, editDate);
-      setEditingId(null);
-    } catch (error) {
-      toast.error('날짜 수정에 실패했습니다.', { id: 'record-date-error' });
-    }
-  };
-
-  const handleKeyDown = (
-    e: React.KeyboardEvent,
-    id: string,
-    originalDate: string,
-  ) => {
-    if (e.key === 'Enter') handleBlur(id, originalDate);
-    else if (e.key === 'Escape') setEditingId(null);
-  };
-
   const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
 
-  useEffect(() => {
-    setCurrentPage((prev) => Math.min(prev, totalPages));
-  }, [totalPages]);
-
-  useEffect(() => {
-    if (records.length === 0) setManageMode(false);
-  }, [records.length]);
-
   const safePage = Math.min(currentPage, totalPages);
+  const previousPageRef = useRef(safePage);
+  const isManageMode = records.length > 0 && manageMode;
+
+  useEffect(() => {
+    if (previousPageRef.current === safePage) return;
+
+    previousPageRef.current = safePage;
+    listContainerRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [safePage]);
 
   const paginatedRecords = records.slice(
     (safePage - 1) * PAGE_SIZE,
@@ -126,7 +107,7 @@ export default function RecordList({ userId }: RecordListProps) {
   );
 
   return (
-    <div className={styles.listContainer}>
+    <div ref={listContainerRef} className={styles.listContainer}>
       <div className={styles.titleRow}>
         <h1>
           {displayName && (
@@ -142,11 +123,11 @@ export default function RecordList({ userId }: RecordListProps) {
             variant='toggle'
             shape='round'
             size='sm'
-            active={manageMode}
+            active={isManageMode}
             className={styles.manageToggle}
             onClick={() => setManageMode((prev) => !prev)}
           >
-            {manageMode ? '완료' : '관리'}
+            {isManageMode ? '완료' : '관리'}
           </Button>
         )}
       </div>
@@ -169,7 +150,7 @@ export default function RecordList({ userId }: RecordListProps) {
           />
         ) : (
           <div
-            className={`${styles.listTable} ${manageMode ? styles.manageOpen : ''}`}
+            className={`${styles.listTable} ${isManageMode ? styles.manageOpen : ''}`}
           >
             <table>
               <thead>
@@ -190,6 +171,7 @@ export default function RecordList({ userId }: RecordListProps) {
                   return (
                     <tr key={r.id}>
                       <td data-label='날짜'>
+                        {/* 날짜 수정 기능 임시 비활성화
                         {!isReadOnly && editingId === r.id ? (
                           <input
                             type='date'
@@ -221,6 +203,10 @@ export default function RecordList({ userId }: RecordListProps) {
                             {!isReadOnly && ' ✏️'}
                           </span>
                         )}
+                        */}
+                        <span className={styles.pureDate}>
+                          {formatDate(displayDate)}
+                        </span>
                       </td>
                       <WeightCell
                         weight={r.squat}
@@ -247,7 +233,9 @@ export default function RecordList({ userId }: RecordListProps) {
                         className={styles.liftCell}
                       />
                       <td data-label='합계' className={styles.total}>
-                        {r.total_weight}kg
+                        <span className={styles.totalValue}>
+                          {r.total_weight === 0 ? '-' : `${r.total_weight}kg`}
+                        </span>
                       </td>
 
                       {!isReadOnly && (
@@ -261,7 +249,7 @@ export default function RecordList({ userId }: RecordListProps) {
                                 async () => {
                                   try {
                                     await deleteRecord(r.id);
-                                  } catch (e) {
+                                  } catch {
                                     toast.error('삭제에 실패했습니다.', {
                                       id: 'record-delete-error',
                                     });

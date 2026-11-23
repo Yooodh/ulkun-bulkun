@@ -10,8 +10,13 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!,
 );
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function POST(req: NextRequest) {
-  const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = req.headers
+    .get('Authorization')
+    ?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -24,44 +29,77 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 
-  const subscriber_id = user.id;
-  const { target_id } = await req.json();
-
-  if (!subscriber_id || !target_id) {
+  let targetId: unknown;
+  try {
+    ({ target_id: targetId } = await req.json());
+  } catch {
     return NextResponse.json(
-      { error: 'subscriber_id, target_id is required' },
+      { error: 'Invalid request body' },
+      { status: 400 },
+    );
+  }
+  if (typeof targetId !== 'string' || !UUID_PATTERN.test(targetId)) {
+    return NextResponse.json({ error: 'Invalid target_id' }, { status: 400 });
+  }
+  if (targetId === user.id) {
+    return NextResponse.json(
+      { error: 'Cannot follow yourself' },
       { status: 400 },
     );
   }
 
   try {
-    // 나를 팔로우한 사람(팔로워)의 닉네임 조회
-    const { data: subscriberProfile } = await supabaseAdmin
-      .from('profiles')
-      .select('nickname')
-      .eq('id', subscriber_id)
-      .single();
-
-    // 팔로우 당한 사람(팔로잉)의 웹 푸시 알림 구독 정보 조회
-    const { data: pushSub, error: pushError } = await supabaseAdmin
-      .from('push_subscriptions')
-      .select('subscription')
-      .eq('user_id', target_id)
-      .eq('is_active', true)
+    const { data: subscription, error: subscriptionError } = await supabaseAdmin
+      .from('subscriptions')
+      .select('id')
+      .eq('subscriber_id', user.id)
+      .eq('target_id', targetId)
       .maybeSingle();
 
-    if (pushError) throw pushError;
-    if (!pushSub) {
-      return NextResponse.json({ ok: true, notified: 0 });
+    if (subscriptionError) throw subscriptionError;
+    if (!subscription) {
+      return NextResponse.json(
+        { error: 'Follow relationship not found' },
+        { status: 404 },
+      );
     }
 
-    // 알림 발송
+    const { error: claimError } = await supabaseAdmin
+      .from('notification_events')
+      .insert({ event_key: `new-follower:${subscription.id}` });
+
+    if (claimError?.code === '23505') {
+      return NextResponse.json({ ok: true, notified: 0, duplicate: true });
+    }
+    if (claimError) throw claimError;
+
+    const [
+      { data: subscriberProfile, error: profileError },
+      { data: pushSub, error: pushError },
+    ] = await Promise.all([
+      supabaseAdmin
+        .from('profiles')
+        .select('nickname')
+        .eq('id', user.id)
+        .maybeSingle(),
+      supabaseAdmin
+        .from('push_subscriptions')
+        .select('subscription')
+        .eq('user_id', targetId)
+        .eq('is_active', true)
+        .maybeSingle(),
+    ]);
+
+    if (profileError) throw profileError;
+    if (pushError) throw pushError;
+    if (!pushSub) return NextResponse.json({ ok: true, notified: 0 });
+
     await webpush.sendNotification(
       pushSub.subscription as PushSubscription,
       JSON.stringify({
         title: '새로운 팔로워!',
         body: `${subscriberProfile?.nickname ?? '울끈불끈이'}님이 나를 팔로우했어요 🔔`,
-        url: `/members/${encodeURIComponent(subscriberProfile?.nickname ?? subscriber_id)}`,
+        url: `/members/${encodeURIComponent(subscriberProfile?.nickname ?? user.id)}`,
       }),
     );
 

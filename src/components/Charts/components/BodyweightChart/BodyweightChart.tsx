@@ -28,7 +28,7 @@ import ChartTooltip from '../ChartTooltip/ChartTooltip';
 
 import {
   LIFT_SUBJECTS,
-  COLORS,
+  getLiftColor,
   getAgeBracket,
   getStandardKg,
   getReferenceBodyweight,
@@ -69,6 +69,7 @@ const CustomTooltip = ({
     return (
       <ChartTooltip
         title={d.subject}
+        titleColor={getLiftColor(d.subject)}
         rows={[
           {
             label: '체중 대비',
@@ -96,7 +97,7 @@ const renderScoreBar = (
   const { x, y, width, height, payload } = props;
   if (!payload) return <Rectangle {...props} />;
 
-  const color = COLORS[payload.subject] ?? 'var(--color-text-muted)';
+  const color = getLiftColor(payload.subject);
   const isOver = payload.score >= 100;
 
   return (
@@ -321,7 +322,7 @@ export default function BodyweightChart({
                     tickLine={false}
                     tick={({ x, y, payload }) => {
                       const color =
-                        COLORS[payload.value as LiftSubject] ??
+                        getLiftColor(payload.value as LiftSubject) ??
                         'var(--color-text-muted)';
                       return (
                         <text

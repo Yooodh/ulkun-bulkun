@@ -238,14 +238,17 @@ export function useRecordForm({
       const today = new Date().toISOString().split('T')[0];
 
       // DB에 기록 상태 completed로 업데이트
-      const { error: updateError } = await supabase
+      const { data: completedRecord, error: updateError } = await supabase
         .from('records')
         .update({
           status: 'completed',
           total_weight: total,
           recorded_at: today,
         })
-        .eq('id', draftIdRef.current);
+        .eq('id', draftIdRef.current)
+        .eq('user_id', user.id)
+        .select('id')
+        .single();
 
       if (updateError) throw updateError;
 
@@ -254,13 +257,16 @@ export function useRecordForm({
         data: { session },
       } = await supabase.auth.getSession();
 
-      fetch('/api/notify-followers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token ?? ''}`,
-        },
-      }).catch((err) => console.error('알림 네트워크 에러:', err));
+      if (session?.access_token) {
+        fetch('/api/notify-followers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ record_id: completedRecord.id }),
+        }).catch((err) => console.error('알림 네트워크 에러:', err));
+      }
 
       // 성공 피드백 및 상태 초기화
       onSuccess?.();

@@ -13,9 +13,9 @@ import {
   MoonIcon,
 } from 'lucide-react';
 
-import styles from './ActionsSection.module.scss';
-
 import Button from '@/components/shared/Button/Button';
+
+import styles from './ActionsSection.module.scss';
 
 type ActionsSectionProps = {
   onShare?: () => void;
@@ -28,6 +28,7 @@ type ActionsSectionProps = {
   isPublic?: boolean;
   isSubscribed?: boolean;
   isNotificationOn?: boolean;
+  isNotificationDisabled?: boolean;
   isDarkMode?: boolean;
   readOnly?: boolean;
   isMyProfile?: boolean;
@@ -45,6 +46,7 @@ export default function ActionsSection({
   isPublic,
   isSubscribed,
   isNotificationOn,
+  isNotificationDisabled,
   isDarkMode,
   readOnly,
   isMyProfile,
@@ -120,6 +122,7 @@ export default function ActionsSection({
             shape='round'
             active={isNotificationOn}
             onClick={onToggleNotification}
+            disabled={isNotificationDisabled}
             aria-label={isNotificationOn ? '알림 끄기' : '알림 켜기'}
           >
             {isNotificationOn ? (
