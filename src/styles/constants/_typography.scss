@@ -35,7 +35,7 @@ $font-size-td: clamp(12px, 1vw, 14px);
   font-family: $font-family-main;
   font-size: $font-size-md;
   line-height: 1.4;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 // 본문 텍스트
@@ -43,7 +43,7 @@ $font-size-td: clamp(12px, 1vw, 14px);
   font-family: $font-family-main;
   font-size: $font-size-base;
   line-height: $font-body-line-height;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 // 작은 정보 텍스트
@@ -51,29 +51,5 @@ $font-size-td: clamp(12px, 1vw, 14px);
   font-family: $font-family-main;
   font-size: $font-size-sm;
   line-height: 1.5;
-  font-weight: 300;
-}
-
-// 가장 작은 텍스트
-@mixin font-xs {
-  font-family: $font-family-main;
-  font-size: $font-size-xs;
-  line-height: 1.5;
-  font-weight: 300;
-}
-
-// 차트 타이틀 텍스트
-@mixin font-th {
-  font-family: $font-family-main;
-  font-size: $font-size-th;
-  line-height: $font-body-line-height;
   font-weight: 500;
-}
-
-// 차트 정보 텍스트
-@mixin font-td {
-  font-family: $font-family-main;
-  font-size: $font-size-td;
-  line-height: 1.5;
-  font-weight: 300;
 }

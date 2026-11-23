@@ -47,8 +47,6 @@ export default function Home() {
   useEffect(() => {
     if (!viewportEl) return;
 
-    setViewportWidth(viewportEl.offsetWidth);
-
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (entry) {

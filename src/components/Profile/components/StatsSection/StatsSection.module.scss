@@ -35,7 +35,6 @@
   .statValue {
     @include font-lg-title;
     color: var(--color-danger);
-    font-weight: 800;
 
     span {
       @include font-body;
@@ -82,7 +81,7 @@
       .recordsValue {
         @include font-md-title;
         color: var(--color-primary);
-        font-weight: 600;
+        font-weight: $font-bold;
         display: flex;
         align-items: center;
         justify-content: center;
