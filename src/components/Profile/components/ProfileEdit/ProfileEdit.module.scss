@@ -54,7 +54,6 @@
         .avatarOverlay {
           @include flex-center;
           @include font-sm;
-          font-weight: 500;
           position: absolute;
           inset: 0;
           background-color: var(--color-bg-primary);
