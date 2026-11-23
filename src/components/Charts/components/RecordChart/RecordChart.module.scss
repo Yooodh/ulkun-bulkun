@@ -243,7 +243,7 @@
     }
 
     .chartTick {
-      @include font-td;
+      @include font-sm;
       fill: var(--color-text-muted);
     }
 
